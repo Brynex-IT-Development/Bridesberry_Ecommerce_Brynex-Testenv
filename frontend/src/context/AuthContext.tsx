@@ -33,7 +33,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const MOCK_DEV_ADMIN: User = {
   id: "mock-admin-id",
-  email: "admin@zorucci.com",
+  email: "admin@bridesberry.com",
   firstName: "Admin",
   lastName: "User",
   role: "SUPER_ADMIN",
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null);
       }
-    } catch {
+    } catch (err) {
       setUser(null);
     } finally {
       setIsLoading(false);

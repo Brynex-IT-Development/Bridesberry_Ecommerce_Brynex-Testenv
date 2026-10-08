@@ -52,7 +52,7 @@ function LoginForm() {
         <div className="text-center mb-8">
           <span className="text-[#c59b27] text-2xl font-bold select-none leading-none">✳</span>
           <h1 className="font-raleway text-2xl uppercase tracking-widest text-[#111111] mt-2">Welcome Back</h1>
-          <p className="font-questrial text-xs text-neutral-500 mt-1.5">Sign in to your Jewelry by Zorucci account.</p>
+          <p className="font-questrial text-xs text-neutral-500 mt-1.5">Sign in to your Brides Berry account.</p>
         </div>
 
         {error && (

@@ -95,17 +95,17 @@ export declare class PurchaseOrdersController {
     getPurchaseOrders(): Promise<({
         vendor: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
             email: string;
             firstName: string;
             lastName: string;
-            status: string;
-            createdAt: Date;
-            updatedAt: Date;
-            mobile: string;
             salutation: string | null;
             companyName: string;
             displayName: string;
             workPhone: string;
+            mobile: string;
             language: string;
             gstTreatment: string;
             sourceOfSupply: string;
@@ -123,10 +123,9 @@ export declare class PurchaseOrdersController {
         };
     } & {
         id: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
-        total: import("@prisma/client-runtime-utils").Decimal;
+        status: string;
         paymentTerms: string;
         attachments: string | null;
         vendorId: string;
@@ -155,23 +154,24 @@ export declare class PurchaseOrdersController {
         tdsTcsAmount: import("@prisma/client-runtime-utils").Decimal;
         tdsTcsName: string | null;
         adjustment: import("@prisma/client-runtime-utils").Decimal;
+        total: import("@prisma/client-runtime-utils").Decimal;
         customerNotes: string | null;
         termsAndConditions: string | null;
     })[]>;
     getPurchaseOrderDetails(id: string): Promise<{
         vendor: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
             email: string;
             firstName: string;
             lastName: string;
-            status: string;
-            createdAt: Date;
-            updatedAt: Date;
-            mobile: string;
             salutation: string | null;
             companyName: string;
             displayName: string;
             workPhone: string;
+            mobile: string;
             language: string;
             gstTreatment: string;
             sourceOfSupply: string;
@@ -192,13 +192,13 @@ export declare class PurchaseOrdersController {
             name: string;
             sku: string;
             quantity: number;
+            purchaseOrderId: string;
             size: string | null;
             receivedQuantity: number;
             rate: import("@prisma/client-runtime-utils").Decimal;
             taxRate: import("@prisma/client-runtime-utils").Decimal;
             taxAmount: import("@prisma/client-runtime-utils").Decimal;
             amount: import("@prisma/client-runtime-utils").Decimal;
-            purchaseOrderId: string;
         }[];
         receipts: ({
             items: {
@@ -210,16 +210,15 @@ export declare class PurchaseOrdersController {
         } & {
             id: string;
             createdAt: Date;
+            purchaseOrderId: string;
             receivedBy: string;
             notes: string | null;
-            purchaseOrderId: string;
         })[];
     } & {
         id: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
-        total: import("@prisma/client-runtime-utils").Decimal;
+        status: string;
         paymentTerms: string;
         attachments: string | null;
         vendorId: string;
@@ -248,6 +247,7 @@ export declare class PurchaseOrdersController {
         tdsTcsAmount: import("@prisma/client-runtime-utils").Decimal;
         tdsTcsName: string | null;
         adjustment: import("@prisma/client-runtime-utils").Decimal;
+        total: import("@prisma/client-runtime-utils").Decimal;
         customerNotes: string | null;
         termsAndConditions: string | null;
     }>;
@@ -257,20 +257,19 @@ export declare class PurchaseOrdersController {
             name: string;
             sku: string;
             quantity: number;
+            purchaseOrderId: string;
             size: string | null;
             receivedQuantity: number;
             rate: import("@prisma/client-runtime-utils").Decimal;
             taxRate: import("@prisma/client-runtime-utils").Decimal;
             taxAmount: import("@prisma/client-runtime-utils").Decimal;
             amount: import("@prisma/client-runtime-utils").Decimal;
-            purchaseOrderId: string;
         }[];
     } & {
         id: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
-        total: import("@prisma/client-runtime-utils").Decimal;
+        status: string;
         paymentTerms: string;
         attachments: string | null;
         vendorId: string;
@@ -299,6 +298,7 @@ export declare class PurchaseOrdersController {
         tdsTcsAmount: import("@prisma/client-runtime-utils").Decimal;
         tdsTcsName: string | null;
         adjustment: import("@prisma/client-runtime-utils").Decimal;
+        total: import("@prisma/client-runtime-utils").Decimal;
         customerNotes: string | null;
         termsAndConditions: string | null;
     }>;
@@ -308,20 +308,19 @@ export declare class PurchaseOrdersController {
             name: string;
             sku: string;
             quantity: number;
+            purchaseOrderId: string;
             size: string | null;
             receivedQuantity: number;
             rate: import("@prisma/client-runtime-utils").Decimal;
             taxRate: import("@prisma/client-runtime-utils").Decimal;
             taxAmount: import("@prisma/client-runtime-utils").Decimal;
             amount: import("@prisma/client-runtime-utils").Decimal;
-            purchaseOrderId: string;
         }[];
     } & {
         id: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
-        total: import("@prisma/client-runtime-utils").Decimal;
+        status: string;
         paymentTerms: string;
         attachments: string | null;
         vendorId: string;
@@ -350,15 +349,15 @@ export declare class PurchaseOrdersController {
         tdsTcsAmount: import("@prisma/client-runtime-utils").Decimal;
         tdsTcsName: string | null;
         adjustment: import("@prisma/client-runtime-utils").Decimal;
+        total: import("@prisma/client-runtime-utils").Decimal;
         customerNotes: string | null;
         termsAndConditions: string | null;
     }>;
     updateStatus(id: string, dto: UpdatePOStatusBodyDto): Promise<{
         id: string;
-        status: string;
         createdAt: Date;
         updatedAt: Date;
-        total: import("@prisma/client-runtime-utils").Decimal;
+        status: string;
         paymentTerms: string;
         attachments: string | null;
         vendorId: string;
@@ -387,6 +386,7 @@ export declare class PurchaseOrdersController {
         tdsTcsAmount: import("@prisma/client-runtime-utils").Decimal;
         tdsTcsName: string | null;
         adjustment: import("@prisma/client-runtime-utils").Decimal;
+        total: import("@prisma/client-runtime-utils").Decimal;
         customerNotes: string | null;
         termsAndConditions: string | null;
     }>;

@@ -162,7 +162,7 @@ export default function ProductVisibilitySection({ formData, onChange }: Product
               type="text"
               value={formData.seoTitle || ""}
               onChange={(e) => onChange("seoTitle", e.target.value)}
-              placeholder="e.g. Premium Gold Chain Ring | Zorucci"
+              placeholder="e.g. Premium Gold Chain Ring | Brides Berry"
               className="px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850 placeholder-neutral-400"
             />
           </div>

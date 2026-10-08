@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { menuItems } from '../../data/menu';
+import { menuItems as initialMenuItems } from '../../data/menu';
 import { useCart } from '../../context/CartContext';
 import MegaMenu from './MegaMenu';
 import { MenuItem } from '../../types/menu';
@@ -25,6 +25,56 @@ export default function Header() {
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [menuItems, setMenuItems] = useState(initialMenuItems);
+
+  useEffect(() => {
+    async function fetchDynamicMenu() {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7001/api';
+        const res = await fetch(`${baseUrl}/products?limit=50`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const products = data.products || [];
+
+        // Group active products by category
+        const productsByCategory: Record<string, any[]> = {};
+        
+        products.forEach((p: any) => {
+          if (p.status !== 'ACTIVE') return;
+          
+          const catName = p.category?.name || 'Other';
+          if (!productsByCategory[catName]) {
+            productsByCategory[catName] = [];
+          }
+          productsByCategory[catName].push(p);
+        });
+
+        // Build Mega Menu columns
+        const columns = Object.keys(productsByCategory).map(catName => {
+          const catProducts = productsByCategory[catName].slice(0, 5);
+          return {
+            title: catName.toUpperCase(),
+            items: catProducts.map((p: any) => ({
+              name: p.name.toUpperCase(),
+              href: `/shop/product/${p.slug || p.id}`
+            }))
+          };
+        });
+
+        if (columns.length > 0) {
+          setMenuItems(prev => prev.map(item => {
+            if (item.name === 'Collections') {
+              return { ...item, megaMenuColumns: columns };
+            }
+            return item;
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to load dynamic mega menu', err);
+      }
+    }
+    fetchDynamicMenu();
+  }, []);
 
   if (isHomePage !== prevIsHomePage) {
     setPrevIsHomePage(isHomePage);
@@ -112,7 +162,7 @@ export default function Header() {
                 <span className="text-[#B78924] text-xl font-bold leading-none select-none md:hidden pt-0.5">✳</span>
                 <Link href="/" className="inline-block">
                   <span className={`font-raleway text-[17px] sm:text-[21.25px] leading-none tracking-[0em] font-medium transition-colors duration-350 ${logoColorClass}`}>
-                    Jewelry by Zorucci
+                    Brides Berry
                   </span>
                 </Link>
               </div>

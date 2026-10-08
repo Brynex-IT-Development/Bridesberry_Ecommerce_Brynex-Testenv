@@ -85,7 +85,7 @@ async function main() {
     await prisma.category.deleteMany({});
     console.log("Catalog cleanup complete.");
     console.log("Seeding Super Admin user...");
-    const adminEmail = 'admin@zorucci.com';
+    const adminEmail = 'admin@bridesberry.com';
     const passwordHash = await bcrypt.hash('Admin@123', 10);
     await prisma.user.upsert({
         where: { email: adminEmail },
@@ -103,7 +103,7 @@ async function main() {
             status: 'ACTIVE',
         },
     });
-    console.log("Successfully seeded Super Admin user: admin@zorucci.com / Admin@123");
+    console.log("Successfully seeded Super Admin user: admin@bridesberry.com / Admin@123");
     console.log("Database seeding completed successfully!");
 }
 main()
