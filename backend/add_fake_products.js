@@ -5,7 +5,7 @@ async function main() {
   const loginRes = await fetch(`${baseUrl}/admin/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: 'admin@zorucci.com', password: 'Admin@123' })
+    body: JSON.stringify({ email: 'admin@bridesberry.com', password: 'Admin@123' })
   });
   if (!loginRes.ok) {
     console.error('Login failed', await loginRes.text());

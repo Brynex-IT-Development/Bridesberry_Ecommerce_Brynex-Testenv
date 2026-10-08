@@ -155,7 +155,7 @@ export default function InstagramSection() {
             rel="noopener noreferrer"
             className="font-questrial font-light text-[24px] leading-[26px] tracking-normal text-[#B78924] hover:text-gold-600 no-underline border-b border-[#B78924] pb-[2px] text-right inline-block"
           >
-            @Jewelrybyzorucci
+            @Jewelrybybridesberry
           </Link>
         </div>
       </div>
@@ -189,7 +189,7 @@ export default function InstagramSection() {
             rel="noopener noreferrer"
             className="font-questrial font-light text-[15px] text-[#B78924] hover:text-gold-600 no-underline border-b border-[#B78924] pb-[2px] inline-block"
           >
-            @Jewelrybyzorucci
+            @Jewelrybybridesberry
           </Link>
         </div>
       </div>

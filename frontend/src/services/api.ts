@@ -16,7 +16,16 @@ export interface RequestOptions extends RequestInit {
 }
 
 export async function apiFetch<T = unknown>(path: string, options: RequestOptions = {}): Promise<T> {
-  const url = `${BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  let url = `${BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  
+  // Workaround for Node.js 18+ IPv6 localhost resolution hanging in Next.js SSR
+  if (typeof window === 'undefined' && url.includes('localhost')) {
+    url = url.replace('localhost', '127.0.0.1');
+    console.log('Server-side fetch URL replaced localhost with 127.0.0.1 ->', url);
+  } else {
+    console.log('apiFetch URL ->', url);
+  }
+  
   const headers = new Headers(options.headers || {});
 
   if (inMemoryToken && !headers.has('Authorization')) {

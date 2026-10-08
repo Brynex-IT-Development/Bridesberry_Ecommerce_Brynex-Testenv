@@ -263,7 +263,7 @@ export default function AdminTopbar({
                     {user?.firstName ? `${user.firstName} ${user.lastName || ""}` : "Administrator"}
                   </span>
                   <span className="text-[10px] text-neutral-450 block truncate">
-                    {user?.email || "admin@zorucci.com"}
+                    {user?.email || "admin@bridesberry.com"}
                   </span>
                 </div>
                 <div className="p-2 space-y-1">

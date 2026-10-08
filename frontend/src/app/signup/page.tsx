@@ -68,7 +68,7 @@ function SignupForm() {
         <div className="text-center mb-8">
           <span className="text-[#c59b27] text-2xl font-bold select-none leading-none">✳</span>
           <h1 className="font-raleway text-2xl uppercase tracking-widest text-[#111111] mt-2">Create Account</h1>
-          <p className="font-questrial text-xs text-neutral-500 mt-1.5">Join Jewelry by Zorucci to explore exclusive collections.</p>
+          <p className="font-questrial text-xs text-neutral-500 mt-1.5">Join Brides Berry to explore exclusive collections.</p>
         </div>
 
         {error && (

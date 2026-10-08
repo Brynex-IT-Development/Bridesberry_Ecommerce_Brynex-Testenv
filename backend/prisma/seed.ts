@@ -62,7 +62,7 @@ async function main() {
 
   // 2. Seed Super Admin User
   console.log("Seeding Super Admin user...");
-  const adminEmail = 'admin@zorucci.com';
+  const adminEmail = 'admin@bridesberry.com';
   const passwordHash = await bcrypt.hash('Admin@123', 10);
 
   await prisma.user.upsert({
@@ -82,7 +82,7 @@ async function main() {
     },
   });
 
-  console.log("Successfully seeded Super Admin user: admin@zorucci.com / Admin@123");
+  console.log("Successfully seeded Super Admin user: admin@bridesberry.com / Admin@123");
   console.log("Database seeding completed successfully!");
 }
 

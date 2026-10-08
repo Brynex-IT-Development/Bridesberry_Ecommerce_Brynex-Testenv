@@ -12,12 +12,6 @@ export default function AdminDashboardPage() {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const breadcrumbs = [{ label: "Dashboard" }];
 
-  useEffect(() => {
-    if (!isLoading && (!isAuthenticated || !isAdmin)) {
-      router.push("/admin/login");
-    }
-  }, [isLoading, isAuthenticated, isAdmin, router]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">

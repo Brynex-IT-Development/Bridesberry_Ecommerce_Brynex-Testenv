@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
 
         <div className="text-center mb-8">
           <span className="text-[#c59b27] text-2xl font-bold select-none leading-none">✳</span>
-          <h1 className="font-raleway text-lg uppercase tracking-widest text-white mt-3 font-semibold">Zorucci Admin</h1>
+          <h1 className="font-raleway text-lg uppercase tracking-widest text-white mt-3 font-semibold">Brides Berry Admin</h1>
           <p className="font-sans text-[11px] text-neutral-400 mt-1 uppercase tracking-wider">Management Console Login</p>
         </div>
 
@@ -81,7 +81,7 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2.5 bg-[#1e1e1e] border border-[#333333] text-sm text-white focus:outline-hidden focus:border-[#c59b27] focus:ring-0 transition-colors placeholder-neutral-600 font-sans"
-              placeholder="admin@zorucci.com"
+              placeholder="admin@bridesberry.com"
               autoComplete="username"
             />
           </div>

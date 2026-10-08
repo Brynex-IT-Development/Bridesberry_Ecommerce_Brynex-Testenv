@@ -160,7 +160,7 @@ export default function AdminSidebar() {
             </svg>
             <div className="flex flex-col space-y-1.5">
               <span className="admin-brand-text text-white">
-                Jewelry by Zorucci
+                Brides Berry
               </span>
               <span className="admin-brand-text text-[#C99213]">
                 Admin Dashboard

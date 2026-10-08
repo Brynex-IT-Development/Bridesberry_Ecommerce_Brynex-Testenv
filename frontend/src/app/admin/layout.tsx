@@ -18,12 +18,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const isLoginPage = pathname === "/admin/login";
 
-  useEffect(() => {
-    if (!isLoading && !isLoginPage && (!isAuthenticated || !isAdmin)) {
-      router.replace("/admin/login");
-    }
-  }, [isLoading, isAuthenticated, isAdmin, isLoginPage, router]);
-
   if (isLoginPage) {
     return <>{children}</>;
   }

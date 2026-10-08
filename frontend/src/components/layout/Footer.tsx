@@ -40,7 +40,7 @@ export default function Footer() {
             <div className="flex items-center gap-2 select-none">
               <span className="text-[#B78924] text-[32px] font-normal leading-none select-none">✳</span>
               <span className="font-raleway text-[22px] tracking-normal font-medium text-neutral-900 leading-none">
-                Jewelry by Zorucci
+                Brides Berry
               </span>
             </div>
             

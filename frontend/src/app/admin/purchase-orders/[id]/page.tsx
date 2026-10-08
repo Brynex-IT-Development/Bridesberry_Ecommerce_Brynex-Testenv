@@ -239,13 +239,13 @@ export default function PurchaseOrderDetailPage() {
                   <line x1="6.34" y1="6.34" x2="17.66" y2="17.66" />
                 </svg>
                 <span className="text-sm font-bold uppercase tracking-wider text-neutral-800">
-                  Jewelry by Zorucci
+                  Brides Berry
                 </span>
               </div>
               <div className="text-[11px] text-neutral-500 font-medium leading-relaxed">
                 <p>121 Solitaire Tower, BKC Area</p>
                 <p>Mumbai, Maharashtra - 400051</p>
-                <p>GSTIN: 27ZORUCCI1234F1Z0</p>
+                <p>GSTIN: 27BRIDESBERRY1Z0</p>
               </div>
             </div>
 

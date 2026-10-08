@@ -54,7 +54,7 @@ describe('InventoryService', () => {
       await expect(
         service.adjustStock(
           { type: 'STOCK_ADDED', quantity: 5, reason: 'Correction' },
-          'admin@zorucci.com',
+          'admin@bridesberry.com',
         ),
       ).rejects.toThrow(BadRequestException);
     });
@@ -69,7 +69,7 @@ describe('InventoryService', () => {
             quantity: 5,
             reason: 'Correction',
           },
-          'admin@zorucci.com',
+          'admin@bridesberry.com',
         ),
       ).rejects.toThrow(NotFoundException);
     });
@@ -98,7 +98,7 @@ describe('InventoryService', () => {
           quantity: 5,
           reason: 'Correction',
         },
-        'admin@zorucci.com',
+        'admin@bridesberry.com',
       );
 
       expect(prismaMock.inventory.update).toHaveBeenCalledWith({
@@ -114,7 +114,7 @@ describe('InventoryService', () => {
           beforeStock: 10,
           afterStock: 15,
           reason: 'Correction',
-          changedBy: 'admin@zorucci.com',
+          changedBy: 'admin@bridesberry.com',
         },
       });
       expect(result.afterStock).toBe(15);

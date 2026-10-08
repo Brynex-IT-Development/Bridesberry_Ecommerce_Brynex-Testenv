@@ -140,7 +140,7 @@ export class EmailService {
     const template = `
       <div style="font-family: 'Raleway', 'Helvetica Neue', Arial, sans-serif; background-color: #fafafa; padding: 40px; color: #111111; max-width: 600px; margin: 0 auto; border: 1px solid #e8dbb4;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">JEWELRY BY ZORUCCI</span>
+          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">Brides Berry</span>
         </div>
         <div style="background-color: #ffffff; padding: 30px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
           <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em; color: #111111; border-bottom: 2px solid #e8dbb4; padding-bottom: 10px;">Order Confirmation</h2>
@@ -184,19 +184,19 @@ export class EmailService {
 
     await this.sendEmail({
       to: customer.email,
-      subject: `Order Confirmation - ${order.orderNumber} - Jewelry by Zorucci`,
+      subject: `Order Confirmation - ${order.orderNumber} - Brides Berry`,
       html: template,
     });
   }
 
   async sendAdminOrderNotification(order: any, customer: { firstName: string | null; lastName: string | null; email: string }): Promise<void> {
-    const adminEmail = this.configService.get<string>('ADMIN_NOTIFICATION_EMAIL') || 'admin@jewelrybyzorucci.com';
+    const adminEmail = this.configService.get<string>('ADMIN_NOTIFICATION_EMAIL') || 'admin@jewelrybybridesberry.com';
     const customerName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || 'Guest Customer';
 
     const template = `
       <div style="font-family: 'Raleway', 'Helvetica Neue', Arial, sans-serif; background-color: #fafafa; padding: 40px; color: #111111; max-width: 600px; margin: 0 auto; border: 1px solid #e8dbb4;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">JEWELRY BY ZORUCCI</span>
+          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">Brides Berry</span>
         </div>
         <div style="background-color: #ffffff; padding: 30px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
           <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em; color: #b91c1c; border-bottom: 2px solid #e8dbb4; padding-bottom: 10px;">New Order Alert!</h2>
@@ -225,13 +225,13 @@ export class EmailService {
   }
 
   async sendLowStockAlert(sku: string, productName: string, variantName: string | null, currentStock: number): Promise<void> {
-    const adminEmail = this.configService.get<string>('ADMIN_NOTIFICATION_EMAIL') || 'admin@jewelrybyzorucci.com';
+    const adminEmail = this.configService.get<string>('ADMIN_NOTIFICATION_EMAIL') || 'admin@jewelrybybridesberry.com';
     const isOutOfStock = currentStock === 0;
 
     const template = `
       <div style="font-family: 'Raleway', 'Helvetica Neue', Arial, sans-serif; background-color: #fafafa; padding: 40px; color: #111111; max-width: 600px; margin: 0 auto; border: 1px solid #e8dbb4;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">JEWELRY BY ZORUCCI</span>
+          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">Brides Berry</span>
         </div>
         <div style="background-color: #ffffff; padding: 30px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
           <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em; color: \${isOutOfStock ? '#b91c1c' : '#c59b27'}; border-bottom: 2px solid #e8dbb4; padding-bottom: 10px;">
@@ -268,7 +268,7 @@ export class EmailService {
     const template = this.getSignupOtpTemplate(otp);
     await this.sendEmail({
       to: email,
-      subject: 'Verify Your Email - Jewelry by Zorucci',
+      subject: 'Verify Your Email - Brides Berry',
       html: template,
     });
   }
@@ -277,7 +277,7 @@ export class EmailService {
     const template = this.getPasswordResetTemplate(otp);
     await this.sendEmail({
       to: email,
-      subject: 'Password Reset Request - Jewelry by Zorucci',
+      subject: 'Password Reset Request - Brides Berry',
       html: template,
     });
   }
@@ -286,11 +286,11 @@ export class EmailService {
     return `
       <div style="font-family: 'Raleway', 'Helvetica Neue', Arial, sans-serif; background-color: #fafafa; padding: 40px; color: #111111; max-width: 600px; margin: 0 auto; border: 1px solid #e8dbb4;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">JEWELRY BY ZORUCCI</span>
+          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">Brides Berry</span>
         </div>
         <div style="background-color: #ffffff; padding: 30px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
           <h2 style="font-size: 20px; font-weight: normal; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em; color: #111111;">Verify Your Email Address</h2>
-          <p style="font-size: 14px; line-height: 1.6; color: #555555; margin-bottom: 25px;">Thank you for registering with Jewelry by Zorucci. Please use the following 6-digit verification code to complete your registration. This code will expire in 15 minutes.</p>
+          <p style="font-size: 14px; line-height: 1.6; color: #555555; margin-bottom: 25px;">Thank you for registering with Brides Berry. Please use the following 6-digit verification code to complete your registration. This code will expire in 15 minutes.</p>
           <div style="text-align: center; margin: 30px 0;">
             <span style="font-size: 32px; font-weight: bold; letter-spacing: 0.2em; color: #c59b27; border: 1px solid #e8dbb4; padding: 10px 20px; background-color: #faf8f2; display: inline-block;">${otp}</span>
           </div>
@@ -304,7 +304,7 @@ export class EmailService {
     return `
       <div style="font-family: 'Raleway', 'Helvetica Neue', Arial, sans-serif; background-color: #fafafa; padding: 40px; color: #111111; max-width: 600px; margin: 0 auto; border: 1px solid #e8dbb4;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">JEWELRY BY ZORUCCI</span>
+          <span style="color: #c59b27; font-size: 28px; font-weight: bold; letter-spacing: 0.1em;">Brides Berry</span>
         </div>
         <div style="background-color: #ffffff; padding: 30px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
           <h2 style="font-size: 20px; font-weight: normal; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em; color: #111111;">Reset Your Password</h2>

@@ -150,7 +150,7 @@ export default function ProductBasicInfoSection({ errors, formData, onChange, ca
             type="text"
             value={formData.brand || ""}
             onChange={(e) => onChange("brand", e.target.value)}
-            placeholder="e.g. Zorucci Classic"
+            placeholder="e.g. Brides Berry Classic"
             className="px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850 placeholder-neutral-400"
           />
         </div>
