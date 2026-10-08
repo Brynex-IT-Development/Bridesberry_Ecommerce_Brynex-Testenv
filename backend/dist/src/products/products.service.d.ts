@@ -63,12 +63,12 @@ export declare class ProductsService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            productId: string | null;
             currentStock: number;
             reservedStock: number;
             incomingStock: number;
             minimumRequired: number;
             reorderPoint: number;
-            productId: string | null;
             variantId: string | null;
         } | null;
     } & {
@@ -85,16 +85,16 @@ export declare class ProductsService {
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
         status: ProductStatus;
         featured: boolean;
-        bestSeller: boolean;
         newArrival: boolean;
+        bestSeller: boolean;
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
-        categoryId: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
         packageWeight: number | null;
+        categoryId: string | null;
     })[] | {
         products: ({
             category: {
@@ -136,12 +136,12 @@ export declare class ProductsService {
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
+                productId: string | null;
                 currentStock: number;
                 reservedStock: number;
                 incomingStock: number;
                 minimumRequired: number;
                 reorderPoint: number;
-                productId: string | null;
                 variantId: string | null;
             } | null;
         } & {
@@ -158,16 +158,16 @@ export declare class ProductsService {
             costPrice: import("@prisma/client-runtime-utils").Decimal | null;
             status: ProductStatus;
             featured: boolean;
-            bestSeller: boolean;
             newArrival: boolean;
+            bestSeller: boolean;
             showOnHomepage: boolean;
             occasion: string;
             gender: string;
-            categoryId: string | null;
             packageLength: number | null;
             packageWidth: number | null;
             packageHeight: number | null;
             packageWeight: number | null;
+            categoryId: string | null;
         })[];
         total: number;
         page: number;
@@ -237,12 +237,12 @@ export declare class ProductsService {
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
+                productId: string | null;
                 currentStock: number;
                 reservedStock: number;
                 incomingStock: number;
                 minimumRequired: number;
                 reorderPoint: number;
-                productId: string | null;
                 variantId: string | null;
             } | null;
         } & {
@@ -259,12 +259,12 @@ export declare class ProductsService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            productId: string | null;
             currentStock: number;
             reservedStock: number;
             incomingStock: number;
             minimumRequired: number;
             reorderPoint: number;
-            productId: string | null;
             variantId: string | null;
         } | null;
     } & {
@@ -281,16 +281,16 @@ export declare class ProductsService {
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
         status: ProductStatus;
         featured: boolean;
-        bestSeller: boolean;
         newArrival: boolean;
+        bestSeller: boolean;
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
-        categoryId: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
         packageWeight: number | null;
+        categoryId: string | null;
     }>;
     private validateImageRoles;
     create(dto: CreateProductDto, adminEmail: string): Promise<{
@@ -307,16 +307,16 @@ export declare class ProductsService {
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
         status: ProductStatus;
         featured: boolean;
-        bestSeller: boolean;
         newArrival: boolean;
+        bestSeller: boolean;
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
-        categoryId: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
         packageWeight: number | null;
+        categoryId: string | null;
     }>;
     update(id: string, dto: UpdateProductDto): Promise<{
         id: string;
@@ -332,16 +332,16 @@ export declare class ProductsService {
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
         status: ProductStatus;
         featured: boolean;
-        bestSeller: boolean;
         newArrival: boolean;
+        bestSeller: boolean;
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
-        categoryId: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
         packageWeight: number | null;
+        categoryId: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -357,16 +357,16 @@ export declare class ProductsService {
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
         status: ProductStatus;
         featured: boolean;
-        bestSeller: boolean;
         newArrival: boolean;
+        bestSeller: boolean;
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
-        categoryId: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
         packageWeight: number | null;
+        categoryId: string | null;
     }>;
     permanentDelete(id: string): Promise<{
         id: string;
@@ -382,15 +382,15 @@ export declare class ProductsService {
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
         status: ProductStatus;
         featured: boolean;
-        bestSeller: boolean;
         newArrival: boolean;
+        bestSeller: boolean;
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
-        categoryId: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
         packageWeight: number | null;
+        categoryId: string | null;
     }>;
 }
