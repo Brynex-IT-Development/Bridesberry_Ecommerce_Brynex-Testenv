@@ -30,7 +30,13 @@ export default function Header() {
   useEffect(() => {
     async function fetchDynamicMenu() {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7001/api';
+        const rawBase =
+          process.env.NEXT_PUBLIC_API_BASE_URL ||
+          process.env.API_BASE_URL ||
+          'http://localhost:7001';
+        const baseUrl = rawBase.endsWith('/api')
+          ? rawBase
+          : `${rawBase.replace(/\/$/, '')}/api`;
         const res = await fetch(`${baseUrl}/products?limit=50`);
         if (!res.ok) return;
         const data = await res.json();
