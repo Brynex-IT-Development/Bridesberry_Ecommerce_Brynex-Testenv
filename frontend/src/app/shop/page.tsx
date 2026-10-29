@@ -208,13 +208,13 @@ export default function ShopPage({
         </aside>
 
         {/* RIGHT CONTENT — fills remaining width */}
-        <main className="flex-1 min-w-0 pl-4">
+        <main className="flex-1 min-w-0 lg:pl-4">
           {/* SHOP NOW heading row */}
-          <div className="flex items-center justify-between pt-6 pb-5">
-            <h1 className="font-raleway font-medium text-[28px] sm:text-[32px] leading-[100%] tracking-normal text-neutral-900 uppercase">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4 sm:pt-6 pb-4 sm:pb-5">
+            <h1 className="font-raleway font-medium text-[24px] sm:text-[32px] leading-[100%] tracking-normal text-neutral-900 uppercase">
               Shop Now
             </h1>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               {searchQuery && (
                 <div className="hidden sm:flex items-center gap-2 bg-neutral-100 px-3 py-1.5 rounded-full text-xs font-questrial text-neutral-600">
                   Search: &quot;{searchQuery}&quot;

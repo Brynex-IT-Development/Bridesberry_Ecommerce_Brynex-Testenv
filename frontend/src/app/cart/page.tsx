@@ -83,32 +83,32 @@ export default function CartPage() {
             {/* Left Column: Cart items table (Col 8) */}
             <div className="lg:col-span-8">
               
-              {/* Table Headers */}
-              <div className="grid grid-cols-12 border-b border-neutral-200 pb-3 mb-6">
+              {/* Table Headers (desktop / tablet) */}
+              <div className="hidden sm:grid grid-cols-12 border-b border-neutral-200 pb-3 mb-6">
                 <div className="col-span-6">
-                  <span className="font-raleway text-[11px] font-semibold tracking-[0.13em] text-[#B78924] uppercase">
-                    Earrings
+                  <span className="font-raleway text-[11px] font-semibold tracking-[0.13em] text-[#310C13] uppercase">
+                    Product
                   </span>
                 </div>
                 <div className="col-span-3 text-center">
-                  <span className="font-raleway text-[11px] font-semibold tracking-[0.13em] text-[#B78924] uppercase">
+                  <span className="font-raleway text-[11px] font-semibold tracking-[0.13em] text-[#310C13] uppercase">
                     Quantity
                   </span>
                 </div>
                 <div className="col-span-3 text-right">
-                  <span className="font-raleway text-[11px] font-semibold tracking-[0.13em] text-[#B78924] uppercase">
+                  <span className="font-raleway text-[11px] font-semibold tracking-[0.13em] text-[#310C13] uppercase">
                     Total
                   </span>
                 </div>
               </div>
 
               {/* Items List */}
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="grid grid-cols-12 items-center gap-4 py-4 border-b border-neutral-100">
+                  <div key={item.id} className="grid grid-cols-1 sm:grid-cols-12 items-start sm:items-center gap-4 py-4 border-b border-neutral-100">
                     
                     {/* Column 1: Image & Product Details */}
-                    <div className="col-span-6 flex gap-4 sm:gap-6 items-start">
+                    <div className="sm:col-span-6 flex gap-4 sm:gap-6 items-start">
                       {/* Thumbnail */}
                       <Link
                         href={`/product/${item.product.slug}`}
@@ -124,10 +124,10 @@ export default function CartPage() {
                       </Link>
                       
                       {/* Title & Specs */}
-                      <div className="space-y-1 font-questrial text-left">
+                      <div className="space-y-1 font-questrial text-left min-w-0 flex-1">
                         <Link
                           href={`/product/${item.product.slug}`}
-                          className="block text-[15px] text-neutral-800 hover:text-[#B78924] transition-colors leading-tight"
+                          className="block text-[14px] sm:text-[15px] text-neutral-800 hover:text-[#310C13] transition-colors leading-tight"
                         >
                           {item.product.title}
                         </Link>
@@ -139,40 +139,43 @@ export default function CartPage() {
                         {/* Remove link */}
                         <button
                           onClick={() => removeFromCart(item.id)}
-                          className="text-[#B78924] hover:text-gold-700 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 pt-1.5 cursor-pointer"
+                          className="text-[#310C13] hover:opacity-75 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 pt-1.5 cursor-pointer"
                         >
                           <span className="text-[12px] font-normal leading-none">✕</span> Remove
                         </button>
                       </div>
                     </div>
 
-                    {/* Column 2: Quantity counter box */}
-                    <div className="col-span-3 flex justify-center">
-                      <div className="flex items-center border border-neutral-300 h-10 w-24 justify-between">
-                        <button
-                          onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                          className="w-8 h-full flex items-center justify-center text-neutral-500 hover:text-black cursor-pointer font-questrial"
-                        >
-                          -
-                        </button>
-                        <span className="text-sm font-medium text-neutral-800 font-questrial">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-8 h-full flex items-center justify-center text-neutral-500 hover:text-black cursor-pointer font-questrial"
-                        >
-                          +
-                        </button>
+                    {/* Mobile + Desktop Quantity & Price Row */}
+                    <div className="sm:col-span-6 flex sm:grid sm:grid-cols-6 items-center justify-between sm:justify-normal pl-24 sm:pl-0 w-full">
+                      {/* Column 2: Quantity counter box */}
+                      <div className="sm:col-span-3 flex sm:justify-center">
+                        <div className="flex items-center border border-neutral-300 h-9 sm:h-10 w-24 justify-between">
+                          <button
+                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                            className="w-8 h-full flex items-center justify-center text-neutral-500 hover:text-black cursor-pointer font-questrial"
+                          >
+                            -
+                          </button>
+                          <span className="text-sm font-medium text-neutral-800 font-questrial">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="w-8 h-full flex items-center justify-center text-neutral-500 hover:text-black cursor-pointer font-questrial"
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Column 3: Total Price */}
-                    <div className="col-span-3 text-right">
-                      <span
-                        className="text-base font-medium text-neutral-900"
-                        style={{ fontFamily: "'Google Sans Flex', 'Google Sans', sans-serif" }}
-                      >
-                        ₹ {(item.product.price * item.quantity).toLocaleString('en-IN')}
-                      </span>
+                      {/* Column 3: Total Price */}
+                      <div className="sm:col-span-3 text-right">
+                        <span
+                          className="text-base font-medium text-neutral-900"
+                          style={{ fontFamily: "'Google Sans Flex', 'Google Sans', sans-serif" }}
+                        >
+                          ₹ {(item.product.price * item.quantity).toLocaleString('en-IN')}
+                        </span>
+                      </div>
                     </div>
 
                   </div>
@@ -192,7 +195,7 @@ export default function CartPage() {
             </div>
 
             {/* Right Column: Summary Card (Col 4) */}
-            <div className="lg:col-span-4 sticky top-28 self-start bg-white border border-neutral-200 p-8 space-y-6">
+            <div className="lg:col-span-4 sticky top-28 self-start bg-white border border-neutral-200 p-5 sm:p-8 space-y-6">
               
               <h3
                 className="text-[20px] sm:text-[22px] font-medium text-neutral-900"

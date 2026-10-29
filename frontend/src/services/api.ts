@@ -1,7 +1,14 @@
-const BASE_URL =
+const SERVER_BASE_URL =
+  process.env.BACKEND_URL ||
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   process.env.API_BASE_URL ||
-  'http://localhost:7001';
+  'http://13.55.190.50:7001';
+
+// In the browser, use relative URLs ('') so Next.js rewrites (/api/:path*) proxy requests cleanly
+const BASE_URL =
+  typeof window !== 'undefined'
+    ? process.env.NEXT_PUBLIC_API_BASE_URL || ''
+    : SERVER_BASE_URL;
 
 let inMemoryToken = '';
 
@@ -42,7 +49,7 @@ export async function apiFetch<T = unknown>(path: string, options: RequestOption
   const controller = new AbortController();
   const timeoutMs = options.timeout ?? 10000;
   const timeoutId = setTimeout(() => {
-    controller.abort(new Error(`Request to ${path} timed out after ${timeoutMs}ms`));
+    controller.abort();
   }, timeoutMs);
 
   let signal: AbortSignal = controller.signal;

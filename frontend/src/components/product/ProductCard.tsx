@@ -34,7 +34,7 @@ export default function ProductCard({ product, centered = false }: ProductCardPr
       {/* Product Image Box */}
       <Link
         href={`/product/${product.slug}`}
-        className="relative block aspect-square w-full overflow-hidden bg-white border border-neutral-200"
+        className="relative block aspect-square w-full overflow-hidden bg-white border border-[#E6E6E6]"
       >
         <Image
           src={product.primaryImage || product.images[0] || '/placeholder.png'}
@@ -64,36 +64,42 @@ export default function ProductCard({ product, centered = false }: ProductCardPr
       </Link>
 
       {/* Product details */}
-      <div className={`pt-2 pb-4 px-3 ${centered ? 'text-center' : 'text-left'}`}>
-        {/* Product name: Questrial 400, 18px, 26px line-height, #4E4E4E */}
+      <div className={`pt-2.5 sm:pt-3 pb-2 px-1 sm:px-3 ${centered ? 'text-center' : 'text-left'}`}>
         <Link
           href={`/product/${product.slug}`}
-          className="block md:truncate mb-1 hover:text-[#B78924] transition-colors"
+          className="block truncate mb-0.5 sm:mb-1 text-[11.5px] sm:text-[13px] leading-[18px] sm:leading-[20px] hover:text-[#340A11] transition-colors"
           style={{
-            fontFamily: 'Questrial, sans-serif',
-            fontWeight: 400,
-            fontSize: '14px',
-            lineHeight: '20px',
+            fontFamily: 'var(--font-stack-text), Questrial, sans-serif',
+            fontWeight: 300,
             letterSpacing: '0%',
-            color: '#4E4E4E',
+            color: '#6E6E6E',
             textAlign: centered ? 'center' : 'left',
           }}
         >
           {product.title}
         </Link>
-        {/* Price: Google Sans Flex 500, 15px, 22px line-height, #312409 */}
         <p
+          className="text-[11.5px] sm:text-[13px] leading-[18px] sm:leading-[20px]"
           style={{
-            fontFamily: "'Google Sans Flex', 'Google Sans', sans-serif",
-            fontWeight: 500,
-            fontSize: '15px',
-            lineHeight: '22px',
+            fontFamily: 'var(--font-stack-text), sans-serif',
+            fontWeight: 400,
             letterSpacing: '0%',
-            color: '#312409',
+            color: '#6E6E6E',
             textAlign: centered ? 'center' : 'left',
           }}
         >
-          {centered ? `From RS. ${product.price.toLocaleString('en-IN')}` : `₹ ${product.price.toLocaleString('en-IN')}`}
+          {centered ? (
+            <>
+              From{' '}
+              <span className="font-semibold text-[#111111]">
+                RS. {product.price.toLocaleString('en-IN')}
+              </span>
+            </>
+          ) : (
+            <span className="font-semibold text-[#111111]">
+              ₹ {product.price.toLocaleString('en-IN')}
+            </span>
+          )}
         </p>
       </div>
 

@@ -6,7 +6,6 @@ import { CartProvider } from "../../context/CartContext";
 import { AuthProvider, useAuth } from "../../context/AuthContext";
 import Header from "./Header";
 import Footer from "./Footer";
-import ServiceBenefitsBar from "./ServiceBenefitsBar";
 
 interface ClientLayoutWrapperProps {
   children: React.ReactNode;
@@ -61,7 +60,6 @@ function LayoutContent({ children }: ClientLayoutWrapperProps) {
       <main className="flex-grow">
         {children}
       </main>
-      <ServiceBenefitsBar />
       <Footer />
     </CartProvider>
   );

@@ -3,10 +3,14 @@
 :root {
   --background: #ffffff;
   --foreground: #111111;
-  --font-questrial: var(--font-questrial), 'Questrial', sans-serif;
-  --font-raleway: var(--font-raleway), 'Raleway', sans-serif;
-  --font-stacksans: var(--font-instrument-sans), 'Instrument Sans', sans-serif;
-  --font-googlesans: var(--font-instrument-sans), 'Instrument Sans', sans-serif;
+  --font-questrial: 'Questrial', sans-serif;
+  --font-raleway: 'Raleway', sans-serif;
+  --font-stacksans: 'Stack Sans Text', 'Instrument Sans', sans-serif;
+  --font-googlesans: 'Instrument Sans', sans-serif;
+  --font-abhaya-libre: 'Abhaya Libre', Georgia, serif;
+  --font-stack-headline: 'Stack Sans Headline', sans-serif;
+  --font-stack-text: 'Stack Sans Text', sans-serif;
+  --font-windsong: 'WindSong', cursive;
 }
 
 @theme {
@@ -16,6 +20,10 @@
   --font-raleway: var(--font-raleway);
   --font-stacksans: var(--font-stacksans);
   --font-googlesans: var(--font-googlesans);
+  --font-abhaya: var(--font-abhaya-libre);
+  --font-stack-headline: var(--font-stack-headline);
+  --font-stack-text: var(--font-stack-text);
+  --font-script: var(--font-windsong);
   
   --color-gold-50: #faf8f2;
   --color-gold-100: #f4efdb;

@@ -25,40 +25,58 @@ export default function Footer() {
   ];
 
   return (
-    <footer id="footer" className="w-full bg-white border-t border-neutral-200 relative">
-      
-
-
-      {/* 2. White Main Footer Container */}
-      <div className="w-full px-[6.5%] mx-auto max-w-none pt-16 pb-8">
-        
+    <footer id="footer" className="w-full bg-white relative">
+      {/* Main Footer Container */}
+      <div className="w-full px-[6.5%] mx-auto max-w-[1440px] pt-12 sm:pt-16 pb-10">
         {/* Footer Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-12">
-          
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 pb-12">
           {/* Left Column (Brand + Newsletter Form) */}
-          <div className="lg:col-span-6 space-y-8">
-            <div className="flex items-center gap-2 select-none">
-              <span className="text-[#B78924] text-[32px] font-normal leading-none select-none">✳</span>
-              <span className="font-raleway text-[22px] tracking-normal font-medium text-neutral-900 leading-none">
-                Brides Berry
+          <div className="lg:col-span-6 flex flex-col justify-between space-y-10">
+            <div className="flex items-center gap-2.5 select-none">
+              <span className="text-[#310C13] text-[30px] font-normal leading-none select-none">
+                ✳
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-stack-headline), 'Raleway', sans-serif",
+                  fontWeight: 400,
+                }}
+                className="text-[20px] tracking-normal text-[#310C13] leading-none"
+              >
+                Jewelry by Zorucci
               </span>
             </div>
-            
-            <div className="space-y-4 max-w-md">
-              <p className="text-neutral-500 font-questrial text-sm leading-relaxed">
+
+            <div className="space-y-3.5 max-w-[480px]">
+              <p
+                style={{
+                  fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+                  fontWeight: 400,
+                }}
+                className="text-[#595959] text-[13px] leading-relaxed"
+              >
                 Get updates about new collections, offers, and special events.
               </p>
-              
-              <form onSubmit={(e) => e.preventDefault()} className="flex items-center gap-0 max-w-sm">
+
+              <form
+                onSubmit={(e) => e.preventDefault()}
+                className="flex items-stretch gap-2.5 w-full"
+              >
                 <input
                   type="email"
                   placeholder="Enter your email"
                   required
-                  className="bg-white border border-neutral-300 focus:outline-none w-full py-2.5 px-4 text-sm text-neutral-800 placeholder-neutral-400 rounded-none font-questrial"
+                  style={{
+                    fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+                  }}
+                  className="bg-white border border-[#D4D4D4] focus:border-[#310C13] focus:outline-none flex-1 py-2.5 px-4 text-[13px] text-neutral-800 placeholder-[#A3A3A3] rounded-none"
                 />
                 <button
                   type="submit"
-                  className="bg-black hover:bg-neutral-850 text-white uppercase tracking-wider font-questrial font-medium text-sm py-2.5 px-6 transition-colors duration-300 rounded-none flex-shrink-0 border border-black"
+                  style={{
+                    fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+                  }}
+                  className="bg-[#310C13] hover:bg-[#4a101a] text-white font-normal text-[13px] py-2.5 px-7 transition-colors duration-300 rounded-none flex-shrink-0"
                 >
                   Subscribe
                 </button>
@@ -67,17 +85,28 @@ export default function Footer() {
           </div>
 
           {/* Right Columns (Links Grid) */}
-          <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6">
-            
+          <div className="lg:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-6">
             {/* Column 1: Shop */}
             <div className="space-y-4">
-              <h4 className="text-sm font-questrial uppercase text-[#B78924] font-medium tracking-wider">
+              <h4
+                style={{
+                  fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+                  fontWeight: 400,
+                }}
+                className="text-[13px] uppercase text-[#513137] tracking-wider"
+              >
                 Shop
               </h4>
               <ul className="space-y-3">
                 {shopLinks.map((link, idx) => (
                   <li key={idx}>
-                    <Link href={link.href} className="font-questrial text-sm text-neutral-600 hover:text-gold-550 transition-colors">
+                    <Link
+                      href={link.href}
+                      style={{
+                        fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+                      }}
+                      className="text-[13px] text-[#595959] hover:text-[#310C13] transition-colors"
+                    >
                       {link.name}
                     </Link>
                   </li>
@@ -87,13 +116,25 @@ export default function Footer() {
 
             {/* Column 2: Help */}
             <div className="space-y-4">
-              <h4 className="text-sm font-questrial uppercase text-[#B78924] font-medium tracking-wider">
+              <h4
+                style={{
+                  fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+                  fontWeight: 400,
+                }}
+                className="text-[13px] uppercase text-[#513137] tracking-wider"
+              >
                 Help
               </h4>
               <ul className="space-y-3">
                 {helpLinks.map((link, idx) => (
                   <li key={idx}>
-                    <Link href={link.href} className="font-questrial text-sm text-neutral-600 hover:text-gold-550 transition-colors">
+                    <Link
+                      href={link.href}
+                      style={{
+                        fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+                      }}
+                      className="text-[13px] text-[#595959] hover:text-[#310C13] transition-colors"
+                    >
                       {link.name}
                     </Link>
                   </li>
@@ -103,7 +144,13 @@ export default function Footer() {
 
             {/* Column 3: Follow Us */}
             <div className="space-y-4">
-              <h4 className="text-sm font-questrial uppercase text-[#B78924] font-medium tracking-wider">
+              <h4
+                style={{
+                  fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+                  fontWeight: 400,
+                }}
+                className="text-[13px] uppercase text-[#513137] tracking-wider"
+              >
                 Follow Us
               </h4>
               <ul className="space-y-3">
@@ -113,7 +160,10 @@ export default function Footer() {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-questrial text-sm text-neutral-600 hover:text-gold-550 transition-colors"
+                      style={{
+                        fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+                      }}
+                      className="text-[13px] text-[#595959] hover:text-[#310C13] transition-colors"
                     >
                       {link.name}
                     </a>
@@ -121,17 +171,19 @@ export default function Footer() {
                 ))}
               </ul>
             </div>
-
           </div>
-
         </div>
 
-        {/* 3. Bottom Copyrights Bar */}
-        <div className="border-t border-neutral-200 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-neutral-500 text-sm font-questrial">
+        {/* Bottom Copyrights Bar */}
+        <div
+          style={{
+            fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+          }}
+          className="border-t border-[#D9D9D9] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[#595959] text-[13px]"
+        >
           <span>Copyrights</span>
           <span>© 2026 Your Brand. All Rights Reserved.</span>
         </div>
-
       </div>
     </footer>
   );

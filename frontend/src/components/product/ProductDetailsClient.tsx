@@ -153,7 +153,7 @@ export default function ProductDetailsClient({
                   <button
                     onClick={handleBuyNow}
                     disabled={product.stock <= 0}
-                    className="h-12 bg-neutral-900 hover:bg-neutral-850 disabled:bg-neutral-200 disabled:text-neutral-400 text-white font-questrial text-[12px] uppercase tracking-widest px-8 transition-colors flex items-center justify-center cursor-pointer font-medium"
+                    className="h-12 flex-1 sm:flex-none bg-[#310C13] hover:bg-[#4a101a] disabled:bg-neutral-200 disabled:text-neutral-400 text-white font-questrial text-[12px] uppercase tracking-widest px-6 sm:px-8 transition-colors flex items-center justify-center cursor-pointer font-medium"
                   >
                     {product.stock > 0 ? "Buy It Now" : "Out of Stock"}
                   </button>
@@ -162,7 +162,7 @@ export default function ProductDetailsClient({
                   {product.stock > 0 && (
                     <button
                       onClick={handleAddToCart}
-                      className="h-12 bg-white hover:bg-neutral-50 border border-neutral-300 text-neutral-900 font-questrial text-[12px] uppercase tracking-widest px-8 transition-colors flex items-center justify-center cursor-pointer font-medium"
+                      className="h-12 w-full sm:w-auto bg-white hover:bg-neutral-50 border border-neutral-300 text-neutral-900 font-questrial text-[12px] uppercase tracking-widest px-6 sm:px-8 transition-colors flex items-center justify-center cursor-pointer font-medium"
                     >
                       Add To Cart
                     </button>
@@ -225,13 +225,13 @@ export default function ProductDetailsClient({
           <div className="pt-8 sm:pt-12">
             {/* Section Header */}
             <div className="flex items-baseline justify-between mb-6 sm:mb-8 pb-2">
-              <h2 className="font-raleway font-medium text-[36px] leading-[100%] tracking-normal text-[#453920]">
+              <h2 className="font-raleway font-medium text-[24px] sm:text-[36px] leading-[100%] tracking-normal text-[#310C13]">
                 You May Also Like
               </h2>
             </div>
 
             {/* Product Grid - matching New Arrivals */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-8">
               {relatedProducts.map((p) => (
                 <ProductCard key={p.id} product={p} centered={true} />
               ))}

@@ -78,7 +78,7 @@ function SignupForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="firstName" className="block text-[11px] uppercase tracking-wider text-neutral-600 font-questrial mb-1.5">First Name</label>
               <input

@@ -14,6 +14,8 @@ export default function AdminHomepageConfigPage() {
   // Upload loaders
   const [uploadingHero, setUploadingHero] = useState(false);
   const [uploadingCategory, setUploadingCategory] = useState(false);
+  const [uploadingEditorial1, setUploadingEditorial1] = useState(false);
+  const [uploadingEditorial2, setUploadingEditorial2] = useState(false);
   const [uploadingReel, setUploadingReel] = useState(false);
 
   // Promo Popup config states
@@ -97,6 +99,53 @@ export default function AdminHomepageConfigPage() {
       alert("Failed to upload categories banner.");
     } finally {
       setUploadingCategory(false);
+    }
+  };
+
+  const handleEditorial1Upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingEditorial1(true);
+    try {
+      const url = await uploadFile(file, "categories");
+      await saveSystemSetting("editorial_showcase_1", url);
+      setSettings(prev => ({ ...prev, editorial_showcase_1: url }));
+      alert("Mid-Page Editorial Banner 1 updated successfully!");
+    } catch (err) {
+      console.error("Editorial 1 upload failed:", err);
+      alert("Failed to upload Mid-Page Editorial Banner 1.");
+    } finally {
+      setUploadingEditorial1(false);
+    }
+  };
+
+  const handleEditorial2Upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingEditorial2(true);
+    try {
+      const url = await uploadFile(file, "categories");
+      await saveSystemSetting("editorial_showcase_2", url);
+      setSettings(prev => ({ ...prev, editorial_showcase_2: url }));
+      alert("Bottom Editorial Banner 2 updated successfully!");
+    } catch (err) {
+      console.error("Editorial 2 upload failed:", err);
+      alert("Failed to upload Bottom Editorial Banner 2.");
+    } finally {
+      setUploadingEditorial2(false);
+    }
+  };
+
+  const handleResetSetting = async (key: string, label: string) => {
+    try {
+      await saveSystemSetting(key, "");
+      setSettings(prev => ({ ...prev, [key]: "" }));
+      alert(`${label} reset to default static image!`);
+    } catch (err) {
+      console.error("Reset failed:", err);
+      alert(`Failed to reset ${label}.`);
     }
   };
 
@@ -211,28 +260,36 @@ export default function AdminHomepageConfigPage() {
           
           {/* Main Hero Image card */}
           <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-4">
-            <div>
-              <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
-                Front Hero Image
-              </h2>
-              <p className="text-[10px] text-neutral-400 mt-0.5">
-                Main background image displayed in the welcome hero banner. Recommend high-res 1920x1080.
-              </p>
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
+                  Front Hero Image
+                </h2>
+                <p className="text-[10px] text-neutral-400 mt-0.5">
+                  Main background image displayed in the welcome hero banner (grayscale with color spotlight cutout).
+                </p>
+              </div>
+              {settings.hero_image && (
+                <button
+                  type="button"
+                  onClick={() => handleResetSetting("hero_image", "Front Hero Image")}
+                  className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer flex-shrink-0"
+                >
+                  Reset Default
+                </button>
+              )}
             </div>
 
             {/* Preview image */}
             <div className="relative aspect-video w-full bg-[#FAF9F6] border border-neutral-200 rounded-xl overflow-hidden flex items-center justify-center">
-              {settings.hero_image ? (
-                <img
-                  src={settings.hero_image}
-                  alt="Current Hero Background"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex flex-col items-center space-y-1 text-neutral-400">
-                  <ImageIcon className="w-8 h-8 opacity-70" />
-                  <span className="text-[11px] font-medium">No Custom Hero Background set</span>
-                  <span className="text-[9px] opacity-70">Falling back to static: /hero-bg-v2.jpg</span>
+              <img
+                src={settings.hero_image || "/hero-bg-v2.jpg"}
+                alt="Current Hero Background"
+                className="w-full h-full object-cover"
+              />
+              {!settings.hero_image && (
+                <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
+                  Default: /hero-bg-v2.jpg
                 </div>
               )}
 
@@ -260,28 +317,36 @@ export default function AdminHomepageConfigPage() {
 
           {/* Categories Editorial Image card */}
           <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-4">
-            <div>
-              <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
-                Categories Editorial Banner
-              </h2>
-              <p className="text-[10px] text-neutral-400 mt-0.5">
-                Large editorial style showcase image displayed in the right column of the categories list section.
-              </p>
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
+                  Categories Editorial Banner
+                </h2>
+                <p className="text-[10px] text-neutral-400 mt-0.5">
+                  Editorial showcase image displayed right below the Our Categories carousel (&quot;Discover Our Modern Jewelry Collection&quot;).
+                </p>
+              </div>
+              {settings.category_image && (
+                <button
+                  type="button"
+                  onClick={() => handleResetSetting("category_image", "Categories Editorial Banner")}
+                  className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer flex-shrink-0"
+                >
+                  Reset Default
+                </button>
+              )}
             </div>
 
             {/* Preview image */}
             <div className="relative aspect-video w-full bg-[#FAF9F6] border border-neutral-200 rounded-xl overflow-hidden flex items-center justify-center">
-              {settings.category_image ? (
-                <img
-                  src={settings.category_image}
-                  alt="Current Category Banner"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex flex-col items-center space-y-1 text-neutral-400">
-                  <ImageIcon className="w-8 h-8 opacity-70" />
-                  <span className="text-[11px] font-medium">No Custom Categories Banner set</span>
-                  <span className="text-[9px] opacity-70">Falling back to static: /cat_large.png</span>
+              <img
+                src={settings.category_image || "/discover-shell-necklace.jpg"}
+                alt="Current Category Banner"
+                className="w-full h-full object-cover"
+              />
+              {!settings.category_image && (
+                <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
+                  Default: /discover-shell-necklace.jpg
                 </div>
               )}
 
@@ -301,6 +366,116 @@ export default function AdminHomepageConfigPage() {
                   type="file"
                   accept="image/*"
                   onChange={handleCategoryImageUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Mid-Page Split Editorial Banner 1 (Handbag Model) */}
+          <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
+                  Mid-Page Burgundy Split Banner
+                </h2>
+                <p className="text-[10px] text-neutral-400 mt-0.5">
+                  Full-bleed left image displayed next to the #310C13 burgundy panel after Explore Products.
+                </p>
+              </div>
+              {settings.editorial_showcase_1 && (
+                <button
+                  type="button"
+                  onClick={() => handleResetSetting("editorial_showcase_1", "Mid-Page Burgundy Split Banner")}
+                  className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer flex-shrink-0"
+                >
+                  Reset Default
+                </button>
+              )}
+            </div>
+
+            <div className="relative aspect-video w-full bg-[#FAF9F6] border border-neutral-200 rounded-xl overflow-hidden flex items-center justify-center">
+              <img
+                src={settings.editorial_showcase_1 || "/discover-bag-model.jpg"}
+                alt="Mid-Page Editorial Banner"
+                className="w-full h-full object-cover"
+              />
+              {!settings.editorial_showcase_1 && (
+                <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
+                  Default: /discover-bag-model.jpg
+                </div>
+              )}
+
+              {uploadingEditorial1 && (
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-xs flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 text-[#C99213] animate-spin" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end">
+              <label className="flex items-center space-x-2 px-5 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer shadow-sm">
+                <Upload className="w-4 h-4" />
+                <span>Upload Split Banner</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleEditorial1Upload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Bottom Editorial Banner 2 (Bridal Heels & Bouquet) */}
+          <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
+                  Bottom Cream Editorial Banner
+                </h2>
+                <p className="text-[10px] text-neutral-400 mt-0.5">
+                  Right-column editorial image displayed in the second cream section above Follow Us On Instagram.
+                </p>
+              </div>
+              {settings.editorial_showcase_2 && (
+                <button
+                  type="button"
+                  onClick={() => handleResetSetting("editorial_showcase_2", "Bottom Cream Editorial Banner")}
+                  className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer flex-shrink-0"
+                >
+                  Reset Default
+                </button>
+              )}
+            </div>
+
+            <div className="relative aspect-video w-full bg-[#FAF9F6] border border-neutral-200 rounded-xl overflow-hidden flex items-center justify-center">
+              <img
+                src={settings.editorial_showcase_2 || "/discover-bridal-heels.jpg"}
+                alt="Bottom Editorial Banner"
+                className="w-full h-full object-cover"
+              />
+              {!settings.editorial_showcase_2 && (
+                <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
+                  Default: /discover-bridal-heels.jpg
+                </div>
+              )}
+
+              {uploadingEditorial2 && (
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-xs flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 text-[#C99213] animate-spin" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end">
+              <label className="flex items-center space-x-2 px-5 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer shadow-sm">
+                <Upload className="w-4 h-4" />
+                <span>Upload Editorial Banner</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleEditorial2Upload}
                   className="hidden"
                 />
               </label>

@@ -202,7 +202,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 space-y-6">
             
             {/* Shipping details */}
-            <div className="bg-white border border-[#e1e5f5] rounded-3xl p-6 md:p-8 space-y-6">
+            <div className="bg-white border border-[#e1e5f5] rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
               <h2 className="text-sm font-bold text-neutral-800 uppercase tracking-wider font-sans border-b border-neutral-50 pb-2">
                 Shipping Address
               </h2>
@@ -467,7 +467,7 @@ export default function CheckoutPage() {
 
           {/* Cart Breakdown summary column */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white border border-[#e1e5f5] rounded-3xl p-6 md:p-8 space-y-6">
+            <div className="bg-white border border-[#e1e5f5] rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
               <h2 className="text-sm font-bold text-neutral-800 uppercase tracking-wider font-sans border-b border-neutral-50 pb-2">
                 Order Summary
               </h2>

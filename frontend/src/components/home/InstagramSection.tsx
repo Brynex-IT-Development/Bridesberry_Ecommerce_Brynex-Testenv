@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from 'react';
-import Link from 'next/link';
 import videoFiles from '../../data/videos.json';
 import { getSystemSettings } from '@/services/system-settings.service';
 
@@ -10,6 +9,10 @@ export default function InstagramSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [isInView, setIsInView] = useState(false);
   const [reels, setReels] = useState<string[]>(videoFiles);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftState, setScrollLeftState] = useState(0);
 
   useEffect(() => {
     const container = sectionRef.current;
@@ -38,268 +41,188 @@ export default function InstagramSection() {
           if (Array.isArray(list) && list.length > 0) {
             setReels(list);
           }
-        } catch (e) {
-          console.error("Failed to parse instagram videos:", e);
+        } catch {
+          // Keep default video files
         }
       }
     });
   }, []);
 
+  // Ensure enough base items so seamless looping works across all screen widths
+  let baseReels = [...reels];
+  while (baseReels.length > 0 && baseReels.length < 6) {
+    baseReels = [...baseReels, ...reels];
+  }
+  const loopedReels = [...baseReels, ...baseReels];
+  const baseCount = baseReels.length;
+
+  // Continuous seamless auto-scroll
   useEffect(() => {
     const container = scrollRef.current;
-    if (!container || !reels || reels.length === 0) return;
-
-    const isMobile = () => window.innerWidth < 640;
+    if (!container || baseCount === 0) return;
 
     let animationFrameId: number;
-    let isInteracting = false;
-    let interactionTimeout: NodeJS.Timeout;
-    const scrollSpeed = 0.5; // Slow scroll speed for Reels (px/frame)
-    const originalCount = reels.length;
-    let scrollPos = container.scrollLeft;
-
-    let expectedScrollLeft = container.scrollLeft;
-
-    const handleInteractionStart = () => {
-      isInteracting = true;
-      scrollPos = container.scrollLeft;
-      clearTimeout(interactionTimeout);
-    };
-
-    const handleInteractionEnd = () => {
-      clearTimeout(interactionTimeout);
-      interactionTimeout = setTimeout(() => {
-        isInteracting = false;
-        scrollPos = container.scrollLeft;
-      }, 2000);
-    };
-
-    container.addEventListener('touchstart', handleInteractionStart, { passive: true });
-    container.addEventListener('touchend', handleInteractionEnd, { passive: true });
-    container.addEventListener('mousedown', handleInteractionStart);
-    container.addEventListener('mouseup', handleInteractionEnd);
-    container.addEventListener('mouseleave', handleInteractionEnd);
-
-    const handleScroll = () => {
-      const isProgrammatic = Math.abs(container.scrollLeft - expectedScrollLeft) < 1;
-      if (!isProgrammatic) {
-        isInteracting = true;
-        scrollPos = container.scrollLeft;
-        clearTimeout(interactionTimeout);
-        interactionTimeout = setTimeout(() => {
-          isInteracting = false;
-        }, 2000);
-      }
-    };
-    container.addEventListener('scroll', handleScroll, { passive: true });
+    let currentScroll = container.scrollLeft;
+    const speed = 0.7; // Smooth continuous auto-scroll (px/frame)
 
     const step = () => {
-      if (!isInteracting && isMobile() && container.children.length >= originalCount * 2) {
-        scrollPos += scrollSpeed;
+      if (!isPaused && !isDragging && container.children.length >= baseCount * 2) {
+        currentScroll += speed;
 
-        const firstSetEndElement = container.children[originalCount] as HTMLElement;
-        if (firstSetEndElement) {
-          const W = firstSetEndElement.offsetLeft - (container.children[0] as HTMLElement).offsetLeft;
-          if (scrollPos >= W) {
-            scrollPos -= W;
+        const firstSetEndEl = container.children[baseCount] as HTMLElement | undefined;
+        const firstEl = container.children[0] as HTMLElement | undefined;
+        if (firstSetEndEl && firstEl) {
+          const singleSetWidth = firstSetEndEl.offsetLeft - firstEl.offsetLeft;
+          if (singleSetWidth > 0 && currentScroll >= singleSetWidth) {
+            currentScroll -= singleSetWidth;
           }
         }
-        container.scrollLeft = scrollPos;
-        expectedScrollLeft = container.scrollLeft;
+
+        container.scrollLeft = currentScroll;
+      } else {
+        currentScroll = container.scrollLeft;
       }
+
       animationFrameId = requestAnimationFrame(step);
     };
 
     animationFrameId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isPaused, isDragging, baseCount]);
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      clearTimeout(interactionTimeout);
-      container.removeEventListener('touchstart', handleInteractionStart);
-      container.removeEventListener('touchend', handleInteractionEnd);
-      container.removeEventListener('mousedown', handleInteractionStart);
-      container.removeEventListener('mouseup', handleInteractionEnd);
-      container.removeEventListener('mouseleave', handleInteractionEnd);
-      container.removeEventListener('scroll', handleScroll);
-    };
-  }, [reels]);
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeftState(scrollRef.current.scrollLeft);
+  };
 
-  // If no videos are found, do not render the section
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    setIsPaused(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.4;
+    scrollRef.current.scrollLeft = scrollLeftState - walk;
+  };
+
   if (!reels || reels.length === 0) {
     return null;
   }
 
-  // Make sure we have at least 8 items in the base array before doubling,
-  // so the scrolling marquee spans wider than any screen resolution.
-  let baseList = [...reels];
-  while (baseList.length < 8) {
-    baseList = [...baseList, ...reels];
-  }
-
   return (
-    <section ref={sectionRef} className="py-12 bg-white relative sm:py-16">
-      
-      {/* Desktop Section Header (hidden on mobile) */}
-      <div className="hidden sm:block w-full px-[6.5%] mx-auto max-w-none relative z-10 mb-8">
-        <div className="flex items-center gap-2 font-questrial text-[22px] leading-[26px] tracking-normal text-[#B78924] font-normal mb-4">
-          <span>✳</span>
-          <span>Shared Moments</span>
-        </div>
-        <div className="flex items-baseline justify-between pb-4">
-          <h2 className="font-raleway font-medium text-[36px] leading-[100%] tracking-normal text-[#453920]">
-            Follow Us On Instagram
-          </h2>
-          <Link
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-questrial font-light text-[24px] leading-[26px] tracking-normal text-[#B78924] hover:text-gold-600 no-underline border-b border-[#B78924] pb-[2px] text-right inline-block"
-          >
-            @Jewelrybybridesberry
-          </Link>
-        </div>
-      </div>
+    <>
+      <section ref={sectionRef} className="relative w-full bg-[#310C13] pt-20 sm:pt-28 pb-12 sm:pb-16 overflow-hidden">
+        <div className="w-full px-[6.5%] mx-auto max-w-[1440px] relative z-10">
+          {/* Centered Script Heading + Subtitle */}
+          <div className="flex flex-col items-center text-center mb-12 sm:mb-16">
+            <h2
+              style={{
+                fontFamily: "var(--font-windsong), 'WindSong', cursive",
+                fontWeight: 500,
+                fontStyle: 'normal',
+                fontSize: 'clamp(28px, 6vw, 64px)',
+                lineHeight: '110%',
+                letterSpacing: '0%',
+                textAlign: 'center',
+                color: '#F5F5F5',
+              }}
+              className="select-none px-4"
+            >
+              Follow Us On
+            </h2>
+            <p
+              style={{
+                fontFamily: "'Stack Sans Text', sans-serif",
+                fontWeight: 300,
+                fontSize: '11px',
+                letterSpacing: '0.28em',
+                color: '#F5F5F5',
+              }}
+              className="uppercase mt-2.5"
+            >
+              Instagram
+            </p>
+          </div>
 
-      {/* Mobile Section Header (centered style matching latest collection layout) */}
-      <div className="flex sm:hidden flex-col items-center text-center mb-6 px-[6.5%]">
-        <div 
-          className="flex items-center gap-2 mb-2"
-          style={{
-            color: '#B78924',
-            fontFamily: "'Questrial', sans-serif",
-            fontWeight: 200,
-            fontSize: '18px',
-            lineHeight: '26px',
-            letterSpacing: '0%',
-            textTransform: 'uppercase'
-          }}
-        >
-          <span className="text-[16px]">✳</span>
-          <span>Shared Moments</span>
-        </div>
-        
-        <h2 className="font-raleway font-medium text-[26px] leading-[32px] tracking-wide text-neutral-900 uppercase max-w-xs mx-auto mb-3">
-          Follow Us On Instagram
-        </h2>
-        
-        <div className="w-full text-right px-2 mt-2">
-          <Link
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-questrial font-light text-[15px] text-[#B78924] hover:text-gold-600 no-underline border-b border-[#B78924] pb-[2px] inline-block"
+          {/* Centered Auto-Scrolling Video Cards Row */}
+          <div
+            ref={scrollRef}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
+            className={`flex items-stretch gap-5 overflow-x-auto scrollbar-none select-none ${
+              isDragging ? 'cursor-grabbing' : 'cursor-grab'
+            }`}
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
           >
-            @Jewelrybybridesberry
-          </Link>
-        </div>
-      </div>
+            {loopedReels.map((filename, idx) => {
+              const videoSrc =
+                filename.startsWith('http') || filename.startsWith('/')
+                  ? filename
+                  : `/videos/${encodeURIComponent(filename)}`;
 
-      {/* Desktop Gallery (Full-width edge-to-edge auto-scrolling marquee - hidden on mobile) */}
-      <div className="hidden sm:block w-full overflow-hidden relative">
-        <style dangerouslySetInnerHTML={{__html: `
-          @keyframes marquee-scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-          .animate-marquee {
-            display: flex;
-            width: max-content;
-            animation: marquee-scroll 35s linear infinite;
-          }
-          .animate-marquee:hover {
-            animation-play-state: paused;
-          }
-        `}} />
-        
-        <div className="animate-marquee gap-6 px-4">
-          {/* Double the array elements to ensure seamless loop */}
-          {[...baseList, ...baseList].map((filename, idx) => {
-            const videoSrc = (filename.startsWith('http') || filename.startsWith('/'))
-              ? filename
-              : `/videos/${encodeURIComponent(filename)}`;
-            return (
-              <div
-                key={idx}
-                className="relative aspect-[9/16] w-[180px] sm:w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden bg-neutral-100 rounded-lg group shadow-sm hover:shadow-md transition-shadow duration-300"
-              >
-                {isInView ? (
-                  <video
-                    src={videoSrc}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="metadata"
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-neutral-100 animate-pulse" />
-                )}
-                {/* Instagram/Reel Icon Overlay */}
-                <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 transform scale-90 group-hover:scale-100 transition-all duration-300">
-                    <svg 
-                      className="w-6 h-6 text-white" 
-                      fill="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                    </svg>
-                  </div>
+              return (
+                <div
+                  key={idx}
+                  className="relative aspect-[1/1.28] flex-shrink-0 w-[82%] sm:w-[46%] lg:w-[calc((100%-40px)/3.22)] overflow-hidden bg-[#24080d] group"
+                >
+                  {isInView ? (
+                    <video
+                      src={videoSrc}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="metadata"
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-white/5 animate-pulse" />
+                  )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Mobile Gallery (same format and layout as latest collection - scrollable container) */}
-      <div className="block sm:hidden w-full px-[6.5%]">
-        <div 
-          ref={scrollRef}
-          className="flex overflow-x-auto gap-6 pb-6 px-1 scrollbar-none"
+      {/* Seamless Double-Arch Wave Transition: Burgundy shape on pure White base flowing directly into white footer */}
+      <div className="relative w-full -mt-px overflow-hidden leading-[0] pointer-events-none bg-white">
+        <svg
+          viewBox="0 0 1440 90"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-[52px] sm:h-[74px] md:h-[92px] block"
+          preserveAspectRatio="none"
         >
-          {[...reels, ...reels, ...reels].map((filename, idx) => {
-            const videoSrc = (filename.startsWith('http') || filename.startsWith('/'))
-              ? filename
-              : `/videos/${encodeURIComponent(filename)}`;
-            return (
-              <div
-                key={idx}
-                className="relative aspect-[9/16] w-[70vw] min-w-[200px] max-w-[240px] flex-shrink-0 overflow-hidden bg-neutral-100 rounded-lg shadow-sm"
-              >
-                {isInView ? (
-                  <video
-                    src={videoSrc}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="metadata"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-neutral-100 animate-pulse" />
-                )}
-              </div>
-            );
-          })}
-        </div>
+          <path
+            d="M0 0 L1440 0 L1440 90 C1310 10, 1090 10, 890 50 C780 72, 640 72, 540 52 C340 12, 120 12, 0 90 Z"
+            fill="#310C13"
+          />
+        </svg>
       </div>
 
-      {/* Tailwind scrollbar removal style */}
       <style jsx global>{`
         .scrollbar-none::-webkit-scrollbar {
           display: none;
         }
-        .scrollbar-none {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
       `}</style>
-
-    </section>
+    </>
   );
 }
-
-

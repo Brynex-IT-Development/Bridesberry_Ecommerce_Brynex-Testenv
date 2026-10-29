@@ -6,6 +6,30 @@ export const menuItems: MenuItem[] = [
     href: '/shop',
   },
   {
+    name: 'Women',
+    href: '/shop',
+    hasMegaMenu: true,
+    megaMenuColumns: [
+      {
+        title: 'EARRINGS',
+        items: [
+          { name: 'ALL EARRINGS', href: '/shop?category=earrings' },
+          { name: 'HOOPS', href: '/shop?category=earrings&type=hoops' },
+          { name: 'STUDS', href: '/shop?category=earrings&type=studs' },
+          { name: 'DANGLER', href: '/shop?category=earrings&type=dangler' },
+        ],
+      },
+      {
+        title: 'NECKLACES',
+        items: [
+          { name: 'ALL NECKLACES', href: '/shop?category=necklaces' },
+          { name: 'PENDENTS', href: '/shop?category=necklaces&type=pendents' },
+          { name: 'CHOKER', href: '/shop?category=necklaces&type=choker' },
+        ],
+      },
+    ],
+  },
+  {
     name: 'Collections',
     href: '/shop',
     hasMegaMenu: true,

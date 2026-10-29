@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   images: {
+    qualities: [75, 100],
     remotePatterns: [
       {
         protocol: "https",
@@ -20,6 +25,15 @@ const nextConfig: NextConfig = {
         source: "/admin",
         destination: "/admin/dashboard",
         permanent: true,
+      },
+    ];
+  },
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || "http://13.55.190.50:7001";
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
       },
     ];
   },

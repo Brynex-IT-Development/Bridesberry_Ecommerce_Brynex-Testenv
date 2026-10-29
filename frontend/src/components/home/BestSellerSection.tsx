@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Product } from '@/types/product';
 import ProductCard from '../product/ProductCard';
@@ -10,170 +10,86 @@ interface BestSellerSectionProps {
 }
 
 export default function BestSellerSection({ products: bestSellers }: BestSellerSectionProps) {
-
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container || !bestSellers || bestSellers.length === 0) return;
-
-    const isMobile = () => window.innerWidth < 640;
-
-    let animationFrameId: number;
-    let isInteracting = false;
-    let interactionTimeout: NodeJS.Timeout;
-    const scrollSpeed = 0.25; // Very slow scroll speed for Products (px/frame)
-    const originalCount = bestSellers.length;
-    let scrollPos = container.scrollLeft;
-
-    let expectedScrollLeft = container.scrollLeft;
-
-    const handleInteractionStart = () => {
-      isInteracting = true;
-      scrollPos = container.scrollLeft;
-      clearTimeout(interactionTimeout);
-    };
-
-    const handleInteractionEnd = () => {
-      clearTimeout(interactionTimeout);
-      interactionTimeout = setTimeout(() => {
-        isInteracting = false;
-        scrollPos = container.scrollLeft;
-      }, 2000);
-    };
-
-    container.addEventListener('touchstart', handleInteractionStart, { passive: true });
-    container.addEventListener('touchend', handleInteractionEnd, { passive: true });
-    container.addEventListener('mousedown', handleInteractionStart);
-    container.addEventListener('mouseup', handleInteractionEnd);
-    container.addEventListener('mouseleave', handleInteractionEnd);
-
-    const handleScroll = () => {
-      const isProgrammatic = Math.abs(container.scrollLeft - expectedScrollLeft) < 1;
-      if (!isProgrammatic) {
-        isInteracting = true;
-        scrollPos = container.scrollLeft;
-        clearTimeout(interactionTimeout);
-        interactionTimeout = setTimeout(() => {
-          isInteracting = false;
-        }, 2000);
-      }
-    };
-    container.addEventListener('scroll', handleScroll, { passive: true });
-
-    const step = () => {
-      if (!isInteracting && isMobile() && container.children.length >= originalCount * 2) {
-        scrollPos += scrollSpeed;
-
-        const firstSetEndElement = container.children[originalCount] as HTMLElement;
-        if (firstSetEndElement) {
-          const W = firstSetEndElement.offsetLeft - (container.children[0] as HTMLElement).offsetLeft;
-          if (scrollPos >= W) {
-            scrollPos -= W;
-          }
-        }
-        container.scrollLeft = scrollPos;
-        expectedScrollLeft = container.scrollLeft;
-      }
-      animationFrameId = requestAnimationFrame(step);
-    };
-
-    animationFrameId = requestAnimationFrame(step);
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      clearTimeout(interactionTimeout);
-      container.removeEventListener('touchstart', handleInteractionStart);
-      container.removeEventListener('touchend', handleInteractionEnd);
-      container.removeEventListener('mousedown', handleInteractionStart);
-      container.removeEventListener('mouseup', handleInteractionEnd);
-      container.removeEventListener('mouseleave', handleInteractionEnd);
-      container.removeEventListener('scroll', handleScroll);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bestSellers.length]);
-
-  if (!bestSellers || bestSellers.length === 0) {
-    return (
-      <section className="py-12 sm:py-16 bg-white relative">
-        <div className="w-full px-[6.5%] mx-auto max-w-none text-center py-12">
-          <p className="text-neutral-500 font-questrial text-sm">No best sellers available yet.</p>
-        </div>
-      </section>
-    );
-  }
+  const displayProducts = bestSellers && bestSellers.length > 0 ? bestSellers.slice(0, 8) : [];
 
   return (
-    <section className="py-12 bg-white relative sm:py-16">
-      <div className="w-full px-[6.5%] mx-auto max-w-none relative z-10">
-        
-        {/* Desktop Section Header (Left aligned title, Right aligned View More link) */}
-        <div className="hidden sm:flex items-baseline justify-between mb-6 sm:mb-8 pb-2">
-          <h2 className="font-raleway font-medium text-[36px] leading-[100%] tracking-normal text-[#453920]">
-            Best Sellers
-          </h2>
-          <Link
-            href="/shop?filter=bestseller"
-            className="font-questrial font-light text-[22px] leading-[26px] tracking-normal text-[#B78924] hover:text-gold-600 no-underline border-b border-[#B78924] pb-[2px] text-right inline-block"
+    <section className="py-16 sm:py-24 bg-white relative">
+      <div className="w-full px-[6.5%] mx-auto max-w-[1440px] relative z-10">
+        {/* Centered Script Heading + Subtitle */}
+        <div className="flex flex-col items-center text-center mb-10 sm:mb-14">
+          <h2
+            style={{
+              fontFamily: "var(--font-windsong), 'WindSong', cursive",
+              fontWeight: 500,
+              fontStyle: 'normal',
+              fontSize: 'clamp(28px, 6vw, 64px)',
+              lineHeight: '110%',
+              letterSpacing: '0%',
+              textAlign: 'center',
+              color: '#310C13',
+            }}
+            className="select-none px-4"
           >
-            View More
+            Explore Products
+          </h2>
+          <p
+            style={{
+              fontFamily: "'Stack Sans Text', sans-serif",
+              fontWeight: 400,
+              fontSize: '11px',
+              letterSpacing: '0.28em',
+            }}
+            className="uppercase text-[#310C13] mt-1.5"
+          >
+            Best Selling
+          </p>
+        </div>
+
+        {/* 4x2 Product Grid or Clean Empty State */}
+        {displayProducts.length > 0 ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3.5 gap-y-7 sm:gap-x-6 sm:gap-y-12">
+            {displayProducts.map((product, idx) => (
+              <ProductCard
+                key={`${product.id}-${idx}`}
+                product={product}
+                centered={true}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 text-neutral-400 font-questrial text-xs uppercase tracking-widest">
+            New products arriving soon
+          </div>
+        )}
+
+        {/* Bottom Centered Outlined CTA Button */}
+        <div className="mt-12 sm:mt-16 flex justify-center">
+          <Link
+            href="/shop"
+            style={{
+              fontFamily: "'Stack Sans Text', sans-serif",
+              fontWeight: 400,
+              fontSize: '10px',
+              letterSpacing: '0.16em',
+            }}
+            className="inline-flex items-center justify-center gap-2.5 px-7 py-3 border border-[#310C13]/70 text-[#310C13] hover:bg-[#310C13] hover:border-[#310C13] hover:text-white uppercase transition-colors duration-300"
+          >
+            <span>View Collection</span>
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                d="M7 17L17 7M17 7H8M17 7V16"
+              />
+            </svg>
           </Link>
         </div>
-
-        {/* Mobile Section Header (centered style matching latest collection layout) */}
-        <div className="flex flex-col items-center text-center mb-6 sm:hidden">
-          <div 
-            className="flex items-center gap-2 mb-2"
-            style={{
-              color: '#B78924',
-              fontFamily: "'Questrial', sans-serif",
-              fontWeight: 200,
-              fontSize: '18px',
-              lineHeight: '26px',
-              letterSpacing: '0%',
-              textTransform: 'uppercase'
-            }}
-          >
-            <span className="text-[16px]">✳</span>
-            <span>Bestsellers</span>
-          </div>
-          
-          <h2 className="font-raleway font-medium text-[26px] leading-[32px] tracking-wide text-neutral-900 uppercase max-w-xs mx-auto mb-3">
-            Best Sellers
-          </h2>
-          
-          <div className="w-full text-right px-2 mt-2">
-            <Link
-              href="/shop?filter=bestseller"
-              className="font-questrial font-light text-[15px] text-[#B78924] hover:text-gold-600 no-underline border-b border-[#B78924] pb-[2px] inline-block"
-            >
-              View More
-            </Link>
-          </div>
-        </div>
-
-        {/* Desktop Product Grid (Hidden on mobile) */}
-        <div className="hidden sm:grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {bestSellers.map((product) => (
-            <ProductCard key={product.id} product={product} centered={true} />
-          ))}
-        </div>
-
-        {/* Mobile Product Scrollable Container (Visible on mobile only, matching latest collection) */}
-        <div 
-          ref={scrollRef}
-          className="flex sm:hidden overflow-x-auto gap-6 pb-6 px-1 scrollbar-none"
-        >
-          {[...bestSellers, ...bestSellers, ...bestSellers].map((product, idx) => (
-            <div 
-              key={`${product.id}-${idx}`} 
-              className="min-w-[270px] max-w-[290px] w-[78vw] flex-shrink-0"
-            >
-              <ProductCard product={product} centered={true} />
-            </div>
-          ))}
-        </div>
-
       </div>
     </section>
   );

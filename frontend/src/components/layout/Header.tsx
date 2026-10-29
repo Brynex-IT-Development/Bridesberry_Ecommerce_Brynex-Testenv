@@ -33,7 +33,7 @@ export default function Header() {
         const rawBase =
           process.env.NEXT_PUBLIC_API_BASE_URL ||
           process.env.API_BASE_URL ||
-          'http://localhost:7001';
+          '';
         const baseUrl = rawBase.endsWith('/api')
           ? rawBase
           : `${rawBase.replace(/\/$/, '')}/api`;
@@ -108,48 +108,18 @@ export default function Header() {
   }, [isHomePage]);
 
   // Determine header classes based on route and scroll state
-  const headerBgClass = isHomePage
-    ? isScrolled
-      ? 'bg-white text-neutral-900 border-b border-neutral-100 shadow-xs'
-      : 'bg-transparent text-white border-b border-white/15'
-    : 'bg-white text-neutral-900 border-b border-neutral-100 shadow-xs';
-
-  const logoColorClass = isHomePage
-    ? isScrolled
-      ? 'text-neutral-900'
-      : 'text-white'
-    : 'text-neutral-900';
+  const headerBgClass = 'bg-white border-b border-neutral-100';
 
   const navLinkClass = (itemHref: string, itemName: string) => {
-    const isCurrent = itemName === 'Collections' ? false : pathname === itemHref;
-    if (isHomePage) {
-      if (isScrolled) {
-        return isCurrent
-          ? 'text-neutral-900 font-normal border-b border-gold-550'
-          : 'text-neutral-600 hover:text-gold-600';
-      } else {
-        return isCurrent
-          ? 'text-white font-normal border-b border-gold-400'
-          : 'text-[#F5F5F5] hover:text-white';
-      }
-    } else {
-      return isCurrent
-        ? 'text-neutral-900 font-normal border-b border-gold-550'
-        : 'text-neutral-600 hover:text-gold-600';
-    }
+    const isCurrent = itemName === 'Collections' || itemName === 'Women' ? false : pathname === itemHref;
+    return isCurrent
+      ? 'text-[#000000] border-b border-gold-550'
+      : 'text-[#000000] hover:text-gold-600';
   };
 
-  const iconButtonClass = isHomePage
-    ? isScrolled
-      ? 'text-neutral-700 hover:text-gold-600'
-      : 'text-white/90 hover:text-white'
-    : 'text-neutral-700 hover:text-gold-600';
+  const iconButtonClass = 'text-[#000000] hover:text-gold-600';
 
-  const borderClass = isHomePage
-    ? isScrolled
-      ? 'border-neutral-100'
-      : 'border-white/15'
-    : 'border-neutral-100';
+  const borderClass = 'border-neutral-200/80';
 
   return (
     <>
@@ -157,25 +127,40 @@ export default function Header() {
         <div className="w-full px-[6.5%]">
           <div className="flex items-stretch justify-between h-16 md:h-20">
 
-            {/* Left side Grid Area (Logo & Asterisk) */}
-            <div className="flex items-stretch h-full">
-              {/* Asterisk Box - desktop only */}
-              <div className={`hidden md:flex w-10 items-center justify-center border-l ${borderClass}`}>
-                <span className="text-[#B78924] text-[32px] font-bold leading-none select-none">✳</span>
-              </div>
-              {/* Logo text box with inline mobile asterisk */}
-              <div className="flex items-center px-4 md:pl-2 md:pr-6 gap-2">
-                <span className="text-[#B78924] text-xl font-bold leading-none select-none md:hidden pt-0.5">✳</span>
-                <Link href="/" className="inline-block">
-                  <span className={`font-raleway text-[17px] sm:text-[21.25px] leading-none tracking-[0em] font-medium transition-colors duration-350 ${logoColorClass}`}>
-                    Brides Berry
-                  </span>
-                </Link>
-              </div>
+            {/* Left side Brand Area */}
+            <div className="flex items-center h-full">
+              <Link href="/" className="flex flex-col items-center justify-center">
+                <span
+                  style={{
+                    fontFamily: "'Abhaya Libre', Georgia, serif",
+                    fontWeight: 600,
+                    fontStyle: 'normal',
+                    letterSpacing: '-0.04em',
+                    color: '#310C13',
+                  }}
+                  className="text-[28px] leading-[25px] sm:text-[34px] sm:leading-[30px] md:text-[38.76px] md:leading-[33px] transition-colors duration-300"
+                >
+                  Brides Berry
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-questrial), 'Questrial', sans-serif",
+                    fontWeight: 400,
+                    fontStyle: 'normal',
+                    letterSpacing: '0.36em',
+                    textAlign: 'center',
+                    textTransform: 'uppercase',
+                    color: '#310C13',
+                  }}
+                  className="text-[5.5px] leading-[8px] sm:text-[6.2px] sm:leading-[9px] md:text-[6.98px] md:leading-[10.08px] mt-1 w-full block"
+                >
+                  Bridal Jewelry &amp; Accessories
+                </span>
+              </Link>
             </div>
 
-            {/* Desktop Navigation links (Aligned right to create elegant gap) */}
-            <nav className="hidden md:flex space-x-6 lg:space-x-8 items-center justify-end h-full flex-grow mr-8 lg:mr-12">
+            {/* Desktop Navigation links */}
+            <nav className="hidden md:flex space-x-8 lg:space-x-10 items-center justify-end h-full flex-grow mr-8 lg:mr-12">
               {menuItems.map((item, idx) => (
                 <div
                   key={idx}
@@ -185,14 +170,24 @@ export default function Header() {
                 >
                   <Link
                     href={item.href}
-                    className={`font-questrial text-[17.38px] leading-[25.11px] uppercase tracking-normal transition-colors py-2 flex items-center gap-1.5 ${navLinkClass(
+                    style={{
+                      fontFamily: "var(--font-stack-text), 'Stack Sans Text', sans-serif",
+                      fontWeight: 200,
+                      fontStyle: 'normal',
+                      fontSize: '14px',
+                      lineHeight: '25.11px',
+                      letterSpacing: '0%',
+                      textTransform: 'uppercase',
+                      color: '#000000',
+                    }}
+                    className={`transition-colors py-2 flex items-center gap-2 ${navLinkClass(
                       item.href,
                       item.name
                     )}`}
                   >
                     <span>{item.name}</span>
-                    {item.name === 'Collections' && (
-                      <svg className="w-2.5 h-2.5 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {(item.name === 'Collections' || item.name === 'Women') && (
+                      <svg className="w-3.5 h-3.5 text-[#000000]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7" />
                       </svg>
                     )}
@@ -206,53 +201,66 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Right side Grid Area (Icons: Cart, Search, Profile) */}
-            <div className="flex items-stretch h-full">
+            {/* Right side Grid Area (Icons: Search, Cart, Profile) */}
+            <div className="flex items-center h-full">
+              {/* Search Trigger */}
+              <button
+                onClick={() => setSearchOpen(true)}
+                className={`flex w-11 sm:w-14 md:w-16 h-9 items-center justify-center md:border-l ${borderClass} text-[#310C13] hover:opacity-75 transition-opacity focus:outline-none cursor-pointer`}
+                aria-label="Search products"
+              >
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="11" cy="11" r="7.5" stroke="#310C13" strokeWidth="1.5" />
+                  <path d="M16.5 16.5L21 21" stroke="#310C13" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </button>
+
               {/* Shopping Cart Bag */}
               <Link
                 href="/cart"
-                className={`w-14 md:w-16 flex items-center justify-center relative border-l ${borderClass} ${iconButtonClass} transition-colors`}
+                className={`w-11 sm:w-14 md:w-16 h-9 flex items-center justify-center relative border-l ${borderClass} text-[#310C13] hover:opacity-75 transition-opacity`}
                 aria-label="Cart"
               >
                 <div className="relative">
-                  <svg width="30" height="33" viewBox="0 0 26 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5.5 8.5H20.5C21.6 8.5 22.5 9.4 22.5 10.5V24.5C22.5 25.6 21.6 26.5 20.5 26.5H5.5C4.4 26.5 3.5 25.6 3.5 24.5V10.5C3.5 9.4 4.4 8.5 5.5 8.5Z" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M17.5 8.5C17.5 5.73858 15.2614 3.5 12.5 3.5C9.73858 3.5 7.5 5.73858 7.5 8.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M6.34 8H17.66C18.67 8 19.51 8.75 19.64 9.75L20.77 18.25C20.92 19.44 19.99 20.5 18.79 20.5H5.21C4.01 20.5 3.08 19.44 3.23 18.25L4.36 9.75C4.49 8.75 5.33 8 6.34 8Z"
+                      stroke="#310C13"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M8.5 10.5V7C8.5 5.067 10.067 3.5 12 3.5C13.933 3.5 15.5 5.067 15.5 7V10.5"
+                      stroke="#310C13"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                   {cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-[#B78924] text-white text-[9px] font-semibold w-4 h-4 flex items-center justify-center rounded-full">
+                    <span className="absolute -bottom-1.5 -right-2 bg-[#FFD000] text-white text-[10px] font-medium w-[18px] h-[18px] flex items-center justify-center rounded-full leading-none">
                       {cartCount}
                     </span>
                   )}
                 </div>
               </Link>
 
-              {/* Search Trigger */}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className={`hidden md:flex w-16 items-center justify-center border-l ${borderClass} ${iconButtonClass} transition-colors focus:outline-none`}
-                aria-label="Search products"
-              >
-                <svg width="31" height="31" viewBox="0 0 31 31" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M30.5 30.5L23.2667 23.2667M27.1667 13.8333C27.1667 21.1971 21.1971 27.1667 13.8333 27.1667C6.46954 27.1667 0.5 21.1971 0.5 13.8333C0.5 6.46954 6.46954 0.5 13.8333 0.5C21.1971 0.5 27.1667 6.46954 27.1667 13.8333Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-
               {/* Profile User Icon & Dropdown */}
-              <div className="relative flex items-stretch">
+              <div className="relative flex items-center">
                 {isAuthenticated ? (
                   <>
                     <button
                       onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                      className={`hidden md:flex w-16 items-center justify-center border-l border-r ${borderClass} ${iconButtonClass} transition-colors focus:outline-none cursor-pointer`}
+                      className={`hidden md:flex w-16 h-9 items-center justify-center border-l ${borderClass} text-[#310C13] hover:opacity-75 transition-opacity focus:outline-none cursor-pointer`}
                       aria-label="Account menu"
                     >
-                      <span className="font-questrial text-xs font-semibold tracking-wider text-[#c59b27] uppercase">
+                      <span className="font-questrial text-xs font-semibold tracking-wider text-[#310C13] uppercase">
                         {user?.firstName ? user.firstName.substring(0, 2) : 'US'}
                       </span>
                     </button>
                     {profileDropdownOpen && (
-                      <div className="absolute right-0 top-[100%] w-48 bg-white border border-neutral-100 shadow-xl py-2 z-50 text-neutral-800">
+                      <div className="absolute right-0 top-[140%] w-48 bg-white border border-neutral-100 shadow-xl py-2 z-50 text-neutral-800">
                         <div className="px-4 py-2 border-b border-neutral-100">
                           <p className="font-questrial text-[10px] text-neutral-400 uppercase tracking-widest">Signed in as</p>
                           <p className="font-raleway text-xs font-semibold text-neutral-800 truncate mt-0.5">{user?.firstName} {user?.lastName}</p>
@@ -288,11 +296,18 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/login"
-                    className={`hidden md:flex w-16 items-center justify-center border-l border-r ${borderClass} ${iconButtonClass} transition-colors`}
+                    className={`hidden md:flex w-16 h-9 items-center justify-center border-l ${borderClass} text-[#310C13] hover:opacity-75 transition-opacity`}
                     aria-label="Profile"
                   >
-                    <svg width="25" height="31" viewBox="0 0 25 31" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M23.8333 30.5V27.1667C23.8333 25.3986 23.131 23.7029 21.8807 22.4526C20.6305 21.2024 18.9348 20.5 17.1667 20.5H7.16667C5.39856 20.5 3.70286 21.2024 2.45262 22.4526C1.20238 23.7029 0.5 25.3986 0.5 27.1667V30.5M18.8333 7.16667C18.8333 10.8486 15.8486 13.8333 12.1667 13.8333C8.48477 13.8333 5.5 10.8486 5.5 7.16667C5.5 3.48477 8.48477 0.5 12.1667 0.5C15.8486 0.5 18.8333 3.48477 18.8333 7.16667Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="8" r="4" stroke="#310C13" strokeWidth="1.5" />
+                      <path
+                        d="M5 18.5C5 15.7386 7.46243 14 10.5 14H13.5C16.5376 14 19 15.7386 19 18.5C19 19.6046 18.1046 20.5 17 20.5H7C5.89543 20.5 5 19.6046 5 18.5Z"
+                        stroke="#310C13"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </Link>
                 )}
@@ -326,12 +341,38 @@ export default function Header() {
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          <div className="relative flex flex-col w-full max-w-xs py-4 pb-12 overflow-y-auto bg-white shadow-xl">
-            <div className="flex items-center justify-between px-4 pb-4 border-b border-neutral-100">
-              <span className="font-serif-luxury text-xl tracking-[0.2em] text-gold-600">JEWEL</span>
+          <div className="relative flex flex-col w-full max-w-xs py-5 pb-12 overflow-y-auto bg-white shadow-xl">
+            <div className="flex items-center justify-between px-5 pb-4 border-b border-neutral-100">
+              <div className="flex flex-col items-start">
+                <span
+                  style={{
+                    fontFamily: "'Abhaya Libre', Georgia, serif",
+                    fontWeight: 600,
+                    letterSpacing: '-0.04em',
+                    color: '#310C13',
+                  }}
+                  className="text-[26px] leading-[22px]"
+                >
+                  Brides Berry
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-questrial), 'Questrial', sans-serif",
+                    fontWeight: 400,
+                    fontSize: '5.5px',
+                    lineHeight: '8px',
+                    letterSpacing: '0.32em',
+                    textTransform: 'uppercase',
+                    color: '#310C13',
+                  }}
+                  className="mt-1 block"
+                >
+                  Bridal Jewelry &amp; Accessories
+                </span>
+              </div>
               <button
                 type="button"
-                className="p-2 text-neutral-500 hover:text-neutral-700"
+                className="p-2 text-[#310C13] hover:opacity-70"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -431,18 +472,18 @@ export default function Header() {
                     </button>
                   </>
                 ) : (
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
                     <Link
                       href="/login"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-xs font-questrial uppercase tracking-widest text-[#111111] hover:text-[#c59b27] border border-[#111111] px-4 py-2 flex-1 text-center font-medium"
+                      className="text-xs font-questrial uppercase tracking-widest text-[#310C13] hover:bg-neutral-50 border border-[#310C13] px-4 py-2.5 flex-1 text-center font-medium"
                     >
                       Log In
                     </Link>
                     <Link
                       href="/signup"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-xs font-questrial uppercase tracking-widest text-white hover:bg-neutral-800 bg-[#111111] px-4 py-2 flex-1 text-center font-medium"
+                      className="text-xs font-questrial uppercase tracking-widest text-white hover:bg-[#4a101a] bg-[#310C13] px-4 py-2.5 flex-1 text-center font-medium"
                     >
                       Sign Up
                     </Link>
