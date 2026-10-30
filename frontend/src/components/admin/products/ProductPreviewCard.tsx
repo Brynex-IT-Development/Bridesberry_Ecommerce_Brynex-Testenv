@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { AdminProductFormData, AdminProductMedia, AdminProductVariant } from "@/types/admin";
 
 interface ProductPreviewProps {
@@ -6,6 +6,10 @@ interface ProductPreviewProps {
 }
 
 export default function ProductPreviewCard({ formData }: ProductPreviewProps) {
+  const [fitMode, setFitMode] = useState<"cover" | "contain">("contain");
+  const [alignment, setAlignment] = useState<"top" | "center" | "bottom">("center");
+  const [zoomScale, setZoomScale] = useState<number>(100);
+
   const primaryImage = formData.media?.find((m: AdminProductMedia) => m.isPrimary)?.url;
   
   const name = formData.name || "Untitled Jewelry Piece";
@@ -23,12 +27,121 @@ export default function ProductPreviewCard({ formData }: ProductPreviewProps) {
         Live Customer Catalog Preview
       </div>
 
+      {/* Interactive Alignment / Crop & Fit Controls */}
+      <div className="bg-[#FAF9F6] border-b border-neutral-200 px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-[10px]">
+        {/* Fit Toggle: Contain (Fit Whole Item) vs Cover (Fill Box) */}
+        <div className="flex items-center gap-1.5">
+          <span className="font-bold text-neutral-500 uppercase tracking-wider text-[9px]">Fit:</span>
+          <div className="inline-flex rounded-md bg-white border border-neutral-200 p-0.5 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setFitMode("contain")}
+              className={`px-2 py-0.5 rounded text-[9px] font-bold transition-colors cursor-pointer ${
+                fitMode === "contain"
+                  ? "bg-[#C99213] text-white shadow-2xs"
+                  : "text-neutral-600 hover:text-neutral-900"
+              }`}
+              title="Fit entire jewelry piece inside without cutting edges"
+            >
+              Fit Full
+            </button>
+            <button
+              type="button"
+              onClick={() => setFitMode("cover")}
+              className={`px-2 py-0.5 rounded text-[9px] font-bold transition-colors cursor-pointer ${
+                fitMode === "cover"
+                  ? "bg-neutral-900 text-white shadow-2xs"
+                  : "text-neutral-600 hover:text-neutral-900"
+              }`}
+              title="Fill entire card frame (crop edges)"
+            >
+              Fill Box
+            </button>
+          </div>
+        </div>
+
+        {/* Focus / Alignment Buttons: Top | Mid | Btm */}
+        <div className="flex items-center gap-1.5">
+          <span className="font-bold text-neutral-500 uppercase tracking-wider text-[9px]">Focus:</span>
+          <div className="inline-flex rounded-md bg-white border border-neutral-200 p-0.5 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setAlignment("top")}
+              className={`px-1.5 py-0.5 rounded text-[9px] font-bold transition-colors cursor-pointer ${
+                alignment === "top"
+                  ? "bg-neutral-900 text-white shadow-2xs"
+                  : "text-neutral-600 hover:text-neutral-900"
+              }`}
+              title="Align to Top (ideal for Necklaces to prevent top chains from cutting off)"
+            >
+              Top
+            </button>
+            <button
+              type="button"
+              onClick={() => setAlignment("center")}
+              className={`px-1.5 py-0.5 rounded text-[9px] font-bold transition-colors cursor-pointer ${
+                alignment === "center"
+                  ? "bg-neutral-900 text-white shadow-2xs"
+                  : "text-neutral-600 hover:text-neutral-900"
+              }`}
+              title="Align to Center"
+            >
+              Mid
+            </button>
+            <button
+              type="button"
+              onClick={() => setAlignment("bottom")}
+              className={`px-1.5 py-0.5 rounded text-[9px] font-bold transition-colors cursor-pointer ${
+                alignment === "bottom"
+                  ? "bg-neutral-900 text-white shadow-2xs"
+                  : "text-neutral-600 hover:text-neutral-900"
+              }`}
+              title="Align to Bottom (ideal for pendants)"
+            >
+              Btm
+            </button>
+          </div>
+        </div>
+
+        {/* Scale / Padding Presets */}
+        <div className="flex items-center gap-1">
+          <span className="font-bold text-neutral-500 uppercase tracking-wider text-[9px]">Pad:</span>
+          <div className="inline-flex rounded-md bg-white border border-neutral-200 p-0.5 shadow-2xs">
+            {[100, 92, 85].map((scale) => (
+              <button
+                key={scale}
+                type="button"
+                onClick={() => setZoomScale(scale)}
+                className={`px-1.5 py-0.5 rounded text-[8px] font-bold transition-colors cursor-pointer ${
+                  zoomScale === scale
+                    ? "bg-[#C99213] text-white shadow-2xs"
+                    : "text-neutral-500 hover:text-neutral-900"
+                }`}
+                title={`Scale to ${scale}% with breathing margin`}
+              >
+                {scale === 100 ? "0" : scale === 92 ? "5%" : "10%"}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Product Image Area */}
-      <div className="aspect-square bg-gradient-to-tr from-[#f4efdb] via-[#e8dbb4] to-[#c59b27]/20 border-b border-neutral-100 flex items-center justify-center relative">
+      <div className="aspect-square bg-gradient-to-tr from-[#fbf9f4] via-[#f7f3e8] to-[#f2ecda] border-b border-neutral-100 flex items-center justify-center relative overflow-hidden">
         {primaryImage ? (
           /* Native img is used intentionally for dynamic blob object URL previews */
           /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={primaryImage} alt={name} className="w-full h-full object-cover" />
+          <img
+            src={primaryImage}
+            alt={name}
+            style={{
+              objectFit: fitMode,
+              objectPosition: alignment,
+              transform: zoomScale !== 100 ? `scale(${zoomScale / 100})` : undefined,
+              transition: "transform 0.2s ease, object-position 0.2s ease",
+            }}
+            className={`w-full h-full ${fitMode === "contain" ? "p-3 drop-shadow-sm" : ""}`}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center text-neutral-400 space-y-2">
             <svg className="w-12 h-12 text-[#C99213]" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24">
@@ -40,7 +153,7 @@ export default function ProductPreviewCard({ formData }: ProductPreviewProps) {
         )}
 
         {/* Collection Tags */}
-        <div className="absolute top-3 left-3 flex flex-col space-y-1">
+        <div className="absolute top-3 left-3 flex flex-col space-y-1 pointer-events-none">
           {formData.isNewArrival && (
             <span className="bg-[#1C1B19] text-white text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded shadow-sm">
               NEW
@@ -52,6 +165,18 @@ export default function ProductPreviewCard({ formData }: ProductPreviewProps) {
             </span>
           )}
         </div>
+
+        {/* Quick Mode Indicator Tag on top right */}
+        {primaryImage && (
+          <button
+            type="button"
+            onClick={() => setFitMode(fitMode === "contain" ? "cover" : "contain")}
+            className="absolute top-3 right-3 bg-white/90 hover:bg-white text-neutral-800 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm border border-neutral-200 transition-all cursor-pointer backdrop-blur-xs"
+            title="Click to toggle Fit / Fill"
+          >
+            {fitMode === "contain" ? "Fit Full" : "Fill Box"}
+          </button>
+        )}
       </div>
 
       {/* Product Details Area */}

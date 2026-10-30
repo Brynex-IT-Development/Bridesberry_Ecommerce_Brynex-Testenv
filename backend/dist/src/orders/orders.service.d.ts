@@ -131,6 +131,8 @@ export declare class OrdersService {
                 showOnHomepage: boolean;
                 occasion: string;
                 gender: string;
+                material: string | null;
+                collection: string | null;
                 packageLength: number | null;
                 packageWidth: number | null;
                 packageHeight: number | null;

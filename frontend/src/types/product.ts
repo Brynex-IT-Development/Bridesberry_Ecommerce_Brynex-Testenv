@@ -78,4 +78,5 @@ export interface Product {
   sku?: string;
   variants?: unknown[];
   name?: string;
+  collection?: string;
 }

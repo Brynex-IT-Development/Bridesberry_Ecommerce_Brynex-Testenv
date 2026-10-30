@@ -126,6 +126,8 @@ exports.ProductScalarFieldEnum = {
     showOnHomepage: 'showOnHomepage',
     occasion: 'occasion',
     gender: 'gender',
+    material: 'material',
+    collection: 'collection',
     packageLength: 'packageLength',
     packageWidth: 'packageWidth',
     packageHeight: 'packageHeight',

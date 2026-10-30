@@ -11,6 +11,162 @@ export interface ReelItem {
   linkUrl?: string;
 }
 
+interface ImageFrameAlignmentControlsProps {
+  fit: string;
+  position: string;
+  onChange: (fit: string, position: string) => void;
+  onSave: () => Promise<void>;
+  isSaving: boolean;
+}
+
+function ImageFrameAlignmentControls({
+  fit,
+  position,
+  onChange,
+  onSave,
+  isSaving,
+}: ImageFrameAlignmentControlsProps) {
+  const [justSaved, setJustSaved] = useState(false);
+
+  // Extract vertical offset percentage from position string (e.g., "50% 46%" -> 46)
+  const parsePercent = (pos: string) => {
+    const match = pos.match(/(\d+)%/g);
+    if (match && match.length > 0) {
+      return parseInt(match[match.length - 1], 10);
+    }
+    if (pos.includes("top")) return 10;
+    if (pos.includes("bottom")) return 90;
+    return 50;
+  };
+
+  const currentPercent = parsePercent(position);
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    onChange(fit, `50% ${val}%`);
+  };
+
+  const handleSave = async () => {
+    await onSave();
+    setJustSaved(true);
+    setTimeout(() => setJustSaved(false), 2000);
+  };
+
+  return (
+    <div className="bg-[#FAF9F6] border border-neutral-200 rounded-xl p-3.5 space-y-3 text-xs">
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-neutral-800 text-[11px] uppercase tracking-wider flex items-center gap-1.5 font-sans">
+          <svg className="w-3.5 h-3.5 text-[#C99213]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+          Frame Alignment &amp; Crop
+        </span>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={isSaving}
+          className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+            justSaved
+              ? "bg-emerald-600 text-white"
+              : "bg-neutral-900 hover:bg-neutral-800 text-white disabled:opacity-50"
+          }`}
+        >
+          {isSaving ? (
+            <>
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Saving...</span>
+            </>
+          ) : justSaved ? (
+            <>
+              <Check className="w-3 h-3" />
+              <span>Saved!</span>
+            </>
+          ) : (
+            <span>Save Alignment</span>
+          )}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-neutral-200/80">
+        {/* Fit Mode */}
+        <div className="space-y-1">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">Fit Mode</span>
+          <div className="inline-flex rounded-lg bg-white border border-neutral-200 p-0.5 w-full shadow-2xs">
+            <button
+              type="button"
+              onClick={() => onChange("cover", position)}
+              className={`flex-1 py-1 text-center rounded text-[10px] font-bold transition-all cursor-pointer ${
+                fit === "cover" ? "bg-neutral-900 text-white shadow-2xs" : "text-neutral-600 hover:text-neutral-900"
+              }`}
+              title="Fill entire banner space (crops edges to fit)"
+            >
+              Fill Frame (Cover)
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange("contain", position)}
+              className={`flex-1 py-1 text-center rounded text-[10px] font-bold transition-all cursor-pointer ${
+                fit === "contain" ? "bg-[#C99213] text-white shadow-2xs" : "text-neutral-600 hover:text-neutral-900"
+              }`}
+              title="Fit entire image without any cropping"
+            >
+              Fit Full (Contain)
+            </button>
+          </div>
+        </div>
+
+        {/* Alignment Presets */}
+        <div className="space-y-1">
+          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">Focal Presets</span>
+          <div className="inline-flex rounded-lg bg-white border border-neutral-200 p-0.5 w-full shadow-2xs">
+            {[
+              { label: "Top", pos: "50% 10%" },
+              { label: "Center", pos: "50% 50%" },
+              { label: "Bottom", pos: "50% 90%" },
+            ].map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => onChange(fit, preset.pos)}
+                className={`flex-1 py-1 text-center rounded text-[10px] font-bold transition-all cursor-pointer ${
+                  position === preset.pos
+                    ? "bg-[#C99213] text-white shadow-2xs"
+                    : "text-neutral-600 hover:text-neutral-900"
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Fine-Tuning Vertical Offset Slider */}
+      <div className="space-y-1.5 pt-1">
+        <div className="flex justify-between items-center text-[10px]">
+          <span className="font-semibold text-neutral-600">Vertical Framing Position (Focal Y):</span>
+          <span className="font-mono font-bold text-[#C99213] bg-white px-1.5 py-0.5 rounded border border-neutral-200">
+            {currentPercent}%
+          </span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={currentPercent}
+          onChange={handleSliderChange}
+          className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-[#C99213]"
+        />
+        <div className="flex justify-between text-[9px] text-neutral-400 font-medium px-0.5">
+          <span>0% (Top of photo)</span>
+          <span>50% (Center)</span>
+          <span>100% (Bottom of photo)</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminHomepageConfigPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [reels, setReels] = useState<(string | ReelItem)[]>([]);
@@ -44,6 +200,33 @@ export default function AdminHomepageConfigPage() {
   const [promoPopupImage, setPromoPopupImage] = useState("");
   const [uploadingPromoImage, setUploadingPromoImage] = useState(false);
   const [savingPromo, setSavingPromo] = useState(false);
+
+  // Alignment saving indicator
+  const [savingAlignmentKey, setSavingAlignmentKey] = useState<string | null>(null);
+
+  const handleUpdateSettingLocal = (key: string, val: string) => {
+    setSettings((prev) => ({ ...prev, [key]: val }));
+  };
+
+  const handleSaveAlignment = async (prefix: string) => {
+    setSavingAlignmentKey(prefix);
+    const fitKey = `${prefix}_fit`;
+    const posKey = `${prefix}_position`;
+    const fitVal = settings[fitKey] || "cover";
+    const posVal = settings[posKey] || (prefix === "hero_image" ? "50% 46%" : "center");
+
+    try {
+      await Promise.all([
+        saveSystemSetting(fitKey, fitVal),
+        saveSystemSetting(posKey, posVal),
+      ]);
+    } catch (err: any) {
+      console.warn("Save alignment failed:", err);
+      alert(`Failed to save alignment: ${err?.message || "Unknown error"}`);
+    } finally {
+      setSavingAlignmentKey(null);
+    }
+  };
 
   const breadcrumbs = [
     { label: "Dashboard", href: "/admin/dashboard" },
@@ -367,6 +550,8 @@ export default function AdminHomepageConfigPage() {
         saveSystemSetting("promo_popup_description", promoPopupDescription),
         saveSystemSetting("promo_popup_link", promoPopupLink),
         saveSystemSetting("promo_popup_image", promoPopupImage),
+        saveSystemSetting("promo_popup_image_fit", settings.promo_popup_image_fit || "cover"),
+        saveSystemSetting("promo_popup_image_position", settings.promo_popup_image_position || "center"),
       ]);
       alert("Promo Announcement settings saved successfully!");
     } catch (err) {
@@ -440,7 +625,12 @@ export default function AdminHomepageConfigPage() {
               <img
                 src={settings.hero_image || "/hero-bg-v2.jpg"}
                 alt="Current Hero Background"
-                className="w-full h-full object-cover"
+                style={{
+                  objectFit: (settings.hero_image_fit as any) || "cover",
+                  objectPosition: settings.hero_image_position || "50% 46%",
+                  transition: "object-position 0.15s ease",
+                }}
+                className="w-full h-full"
               />
               {!settings.hero_image && (
                 <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
@@ -454,6 +644,18 @@ export default function AdminHomepageConfigPage() {
                 </div>
               )}
             </div>
+
+            {/* Interactive Alignment & Crop Toolbar */}
+            <ImageFrameAlignmentControls
+              fit={settings.hero_image_fit || "cover"}
+              position={settings.hero_image_position || "50% 46%"}
+              onChange={(newFit, newPos) => {
+                handleUpdateSettingLocal("hero_image_fit", newFit);
+                handleUpdateSettingLocal("hero_image_position", newPos);
+              }}
+              onSave={() => handleSaveAlignment("hero_image")}
+              isSaving={savingAlignmentKey === "hero_image"}
+            />
 
             {/* Upload Button */}
             <div className="flex items-center justify-end">
@@ -497,7 +699,12 @@ export default function AdminHomepageConfigPage() {
               <img
                 src={settings.category_image || "/discover-shell-necklace.jpg"}
                 alt="Current Category Banner"
-                className="w-full h-full object-cover"
+                style={{
+                  objectFit: (settings.category_image_fit as any) || "cover",
+                  objectPosition: settings.category_image_position || "50% 50%",
+                  transition: "object-position 0.15s ease",
+                }}
+                className="w-full h-full"
               />
               {!settings.category_image && (
                 <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
@@ -511,6 +718,18 @@ export default function AdminHomepageConfigPage() {
                 </div>
               )}
             </div>
+
+            {/* Interactive Alignment & Crop Toolbar */}
+            <ImageFrameAlignmentControls
+              fit={settings.category_image_fit || "cover"}
+              position={settings.category_image_position || "50% 50%"}
+              onChange={(newFit, newPos) => {
+                handleUpdateSettingLocal("category_image_fit", newFit);
+                handleUpdateSettingLocal("category_image_position", newPos);
+              }}
+              onSave={() => handleSaveAlignment("category_image")}
+              isSaving={savingAlignmentKey === "category_image"}
+            />
 
             {/* Upload Button */}
             <div className="flex items-center justify-end">
@@ -553,7 +772,12 @@ export default function AdminHomepageConfigPage() {
               <img
                 src={settings.editorial_showcase_1 || "/discover-bag-model.jpg"}
                 alt="Mid-Page Editorial Banner"
-                className="w-full h-full object-cover"
+                style={{
+                  objectFit: (settings.editorial_showcase_1_fit as any) || "cover",
+                  objectPosition: settings.editorial_showcase_1_position || "50% 50%",
+                  transition: "object-position 0.15s ease",
+                }}
+                className="w-full h-full"
               />
               {!settings.editorial_showcase_1 && (
                 <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
@@ -567,6 +791,18 @@ export default function AdminHomepageConfigPage() {
                 </div>
               )}
             </div>
+
+            {/* Interactive Alignment & Crop Toolbar */}
+            <ImageFrameAlignmentControls
+              fit={settings.editorial_showcase_1_fit || "cover"}
+              position={settings.editorial_showcase_1_position || "50% 50%"}
+              onChange={(newFit, newPos) => {
+                handleUpdateSettingLocal("editorial_showcase_1_fit", newFit);
+                handleUpdateSettingLocal("editorial_showcase_1_position", newPos);
+              }}
+              onSave={() => handleSaveAlignment("editorial_showcase_1")}
+              isSaving={savingAlignmentKey === "editorial_showcase_1"}
+            />
 
             <div className="flex items-center justify-end">
               <label className="flex items-center space-x-2 px-5 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer shadow-sm">
@@ -608,7 +844,12 @@ export default function AdminHomepageConfigPage() {
               <img
                 src={settings.editorial_showcase_2 || "/discover-bridal-heels.jpg"}
                 alt="Bottom Editorial Banner"
-                className="w-full h-full object-cover"
+                style={{
+                  objectFit: (settings.editorial_showcase_2_fit as any) || "cover",
+                  objectPosition: settings.editorial_showcase_2_position || "50% 50%",
+                  transition: "object-position 0.15s ease",
+                }}
+                className="w-full h-full"
               />
               {!settings.editorial_showcase_2 && (
                 <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
@@ -622,6 +863,18 @@ export default function AdminHomepageConfigPage() {
                 </div>
               )}
             </div>
+
+            {/* Interactive Alignment & Crop Toolbar */}
+            <ImageFrameAlignmentControls
+              fit={settings.editorial_showcase_2_fit || "cover"}
+              position={settings.editorial_showcase_2_position || "50% 50%"}
+              onChange={(newFit, newPos) => {
+                handleUpdateSettingLocal("editorial_showcase_2_fit", newFit);
+                handleUpdateSettingLocal("editorial_showcase_2_position", newPos);
+              }}
+              onSave={() => handleSaveAlignment("editorial_showcase_2")}
+              isSaving={savingAlignmentKey === "editorial_showcase_2"}
+            />
 
             <div className="flex items-center justify-end">
               <label className="flex items-center space-x-2 px-5 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer shadow-sm">
@@ -727,7 +980,12 @@ export default function AdminHomepageConfigPage() {
                     <img
                       src={promoPopupImage}
                       alt="Promo Popup Banner"
-                      className="w-full h-full object-cover"
+                      style={{
+                        objectFit: (settings.promo_popup_image_fit as any) || "cover",
+                        objectPosition: settings.promo_popup_image_position || "50% 50%",
+                        transition: "object-position 0.15s ease",
+                      }}
+                      className="w-full h-full"
                     />
                     {/* Clear overlay button */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -755,6 +1013,19 @@ export default function AdminHomepageConfigPage() {
                   </div>
                 )}
               </div>
+
+              {promoPopupImage && (
+                <ImageFrameAlignmentControls
+                  fit={settings.promo_popup_image_fit || "cover"}
+                  position={settings.promo_popup_image_position || "50% 50%"}
+                  onChange={(newFit, newPos) => {
+                    handleUpdateSettingLocal("promo_popup_image_fit", newFit);
+                    handleUpdateSettingLocal("promo_popup_image_position", newPos);
+                  }}
+                  onSave={() => handleSaveAlignment("promo_popup_image")}
+                  isSaving={savingAlignmentKey === "promo_popup_image"}
+                />
+              )}
 
               {/* Upload block trigger */}
               <div className="flex flex-wrap justify-between items-center gap-2">

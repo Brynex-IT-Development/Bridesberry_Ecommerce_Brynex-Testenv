@@ -56,19 +56,35 @@ export default function Header() {
             }
 
             if (item.name === 'Collections') {
+              const activeCollections = collections || [];
+
+              if (activeCollections.length === 0) {
+                return {
+                  ...item,
+                  hasMegaMenu: false,
+                  megaMenuColumns: [],
+                };
+              }
+
+              const allItems = activeCollections.map((colName) => ({
+                name: colName,
+                href: `/shop?collection=${encodeURIComponent(colName)}`,
+              }));
+
+              // Distribute items across up to 3 columns if list is large
+              const itemsPerCol = Math.max(4, Math.ceil(allItems.length / 3));
+              const megaCols = [];
+              for (let i = 0; i < allItems.length; i += itemsPerCol) {
+                megaCols.push({
+                  title: i === 0 ? 'COLLECTIONS' : 'MORE COLLECTIONS',
+                  items: allItems.slice(i, i + itemsPerCol),
+                });
+              }
+
               return {
                 ...item,
-                megaMenuColumns: collections.length
-                  ? [
-                      {
-                        title: 'COLLECTIONS',
-                        items: collections.map((collection) => ({
-                          name: collection,
-                          href: `/shop?collection=${encodeURIComponent(collection)}`,
-                        })),
-                      },
-                    ]
-                  : [],
+                hasMegaMenu: true,
+                megaMenuColumns: megaCols,
               };
             }
 
@@ -170,6 +186,14 @@ export default function Header() {
                 >
                   <Link
                     href={item.href}
+                    onClick={(e) => {
+                      if (item.hasMegaMenu) {
+                        if (hoveredItem?.name !== item.name) {
+                          e.preventDefault();
+                          setHoveredItem(item);
+                        }
+                      }
+                    }}
                     style={{
                       fontFamily: "var(--font-stack-text), 'Stack Sans Text', sans-serif",
                       fontWeight: 200,
@@ -539,7 +563,7 @@ export default function Header() {
               <span>•</span>
               <Link href="/shop?category=earrings" onClick={() => setSearchOpen(false)} className="hover:text-gold-500 underline decoration-neutral-200">Earrings</Link>
               <span>•</span>
-              <Link href="/shop?collection=aurelia" onClick={() => setSearchOpen(false)} className="hover:text-gold-500 underline decoration-neutral-200">Aurelia</Link>
+              <Link href="/shop?category=necklaces" onClick={() => setSearchOpen(false)} className="hover:text-gold-500 underline decoration-neutral-200">Necklaces</Link>
               <span>•</span>
               <Link href="/shop?filter=bestseller" onClick={() => setSearchOpen(false)} className="hover:text-gold-500 underline decoration-neutral-200">Best Sellers</Link>
             </div>

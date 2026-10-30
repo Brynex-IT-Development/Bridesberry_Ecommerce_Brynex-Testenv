@@ -4,12 +4,20 @@ import Image from 'next/image';
 
 interface EditorialShowcaseSectionProps {
   primaryEditorialImage?: string;
+  primaryEditorialPosition?: string;
+  primaryEditorialFit?: 'cover' | 'contain';
   secondaryEditorialImage?: string;
+  secondaryEditorialPosition?: string;
+  secondaryEditorialFit?: 'cover' | 'contain';
 }
 
 export default function EditorialShowcaseSection({
   primaryEditorialImage,
+  primaryEditorialPosition,
+  primaryEditorialFit = 'cover',
   secondaryEditorialImage,
+  secondaryEditorialPosition,
+  secondaryEditorialFit = 'cover',
 }: EditorialShowcaseSectionProps) {
   return (
     <section className="w-full overflow-hidden">
@@ -22,7 +30,10 @@ export default function EditorialShowcaseSection({
             alt="Discover Our Modern Jewelry Collection"
             fill
             sizes="(max-width: 1024px) 100vw, 58vw"
-            className="object-cover object-center"
+            style={{
+              objectPosition: primaryEditorialPosition || 'center',
+              objectFit: primaryEditorialFit,
+            }}
           />
         </div>
 
@@ -161,7 +172,10 @@ export default function EditorialShowcaseSection({
                   alt="Discover Our Modern Jewelry Collection"
                   fill
                   sizes="(max-width: 1024px) 100vw, 60vw"
-                  className="object-cover object-center"
+                  style={{
+                    objectPosition: secondaryEditorialPosition || 'center',
+                    objectFit: secondaryEditorialFit,
+                  }}
                 />
               </div>
             </div>

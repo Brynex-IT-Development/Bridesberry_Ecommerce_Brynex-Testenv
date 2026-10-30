@@ -44,6 +44,8 @@ export type ProductMinAggregateOutputType = {
     showOnHomepage: boolean | null;
     occasion: string | null;
     gender: string | null;
+    material: string | null;
+    collection: string | null;
     packageLength: number | null;
     packageWidth: number | null;
     packageHeight: number | null;
@@ -69,6 +71,8 @@ export type ProductMaxAggregateOutputType = {
     showOnHomepage: boolean | null;
     occasion: string | null;
     gender: string | null;
+    material: string | null;
+    collection: string | null;
     packageLength: number | null;
     packageWidth: number | null;
     packageHeight: number | null;
@@ -94,6 +98,8 @@ export type ProductCountAggregateOutputType = {
     showOnHomepage: number;
     occasion: number;
     gender: number;
+    material: number;
+    collection: number;
     packageLength: number;
     packageWidth: number;
     packageHeight: number;
@@ -138,6 +144,8 @@ export type ProductMinAggregateInputType = {
     showOnHomepage?: true;
     occasion?: true;
     gender?: true;
+    material?: true;
+    collection?: true;
     packageLength?: true;
     packageWidth?: true;
     packageHeight?: true;
@@ -163,6 +171,8 @@ export type ProductMaxAggregateInputType = {
     showOnHomepage?: true;
     occasion?: true;
     gender?: true;
+    material?: true;
+    collection?: true;
     packageLength?: true;
     packageWidth?: true;
     packageHeight?: true;
@@ -188,6 +198,8 @@ export type ProductCountAggregateInputType = {
     showOnHomepage?: true;
     occasion?: true;
     gender?: true;
+    material?: true;
+    collection?: true;
     packageLength?: true;
     packageWidth?: true;
     packageHeight?: true;
@@ -242,6 +254,8 @@ export type ProductGroupByOutputType = {
     showOnHomepage: boolean;
     occasion: string;
     gender: string;
+    material: string | null;
+    collection: string | null;
     packageLength: number | null;
     packageWidth: number | null;
     packageHeight: number | null;
@@ -278,6 +292,8 @@ export type ProductWhereInput = {
     showOnHomepage?: Prisma.BoolFilter<"Product"> | boolean;
     occasion?: Prisma.StringFilter<"Product"> | string;
     gender?: Prisma.StringFilter<"Product"> | string;
+    material?: Prisma.StringNullableFilter<"Product"> | string | null;
+    collection?: Prisma.StringNullableFilter<"Product"> | string | null;
     packageLength?: Prisma.FloatNullableFilter<"Product"> | number | null;
     packageWidth?: Prisma.FloatNullableFilter<"Product"> | number | null;
     packageHeight?: Prisma.FloatNullableFilter<"Product"> | number | null;
@@ -309,6 +325,8 @@ export type ProductOrderByWithRelationInput = {
     showOnHomepage?: Prisma.SortOrder;
     occasion?: Prisma.SortOrder;
     gender?: Prisma.SortOrder;
+    material?: Prisma.SortOrderInput | Prisma.SortOrder;
+    collection?: Prisma.SortOrderInput | Prisma.SortOrder;
     packageLength?: Prisma.SortOrderInput | Prisma.SortOrder;
     packageWidth?: Prisma.SortOrderInput | Prisma.SortOrder;
     packageHeight?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -343,6 +361,8 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
     showOnHomepage?: Prisma.BoolFilter<"Product"> | boolean;
     occasion?: Prisma.StringFilter<"Product"> | string;
     gender?: Prisma.StringFilter<"Product"> | string;
+    material?: Prisma.StringNullableFilter<"Product"> | string | null;
+    collection?: Prisma.StringNullableFilter<"Product"> | string | null;
     packageLength?: Prisma.FloatNullableFilter<"Product"> | number | null;
     packageWidth?: Prisma.FloatNullableFilter<"Product"> | number | null;
     packageHeight?: Prisma.FloatNullableFilter<"Product"> | number | null;
@@ -374,6 +394,8 @@ export type ProductOrderByWithAggregationInput = {
     showOnHomepage?: Prisma.SortOrder;
     occasion?: Prisma.SortOrder;
     gender?: Prisma.SortOrder;
+    material?: Prisma.SortOrderInput | Prisma.SortOrder;
+    collection?: Prisma.SortOrderInput | Prisma.SortOrder;
     packageLength?: Prisma.SortOrderInput | Prisma.SortOrder;
     packageWidth?: Prisma.SortOrderInput | Prisma.SortOrder;
     packageHeight?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -407,6 +429,8 @@ export type ProductScalarWhereWithAggregatesInput = {
     showOnHomepage?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean;
     occasion?: Prisma.StringWithAggregatesFilter<"Product"> | string;
     gender?: Prisma.StringWithAggregatesFilter<"Product"> | string;
+    material?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null;
+    collection?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null;
     packageLength?: Prisma.FloatNullableWithAggregatesFilter<"Product"> | number | null;
     packageWidth?: Prisma.FloatNullableWithAggregatesFilter<"Product"> | number | null;
     packageHeight?: Prisma.FloatNullableWithAggregatesFilter<"Product"> | number | null;
@@ -432,6 +456,8 @@ export type ProductCreateInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -462,6 +488,8 @@ export type ProductUncheckedCreateInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -492,6 +520,8 @@ export type ProductUpdateInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -522,6 +552,8 @@ export type ProductUncheckedUpdateInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -552,6 +584,8 @@ export type ProductCreateManyInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -577,6 +611,8 @@ export type ProductUpdateManyMutationInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -601,6 +637,8 @@ export type ProductUncheckedUpdateManyInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -634,6 +672,8 @@ export type ProductCountOrderByAggregateInput = {
     showOnHomepage?: Prisma.SortOrder;
     occasion?: Prisma.SortOrder;
     gender?: Prisma.SortOrder;
+    material?: Prisma.SortOrder;
+    collection?: Prisma.SortOrder;
     packageLength?: Prisma.SortOrder;
     packageWidth?: Prisma.SortOrder;
     packageHeight?: Prisma.SortOrder;
@@ -668,6 +708,8 @@ export type ProductMaxOrderByAggregateInput = {
     showOnHomepage?: Prisma.SortOrder;
     occasion?: Prisma.SortOrder;
     gender?: Prisma.SortOrder;
+    material?: Prisma.SortOrder;
+    collection?: Prisma.SortOrder;
     packageLength?: Prisma.SortOrder;
     packageWidth?: Prisma.SortOrder;
     packageHeight?: Prisma.SortOrder;
@@ -693,6 +735,8 @@ export type ProductMinOrderByAggregateInput = {
     showOnHomepage?: Prisma.SortOrder;
     occasion?: Prisma.SortOrder;
     gender?: Prisma.SortOrder;
+    material?: Prisma.SortOrder;
+    collection?: Prisma.SortOrder;
     packageLength?: Prisma.SortOrder;
     packageWidth?: Prisma.SortOrder;
     packageHeight?: Prisma.SortOrder;
@@ -852,6 +896,8 @@ export type ProductCreateWithoutCategoryInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -881,6 +927,8 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -934,6 +982,8 @@ export type ProductScalarWhereInput = {
     showOnHomepage?: Prisma.BoolFilter<"Product"> | boolean;
     occasion?: Prisma.StringFilter<"Product"> | string;
     gender?: Prisma.StringFilter<"Product"> | string;
+    material?: Prisma.StringNullableFilter<"Product"> | string | null;
+    collection?: Prisma.StringNullableFilter<"Product"> | string | null;
     packageLength?: Prisma.FloatNullableFilter<"Product"> | number | null;
     packageWidth?: Prisma.FloatNullableFilter<"Product"> | number | null;
     packageHeight?: Prisma.FloatNullableFilter<"Product"> | number | null;
@@ -959,6 +1009,8 @@ export type ProductCreateWithoutImagesInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -988,6 +1040,8 @@ export type ProductUncheckedCreateWithoutImagesInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1030,6 +1084,8 @@ export type ProductUpdateWithoutImagesInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1059,6 +1115,8 @@ export type ProductUncheckedUpdateWithoutImagesInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1088,6 +1146,8 @@ export type ProductCreateWithoutVariantsInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1117,6 +1177,8 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1159,6 +1221,8 @@ export type ProductUpdateWithoutVariantsInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1188,6 +1252,8 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1217,6 +1283,8 @@ export type ProductCreateWithoutInventoryInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1246,6 +1314,8 @@ export type ProductUncheckedCreateWithoutInventoryInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1288,6 +1358,8 @@ export type ProductUpdateWithoutInventoryInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1317,6 +1389,8 @@ export type ProductUncheckedUpdateWithoutInventoryInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1346,6 +1420,8 @@ export type ProductCreateWithoutStockTransactionsInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1375,6 +1451,8 @@ export type ProductUncheckedCreateWithoutStockTransactionsInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1417,6 +1495,8 @@ export type ProductUpdateWithoutStockTransactionsInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1446,6 +1526,8 @@ export type ProductUncheckedUpdateWithoutStockTransactionsInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1475,6 +1557,8 @@ export type ProductCreateWithoutOrderItemsInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1504,6 +1588,8 @@ export type ProductUncheckedCreateWithoutOrderItemsInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1546,6 +1632,8 @@ export type ProductUpdateWithoutOrderItemsInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1575,6 +1663,8 @@ export type ProductUncheckedUpdateWithoutOrderItemsInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1604,6 +1694,8 @@ export type ProductCreateManyCategoryInput = {
     showOnHomepage?: boolean;
     occasion?: string;
     gender?: string;
+    material?: string | null;
+    collection?: string | null;
     packageLength?: number | null;
     packageWidth?: number | null;
     packageHeight?: number | null;
@@ -1628,6 +1720,8 @@ export type ProductUpdateWithoutCategoryInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1657,6 +1751,8 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1686,6 +1782,8 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
     showOnHomepage?: Prisma.BoolFieldUpdateOperationsInput | boolean;
     occasion?: Prisma.StringFieldUpdateOperationsInput | string;
     gender?: Prisma.StringFieldUpdateOperationsInput | string;
+    material?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     packageLength?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageWidth?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
     packageHeight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1737,6 +1835,8 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     showOnHomepage?: boolean;
     occasion?: boolean;
     gender?: boolean;
+    material?: boolean;
+    collection?: boolean;
     packageLength?: boolean;
     packageWidth?: boolean;
     packageHeight?: boolean;
@@ -1769,6 +1869,8 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
     showOnHomepage?: boolean;
     occasion?: boolean;
     gender?: boolean;
+    material?: boolean;
+    collection?: boolean;
     packageLength?: boolean;
     packageWidth?: boolean;
     packageHeight?: boolean;
@@ -1795,6 +1897,8 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
     showOnHomepage?: boolean;
     occasion?: boolean;
     gender?: boolean;
+    material?: boolean;
+    collection?: boolean;
     packageLength?: boolean;
     packageWidth?: boolean;
     packageHeight?: boolean;
@@ -1821,6 +1925,8 @@ export type ProductSelectScalar = {
     showOnHomepage?: boolean;
     occasion?: boolean;
     gender?: boolean;
+    material?: boolean;
+    collection?: boolean;
     packageLength?: boolean;
     packageWidth?: boolean;
     packageHeight?: boolean;
@@ -1829,7 +1935,7 @@ export type ProductSelectScalar = {
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "sku" | "shortDescription" | "description" | "sellingPrice" | "mrp" | "costPrice" | "status" | "featured" | "newArrival" | "bestSeller" | "showOnHomepage" | "occasion" | "gender" | "packageLength" | "packageWidth" | "packageHeight" | "packageWeight" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>;
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "sku" | "shortDescription" | "description" | "sellingPrice" | "mrp" | "costPrice" | "status" | "featured" | "newArrival" | "bestSeller" | "showOnHomepage" | "occasion" | "gender" | "material" | "collection" | "packageLength" | "packageWidth" | "packageHeight" | "packageWeight" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>;
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     category?: boolean | Prisma.Product$categoryArgs<ExtArgs>;
     images?: boolean | Prisma.Product$imagesArgs<ExtArgs>;
@@ -1872,6 +1978,8 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -1958,6 +2066,8 @@ export interface ProductFieldRefs {
     readonly showOnHomepage: Prisma.FieldRef<"Product", 'Boolean'>;
     readonly occasion: Prisma.FieldRef<"Product", 'String'>;
     readonly gender: Prisma.FieldRef<"Product", 'String'>;
+    readonly material: Prisma.FieldRef<"Product", 'String'>;
+    readonly collection: Prisma.FieldRef<"Product", 'String'>;
     readonly packageLength: Prisma.FieldRef<"Product", 'Float'>;
     readonly packageWidth: Prisma.FieldRef<"Product", 'Float'>;
     readonly packageHeight: Prisma.FieldRef<"Product", 'Float'>;

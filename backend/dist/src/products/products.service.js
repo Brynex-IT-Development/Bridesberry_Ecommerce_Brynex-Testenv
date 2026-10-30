@@ -58,6 +58,12 @@ let ProductsService = ProductsService_1 = class ProductsService {
                 slug: query.category,
             };
         }
+        if (query.collection) {
+            where.collection = {
+                equals: query.collection,
+                mode: 'insensitive',
+            };
+        }
         if (query.minPrice !== undefined || query.maxPrice !== undefined) {
             const priceFilter = {};
             if (query.minPrice !== undefined) {
@@ -187,6 +193,24 @@ let ProductsService = ProductsService_1 = class ProductsService {
             totalPages: Math.ceil(total / limit),
         };
     }
+    async findCollections(activeOnly = true) {
+        const where = {
+            collection: { not: null },
+        };
+        if (activeOnly) {
+            where.status = client_js_1.ProductStatus.ACTIVE;
+        }
+        const products = await this.prisma.product.findMany({
+            where,
+            select: { collection: true },
+            distinct: ['collection'],
+            orderBy: { collection: 'asc' },
+        });
+        const collections = products
+            .map((product) => product.collection?.trim())
+            .filter((collection) => Boolean(collection));
+        return [...new Set(collections)].sort((a, b) => a.localeCompare(b));
+    }
     async getFilterMetadata() {
         const activeProducts = await this.prisma.product.findMany({
             where: {
@@ -216,11 +240,14 @@ let ProductsService = ProductsService_1 = class ProductsService {
                         name: cat.name,
                         slug: cat.slug,
                         count: 1,
+                        sortOrder: cat.sortOrder,
                     });
                 }
             }
         }
-        const categories = Array.from(categoryMap.values());
+        const categories = Array.from(categoryMap.values())
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .map(({ id, name, slug, count }) => ({ id, name, slug, count }));
         let minPrice = 0;
         let maxPrice = 0;
         if (activeProducts.length > 0) {
@@ -290,7 +317,11 @@ let ProductsService = ProductsService_1 = class ProductsService {
     async findOne(idOrSlug) {
         const product = await this.prisma.product.findFirst({
             where: {
-                OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+                OR: [
+                    { id: idOrSlug },
+                    { slug: idOrSlug },
+                    { sku: idOrSlug },
+                ],
             },
             include: {
                 images: {
@@ -364,6 +395,8 @@ let ProductsService = ProductsService_1 = class ProductsService {
                     showOnHomepage: dto.showOnHomepage ?? false,
                     occasion: dto.occasion || 'Everyday',
                     gender: dto.gender || 'Unisex',
+                    material: dto.material,
+                    collection: dto.collection,
                     categoryId: dto.categoryId,
                     images: {
                         create: (dto.images || []).map((img) => ({
@@ -504,8 +537,12 @@ let ProductsService = ProductsService_1 = class ProductsService {
             }
             if (dto.variants) {
                 const variantIdsToKeep = [];
+                const existingVariantIds = new Set(product.variants.map((v) => v.id));
                 for (const varDto of dto.variants) {
                     if (varDto.id) {
+                        if (!existingVariantIds.has(varDto.id)) {
+                            throw new common_1.BadRequestException(`Variant ${varDto.id} does not belong to product ${id}.`);
+                        }
                         const updatedVar = await tx.productVariant.update({
                             where: { id: varDto.id },
                             data: {
@@ -530,7 +567,7 @@ let ProductsService = ProductsService_1 = class ProductsService {
                         await tx.inventory.create({
                             data: {
                                 variantId: newVar.id,
-                                currentStock: 0,
+                                currentStock: varDto.initialStock ?? 0,
                             },
                         });
                         variantIdsToKeep.push(newVar.id);
@@ -564,6 +601,8 @@ let ProductsService = ProductsService_1 = class ProductsService {
                     showOnHomepage: dto.showOnHomepage,
                     occasion: dto.occasion,
                     gender: dto.gender,
+                    material: dto.material,
+                    collection: dto.collection,
                 },
             });
         });

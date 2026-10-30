@@ -8,13 +8,14 @@ export default function Footer() {
     { name: 'New Arrivals', href: '/shop?sort=newest' },
     { name: 'Best Sellers', href: '/shop?filter=bestseller' },
     { name: 'Collections', href: '/shop' },
-    { name: 'Gifts', href: '/shop' },
+    { name: 'Bridal Journal', href: '/blog' },
   ];
 
   const helpLinks = [
     { name: 'Shipping', href: '#' },
     { name: 'Returns', href: '#' },
     { name: 'FAQs', href: '#' },
+    { name: 'Privacy Policy', href: '/privacy-policy' },
     { name: 'Contact Us', href: '#footer' },
   ];
 
@@ -181,8 +182,14 @@ export default function Footer() {
           }}
           className="border-t border-[#D9D9D9] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[#595959] text-[13px]"
         >
-          <span>Copyrights</span>
-          <span>© {new Date().getFullYear()} Brides Berry. All Rights Reserved.</span>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+            <span>© {new Date().getFullYear()} Brides Berry. All Rights Reserved.</span>
+            <span className="text-neutral-300">|</span>
+            <Link href="/privacy-policy" className="hover:text-[#310C13] transition-colors underline-offset-4 hover:underline">
+              Privacy Policy
+            </Link>
+          </div>
+          <span>Brynex Apparels Private Ltd</span>
         </div>
       </div>
     </footer>

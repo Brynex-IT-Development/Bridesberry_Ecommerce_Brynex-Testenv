@@ -5,10 +5,12 @@ import { getSystemSettings } from '@/services/system-settings.service';
 export default async function HeroSection() {
   const settings = await getSystemSettings();
   const heroImage = settings.hero_image || '/hero-bg-v2.jpg';
+  const heroPosition = settings.hero_image_position || '50% 46%';
+  const heroFit = (settings.hero_image_fit as 'cover' | 'contain') || 'cover';
 
   return (
     <section className="relative w-full h-[76vh] sm:h-[85vh] min-h-[520px] sm:min-h-[640px] max-h-[860px] mt-16 md:mt-20 flex items-center overflow-hidden bg-neutral-900">
-      {/* Single Full-Color Background Image (centered on earring for mobile & editorial framing on desktop) */}
+      {/* Single Full-Color Background Image (focal alignment and fit configurable via Admin) */}
       <div className="absolute inset-0 w-full h-full">
         <Image
           src={heroImage}
@@ -17,7 +19,8 @@ export default async function HeroSection() {
           priority
           quality={100}
           sizes="100vw"
-          className="object-cover object-[48%_41%] md:object-[50%_46%] saturate-115 contrast-[1.03]"
+          style={{ objectPosition: heroPosition, objectFit: heroFit }}
+          className="saturate-115 contrast-[1.03]"
         />
       </div>
 

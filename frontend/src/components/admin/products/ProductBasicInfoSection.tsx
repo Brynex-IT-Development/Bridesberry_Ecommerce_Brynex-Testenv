@@ -12,9 +12,17 @@ interface ProductBasicInfoProps {
   onChange: (field: keyof AdminProductFormData, value: string | number | boolean) => void;
   categories: CategoryOption[];
   categoriesLoading: boolean;
+  existingCollections?: string[];
 }
 
-export default function ProductBasicInfoSection({ errors, formData, onChange, categories, categoriesLoading }: ProductBasicInfoProps) {
+export default function ProductBasicInfoSection({
+  errors,
+  formData,
+  onChange,
+  categories,
+  categoriesLoading,
+  existingCollections = [],
+}: ProductBasicInfoProps) {
   // Generate slug dynamically from name if slug is empty
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
@@ -157,16 +165,59 @@ export default function ProductBasicInfoSection({ errors, formData, onChange, ca
 
         {/* Collection */}
         <div className="flex flex-col space-y-1.5">
-          <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
-            Collection
-          </label>
-          <input
-            type="text"
-            value={formData.collection || ""}
-            onChange={(e) => onChange("collection", e.target.value)}
-            placeholder="e.g. Aurelia Collection"
-            className="px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850 placeholder-neutral-400"
-          />
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+              Collection
+            </label>
+            {existingCollections.length > 0 && (
+              <span className="text-[10px] text-neutral-400 font-medium">
+                {existingCollections.length} existing
+              </span>
+            )}
+          </div>
+          <div className="relative">
+            <input
+              type="text"
+              list="existing-collections-datalist"
+              value={formData.collection || ""}
+              onChange={(e) => onChange("collection", e.target.value)}
+              placeholder="Enter collection name"
+              className="w-full px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850 placeholder-neutral-400"
+            />
+            {existingCollections.length > 0 && (
+              <datalist id="existing-collections-datalist">
+                {existingCollections.map((col) => (
+                  <option key={col} value={col} />
+                ))}
+              </datalist>
+            )}
+          </div>
+
+          {/* Existing Collection Chips for 1-click selection */}
+          {existingCollections.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+              <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">
+                Select Existing:
+              </span>
+              {existingCollections.map((col) => {
+                const isSelected = (formData.collection || "").trim().toLowerCase() === col.trim().toLowerCase();
+                return (
+                  <button
+                    key={col}
+                    type="button"
+                    onClick={() => onChange("collection", isSelected ? "" : col)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all cursor-pointer border ${
+                      isSelected
+                        ? "bg-[#C99213] text-white border-[#C99213] shadow-2xs"
+                        : "bg-neutral-50 hover:bg-neutral-100 text-neutral-600 border-neutral-200"
+                    }`}
+                  >
+                    {col} {isSelected ? "✓" : "+"}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Gender */}

@@ -2187,6 +2187,8 @@ export declare const ProductScalarFieldEnum: {
     readonly showOnHomepage: "showOnHomepage";
     readonly occasion: "occasion";
     readonly gender: "gender";
+    readonly material: "material";
+    readonly collection: "collection";
     readonly packageLength: "packageLength";
     readonly packageWidth: "packageWidth";
     readonly packageHeight: "packageHeight";

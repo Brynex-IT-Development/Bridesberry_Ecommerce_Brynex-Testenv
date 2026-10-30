@@ -225,12 +225,16 @@ export class ProductsService {
     };
   }
 
-  async findCollections(): Promise<string[]> {
+  async findCollections(activeOnly = true): Promise<string[]> {
+    const where: any = {
+      collection: { not: null },
+    };
+    if (activeOnly) {
+      where.status = ProductStatus.ACTIVE;
+    }
+
     const products = await this.prisma.product.findMany({
-      where: {
-        status: ProductStatus.ACTIVE,
-        collection: { not: null },
-      },
+      where,
       select: { collection: true },
       distinct: ['collection'],
       orderBy: { collection: 'asc' },
@@ -372,7 +376,11 @@ export class ProductsService {
   async findOne(idOrSlug: string) {
     const product = await this.prisma.product.findFirst({
       where: {
-        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        OR: [
+          { id: idOrSlug },
+          { slug: idOrSlug },
+          { sku: idOrSlug },
+        ],
       },
       include: {
         images: {

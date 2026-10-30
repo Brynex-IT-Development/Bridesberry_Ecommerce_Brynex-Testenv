@@ -45,7 +45,11 @@ export default async function Home() {
         {/* Dual Editorial Showcase after View Collection button */}
         <EditorialShowcaseSection
           primaryEditorialImage={settings.editorial_showcase_1}
+          primaryEditorialPosition={settings.editorial_showcase_1_position}
+          primaryEditorialFit={settings.editorial_showcase_1_fit as 'cover' | 'contain'}
           secondaryEditorialImage={settings.editorial_showcase_2}
+          secondaryEditorialPosition={settings.editorial_showcase_2_position}
+          secondaryEditorialFit={settings.editorial_showcase_2_fit as 'cover' | 'contain'}
         />
 
         {/* Instagram User Gallery */}

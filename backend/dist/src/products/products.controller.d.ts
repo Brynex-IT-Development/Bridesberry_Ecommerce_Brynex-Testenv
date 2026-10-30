@@ -72,6 +72,8 @@ export declare class ProductsController {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -145,6 +147,8 @@ export declare class ProductsController {
             showOnHomepage: boolean;
             occasion: string;
             gender: string;
+            material: string | null;
+            collection: string | null;
             packageLength: number | null;
             packageWidth: number | null;
             packageHeight: number | null;
@@ -223,6 +227,8 @@ export declare class ProductsController {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -296,6 +302,8 @@ export declare class ProductsController {
             showOnHomepage: boolean;
             occasion: string;
             gender: string;
+            material: string | null;
+            collection: string | null;
             packageLength: number | null;
             packageWidth: number | null;
             packageHeight: number | null;
@@ -339,6 +347,7 @@ export declare class ProductsController {
             outOfStock: number;
         };
     }>;
+    getProductCollections(all?: string): Promise<string[]>;
     getProductDetails(idOrSlug: string): Promise<{
         category: {
             id: string;
@@ -419,6 +428,8 @@ export declare class ProductsController {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -444,6 +455,8 @@ export declare class ProductsController {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -469,6 +482,8 @@ export declare class ProductsController {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;

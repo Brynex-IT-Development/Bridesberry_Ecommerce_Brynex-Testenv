@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { getProductsPaginated, getFilterMetadata, FilterMetadata } from '../../services/products.service';
 import { Product } from '../../types/product';
 import ProductGrid from '../../components/product/ProductGrid';
@@ -13,10 +13,11 @@ export default function ShopPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const router = useRouter();
   const resolvedParams = use(searchParams);
   const activeSearchParams = useSearchParams();
-  const paramCategory = resolvedParams.category as string || '';
-  const selectedCollection = activeSearchParams.get('collection') || '';
+  const paramCategory = (resolvedParams.category as string) || activeSearchParams.get('category') || '';
+  const paramCollection = (resolvedParams.collection as string) || activeSearchParams.get('collection') || '';
   const paramSort = resolvedParams.sort as string || 'featured';
   const paramSearch = resolvedParams.q as string || '';
   const paramGender = resolvedParams.gender as string || '';
@@ -28,6 +29,7 @@ export default function ShopPage({
   // State bindings
   const [productsList, setProductsList] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState(paramCategory);
+  const [selectedCollection, setSelectedCollection] = useState(paramCollection);
   const [selectedGender, setSelectedGender] = useState(paramGender);
   const [selectedOccasion, setSelectedOccasion] = useState(paramOccasion);
   const [selectedStock, setSelectedStock] = useState(paramStock === 'true' ? 'in' : paramStock === 'false' ? 'out' : '');
@@ -53,6 +55,12 @@ export default function ShopPage({
 
   const maxPriceBound = metadata.price?.max ?? 250000;
   const minPriceBound = metadata.price?.min ?? 0;
+
+  // Keep selectedCollection in sync with URL changes
+  useEffect(() => {
+    const colFromUrl = activeSearchParams.get('collection') || '';
+    setSelectedCollection(colFromUrl);
+  }, [activeSearchParams]);
 
   // Load filter metadata once on mount
   useEffect(() => {
@@ -83,8 +91,12 @@ export default function ShopPage({
     if (searchQuery) params.set('q', searchQuery);
     if (currentPage > 1) params.set('page', String(currentPage));
 
-    const newUrl = params.toString() ? `/shop?${params.toString()}` : '/shop';
-    window.history.pushState({}, '', newUrl);
+    const newQuery = params.toString();
+    const currentQuery = activeSearchParams.toString();
+    if (newQuery !== currentQuery) {
+      const newUrl = newQuery ? `/shop?${newQuery}` : '/shop';
+      router.replace(newUrl, { scroll: false });
+    }
   }, [
     selectedCategory,
     selectedCollection,
@@ -96,6 +108,8 @@ export default function ShopPage({
     searchQuery,
     currentPage,
     maxPriceBound,
+    router,
+    activeSearchParams,
   ]);
 
   // Fetch paginated products based on filters
@@ -180,8 +194,19 @@ export default function ShopPage({
     setCurrentPage(1);
   };
 
+  const handleRemoveCollection = () => {
+    setSelectedCollection('');
+    setCurrentPage(1);
+    const params = new URLSearchParams(activeSearchParams.toString());
+    params.delete('collection');
+    params.delete('page');
+    const newUrl = params.toString() ? `/shop?${params.toString()}` : '/shop';
+    router.replace(newUrl, { scroll: false });
+  };
+
   const handleClearAll = () => {
     setSelectedCategory('');
+    setSelectedCollection('');
     setSelectedGender('');
     setSelectedOccasion('');
     setSelectedStock('');
@@ -189,7 +214,7 @@ export default function ShopPage({
     setSortBy('featured');
     setSearchQuery('');
     setCurrentPage(1);
-    window.history.pushState({}, '', '/shop');
+    router.replace('/shop', { scroll: false });
   };
 
   return (
@@ -231,6 +256,27 @@ export default function ShopPage({
               <SortDropdown sortBy={sortBy} setSortBy={changeSortBy} />
             </div>
           </div>
+
+          {/* Active collection filter chip */}
+          {selectedCollection && (
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xs font-questrial text-neutral-500 uppercase tracking-wider">
+                Collection:
+              </span>
+              <span className="inline-flex items-center gap-2 bg-[#fbf7ed] border border-[#e8dbb4] text-[#8c6a16] text-xs font-semibold pl-3 pr-2 py-1 rounded-full shadow-2xs">
+                <span>{selectedCollection}</span>
+                <button
+                  type="button"
+                  onClick={handleRemoveCollection}
+                  className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-[#8c6a16]/15 hover:text-black font-bold text-sm leading-none cursor-pointer transition-colors"
+                  title="Remove collection filter"
+                  aria-label="Remove collection filter"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+          )}
 
           {/* Search bar inside content on mobile / desktop */}
           <div className="mb-4">

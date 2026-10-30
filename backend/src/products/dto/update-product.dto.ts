@@ -6,6 +6,7 @@ import {
   IsBoolean,
   IsArray,
   ValidateNested,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateProductImageDto } from './create-product.dto';
@@ -100,13 +101,15 @@ export class UpdateProductDto {
   @IsOptional()
   gender?: string;
 
-  @IsString()
   @IsOptional()
-  material?: string;
+  @ValidateIf((_, value) => value !== null)
+  @IsString()
+  material?: string | null;
 
-  @IsString()
   @IsOptional()
-  collection?: string;
+  @ValidateIf((_, value) => value !== null)
+  @IsString()
+  collection?: string | null;
 
   @IsArray()
   @IsOptional()

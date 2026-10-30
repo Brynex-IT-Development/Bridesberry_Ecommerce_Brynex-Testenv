@@ -13,7 +13,8 @@ export const menuItems: MenuItem[] = [
   {
     name: 'Collections',
     href: '/shop',
-    hasMegaMenu: true,
+    hasMegaMenu: false,
+    megaMenuColumns: [],
   },
   {
     name: 'Contact',
@@ -21,6 +22,6 @@ export const menuItems: MenuItem[] = [
   },
   {
     name: 'Blog',
-    href: '#',
+    href: '/blog',
   },
 ];

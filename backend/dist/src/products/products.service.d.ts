@@ -9,6 +9,7 @@ export declare class ProductsService {
     private mapStatus;
     findAll(query: {
         category?: string;
+        collection?: string;
         minPrice?: number;
         maxPrice?: number;
         occasion?: string;
@@ -90,6 +91,8 @@ export declare class ProductsService {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -163,6 +166,8 @@ export declare class ProductsService {
             showOnHomepage: boolean;
             occasion: string;
             gender: string;
+            material: string | null;
+            collection: string | null;
             packageLength: number | null;
             packageWidth: number | null;
             packageHeight: number | null;
@@ -174,6 +179,7 @@ export declare class ProductsService {
         limit: number;
         totalPages: number;
     }>;
+    findCollections(activeOnly?: boolean): Promise<string[]>;
     getFilterMetadata(): Promise<{
         categories: {
             id: string;
@@ -286,6 +292,8 @@ export declare class ProductsService {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -312,6 +320,8 @@ export declare class ProductsService {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -337,6 +347,8 @@ export declare class ProductsService {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -362,6 +374,8 @@ export declare class ProductsService {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;
@@ -387,6 +401,8 @@ export declare class ProductsService {
         showOnHomepage: boolean;
         occasion: string;
         gender: string;
+        material: string | null;
+        collection: string | null;
         packageLength: number | null;
         packageWidth: number | null;
         packageHeight: number | null;

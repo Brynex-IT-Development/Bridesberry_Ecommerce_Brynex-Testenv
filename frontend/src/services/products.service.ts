@@ -81,6 +81,7 @@ export function mapBackendProduct(p: BackendProductResponse): Product {
     sku: p.sku,
     variants: p.variants || [],
     name: p.name,
+    collection: p.collection || "",
   };
 }
 
@@ -186,9 +187,9 @@ export interface GetProductsParams {
   featured?: boolean;
 }
 
-export async function getProductCollections(): Promise<string[]> {
+export async function getProductCollections(includeAll = false): Promise<string[]> {
   try {
-    const data = await apiFetch<string[]>("/api/products/collections", {
+    const data = await apiFetch<string[]>(`/api/products/collections${includeAll ? "?all=true" : ""}`, {
       cache: "no-store",
     });
     return data ?? [];

@@ -7,7 +7,7 @@ import {
   AdminCategory,
   CUSTOM_MATERIAL_VALUE,
 } from "@/types/admin";
-import { createProduct, updateProduct, archiveProduct } from "@/services/products.service";
+import { createProduct, updateProduct, archiveProduct, getProductCollections } from "@/services/products.service";
 import { getAdminCategories } from "@/services/categories.service";
 import { uploadFile } from "@/services/media.service";
 import ProductBasicInfoSection from "./ProductBasicInfoSection";
@@ -61,12 +61,23 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [existingCollections, setExistingCollections] = useState<string[]>([]);
   const [confirmAction, setConfirmAction] = useState<'archive' | 'restore' | null>(null);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
   useEffect(() => {
     getAdminCategories().then((data) => {
       setCategories(data.filter((category) => category.status === "Active"));
       setCategoriesLoading(false);
+    });
+
+    getProductCollections(true).then((cols) => {
+      setExistingCollections(cols || []);
     });
   }, []);
 
@@ -169,11 +180,11 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
         showOnHomepage: formData.showOnHomepage,
         occasion: formData.occasion,
         gender: formData.gender,
-        collection: formData.collection?.trim() || undefined,
+        collection: formData.collection?.trim() || (mode === "edit" ? null : undefined),
         material:
           formData.material === CUSTOM_MATERIAL_VALUE
-            ? formData.customMaterial?.trim()
-            : formData.material,
+            ? (formData.customMaterial?.trim() || (mode === "edit" ? null : undefined))
+            : (formData.material || (mode === "edit" ? null : undefined)),
         trackInventory: formData.trackInventory,
         initialStock: Number(formData.initialStock),
         minStock: Number(formData.minStock),
@@ -244,6 +255,7 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
             onChange={handleFieldChange}
             categories={categories}
             categoriesLoading={categoriesLoading}
+            existingCollections={existingCollections}
           />
 
           <ProductPricingSection

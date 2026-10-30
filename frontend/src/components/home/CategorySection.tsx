@@ -188,7 +188,10 @@ export default async function CategorySection() {
                 alt="Discover Our Modern Jewelry Collection"
                 fill
                 sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover object-center"
+                style={{
+                  objectPosition: settings.category_image_position || 'center',
+                  objectFit: (settings.category_image_fit as 'cover' | 'contain') || 'cover',
+                }}
               />
             </div>
           </div>

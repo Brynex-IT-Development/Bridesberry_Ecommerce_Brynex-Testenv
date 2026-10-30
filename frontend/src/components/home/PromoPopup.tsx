@@ -7,11 +7,20 @@ import { getSystemSettings } from "@/services/system-settings.service";
 
 export default function PromoPopup() {
   const [isOpen, setIsOpen] = useState(false);
-  const [popupData, setPopupData] = useState({
+  const [popupData, setPopupData] = useState<{
+    title: string;
+    description: string;
+    image: string;
+    link: string;
+    position?: string;
+    fit?: 'cover' | 'contain';
+  }>({
     title: "",
     description: "",
     image: "",
     link: "",
+    position: "center",
+    fit: "cover",
   });
 
   useEffect(() => {
@@ -27,6 +36,8 @@ export default function PromoPopup() {
           description: settings.promo_popup_description || "",
           image: settings.promo_popup_image || "",
           link: settings.promo_popup_link || "",
+          position: settings.promo_popup_image_position || "center",
+          fit: (settings.promo_popup_image_fit as 'cover' | 'contain') || "cover",
         });
         setIsOpen(true);
       }
@@ -62,11 +73,15 @@ export default function PromoPopup() {
 
         {/* Left column: Image banner if provided */}
         {popupData.image && (
-          <div className="w-full md:w-1/2 aspect-video md:aspect-auto relative min-h-[200px] md:min-h-[350px] bg-[#FAF9F6] border-r border-[#E5E5E5]">
+          <div className="w-full md:w-1/2 aspect-video md:aspect-auto relative min-h-[200px] md:min-h-[350px] bg-[#FAF9F6] border-r border-[#E5E5E5] overflow-hidden">
             <img
               src={popupData.image}
               alt={popupData.title}
-              className="w-full h-full object-cover"
+              style={{
+                objectPosition: popupData.position || 'center',
+                objectFit: popupData.fit || 'cover',
+              }}
+              className="w-full h-full"
             />
           </div>
         )}

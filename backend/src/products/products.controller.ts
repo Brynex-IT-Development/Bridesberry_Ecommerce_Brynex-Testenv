@@ -60,8 +60,8 @@ export class ProductsController {
 
   @Public()
   @Get('collections')
-  async getProductCollections() {
-    return this.productsService.findCollections();
+  async getProductCollections(@Query('all') all?: string) {
+    return this.productsService.findCollections(all !== 'true');
   }
 
   @Public()
