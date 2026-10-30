@@ -73,9 +73,9 @@ export default function SalesAnalyticsChart() {
   const highlightProfPt = hoveredIndex !== null ? pointsProfit[hoveredIndex] : null;
 
   return (
-    <div className="bg-white border border-[#E5E5E5] rounded-[12px] p-6 shadow-sm">
+    <div className="bg-white border border-[#E5E5E5] rounded-[12px] p-4 sm:p-6 shadow-sm w-full max-w-full overflow-hidden min-w-0">
       {/* Header section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-neutral-100 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 sm:pb-6 border-b border-neutral-100 mb-6 gap-3 sm:gap-4">
         <div>
           <h3 className="text-sm font-bold text-neutral-800 tracking-wide font-sans">
             Sales Analytics
@@ -86,26 +86,26 @@ export default function SalesAnalyticsChart() {
         </div>
 
         {/* Legend and Filters */}
-        <div className="flex flex-wrap items-center gap-6 mt-4 sm:mt-0">
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-6 w-full sm:w-auto">
           {/* Legend */}
-          <div className="flex items-center space-x-4 text-xs font-semibold text-neutral-500">
+          <div className="flex items-center space-x-3 sm:space-x-4 text-xs font-semibold text-neutral-500">
             <span className="flex items-center">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#C99213] mr-2" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#C99213] mr-1.5 sm:mr-2 shrink-0" />
               Revenue
             </span>
             <span className="flex items-center">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#15803D] mr-2" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#15803D] mr-1.5 sm:mr-2 shrink-0" />
               Profit
             </span>
           </div>
 
           {/* Filter Pills */}
-          <div className="flex bg-[#F8F8F8] p-0.5 rounded-full border border-neutral-200">
+          <div className="flex bg-[#F8F8F8] p-0.5 rounded-full border border-neutral-200 shrink-0">
             {["Today", "Week", "Month", "Year"].map((filter) => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-3 py-1 text-[10px] font-bold rounded-full transition-all outline-none cursor-pointer ${
+                className={`px-2.5 sm:px-3 py-1 text-[10px] font-bold rounded-full transition-all outline-none cursor-pointer ${
                   activeFilter === filter
                     ? "bg-neutral-800 text-white shadow-sm"
                     : "text-neutral-400 hover:text-neutral-600"
@@ -119,8 +119,8 @@ export default function SalesAnalyticsChart() {
       </div>
 
       {/* SVG Chart area */}
-      <div className="relative w-full overflow-x-auto no-scrollbar">
-        <div className="min-w-[700px] w-full h-[280px]">
+      <div className="relative w-full max-w-full overflow-x-auto no-scrollbar">
+        <div className="min-w-[500px] sm:min-w-[620px] w-full h-[240px] sm:h-[280px]">
           <svg className="w-full h-full" viewBox={`0 0 ${width} ${height}`}>
             {/* Y-axis gridlines */}
             {yGridValues.map((value) => {

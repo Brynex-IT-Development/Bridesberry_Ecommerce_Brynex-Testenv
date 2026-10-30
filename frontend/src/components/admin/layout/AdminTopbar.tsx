@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -6,6 +7,7 @@ import { apiFetch } from "@/services/api";
 import { AlertTriangle, ShoppingBag, Bell, X, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useAdminLayout } from "@/context/AdminLayoutContext";
 
 interface BreadcrumbItem {
   label: string;
@@ -57,6 +59,7 @@ export default function AdminTopbar({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
+  const { toggleSidebar } = useAdminLayout();
 
   useEffect(() => {
     // Fetch notifications
@@ -97,15 +100,25 @@ export default function AdminTopbar({
   const totalNotificationsCount = notifications.lowStock.length + notifications.recentOrders.length;
 
   return (
-    <header className="h-20 bg-white border-b border-[#E5E5E5] sticky top-0 z-20 w-full font-sans">
-      <div className={`${maxWidthClass} mx-auto w-full h-full flex items-center justify-between px-6 md:px-8`}>
-        {/* Left Area: Breadcrumbs */}
-        <div className="flex items-center space-x-2 pl-12 lg:pl-0">
+    <header className="h-16 sm:h-20 bg-white border-b border-[#E5E5E5] sticky top-0 z-20 w-full max-w-full font-sans">
+      <div className={`${maxWidthClass} mx-auto w-full max-w-full h-full flex items-center justify-between px-3 sm:px-6 md:px-8 gap-2 sm:gap-4`}>
+        {/* Left Area: Mobile Menu Toggle + Breadcrumbs */}
+        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 shrink">
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            className="lg:hidden -ml-1 p-1.5 sm:p-2 text-neutral-700 hover:text-black hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none cursor-pointer shrink-0"
+            aria-label="Open navigation menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
           <AdminBreadcrumb items={breadcrumbItems} />
         </div>
 
         {/* Right Area: Search & Profile */}
-        <div className="flex items-center space-x-4 md:space-x-6 relative">
+        <div className="flex items-center space-x-2.5 sm:space-x-4 md:space-x-6 relative shrink-0 ml-auto">
           {showSearch && (
             <div className="relative md:block hidden">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -139,7 +152,7 @@ export default function AdminTopbar({
 
             {/* Premium Gold/Sand Dropdown menu */}
             {isOpen && (
-              <div className="absolute right-0 mt-3 w-80 bg-white border border-[#E5E5E5] rounded-[16px] shadow-xl z-50 overflow-hidden text-left flex flex-col max-h-[480px]">
+              <div className="absolute right-0 mt-3 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-white border border-[#E5E5E5] rounded-[16px] shadow-xl z-50 overflow-hidden text-left flex flex-col max-h-[480px]">
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100 bg-[#FAF9F6]">
                   <span className="text-xs font-bold uppercase tracking-wider text-neutral-850">
@@ -154,7 +167,7 @@ export default function AdminTopbar({
 
                 {/* Notifications content */}
                 <div className="flex-grow overflow-y-auto divide-y divide-neutral-100 max-h-[350px]">
-                  
+
                   {/* Low Stock section */}
                   {notifications.lowStock.length > 0 && (
                     <div className="py-2.5">
@@ -239,7 +252,7 @@ export default function AdminTopbar({
 
           {/* User Profile Icon & Dropdown */}
           <div className="relative" ref={profileRef}>
-            <button 
+            <button
               onClick={() => setProfileOpen(!profileOpen)}
               className="flex items-center space-x-2 focus:outline-none cursor-pointer"
             >
@@ -268,7 +281,7 @@ export default function AdminTopbar({
                 </div>
                 <div className="p-2 space-y-1">
                   <Link
-                    href="/shop"
+                    href="/"
                     target="_blank"
                     onClick={() => setProfileOpen(false)}
                     className="flex items-center px-4 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-black rounded-lg transition-colors"

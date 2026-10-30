@@ -28,7 +28,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F8F8F8]">
+    <div className="flex flex-col min-h-screen bg-[#F8F8F8] w-full min-w-0 max-w-full overflow-x-hidden">
       {/* Admin Header with search */}
       <AdminTopbar
         breadcrumbItems={breadcrumbs}
@@ -37,7 +37,7 @@ export default function AdminDashboardPage() {
       />
 
       {/* Main dashboard content area */}
-      <div className="flex-1 p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto min-w-0">
         {/* Statistics Cards Row */}
         <DashboardStats />
 

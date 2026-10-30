@@ -122,7 +122,7 @@ export default function AdminCategoriesPage() {
       />
 
       {/* Main Content */}
-      <div className="flex-1 p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto min-w-0">
         
         {/* Title and Top actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -135,9 +135,9 @@ export default function AdminCategoriesPage() {
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             {/* Search filter input inside body */}
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-none">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <svg className="w-4 h-4 text-neutral-450" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -148,7 +148,7 @@ export default function AdminCategoriesPage() {
                 placeholder="Search Categories..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-56 pl-9 pr-4 py-2 border border-neutral-200 rounded-full bg-white text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850 placeholder-neutral-400"
+                className="w-full sm:w-56 pl-9 pr-4 py-2 border border-neutral-200 rounded-full bg-white text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850 placeholder-neutral-400"
               />
             </div>
 
@@ -157,7 +157,7 @@ export default function AdminCategoriesPage() {
                 setEditingCategory(null);
                 setIsFormOpen(true);
               }}
-              className="flex items-center space-x-2 px-5 py-2.5 bg-neutral-950 hover:bg-neutral-850 text-white rounded-full text-xs font-semibold tracking-wide transition-colors cursor-pointer"
+              className="flex items-center justify-center space-x-2 px-5 py-2.5 bg-neutral-950 hover:bg-neutral-850 text-white rounded-full text-xs font-semibold tracking-wide transition-colors cursor-pointer shrink-0"
             >
               <span className="text-[#C99213] font-bold text-sm leading-none">+</span>
               <span>Add Category</span>

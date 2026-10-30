@@ -22,29 +22,42 @@ export interface PresignedResponse {
  * @param folder Target folder prefix
  */
 export async function uploadFile(file: File, folder: MediaFolder): Promise<string> {
-  // 1. Get the presigned upload URL from our NestJS backend
-  const data = await apiFetch<PresignedResponse>("/api/media/presigned-url", {
-    method: "POST",
-    body: JSON.stringify({
-      folder,
-      filename: file.name,
-      contentType: file.type,
-    }),
-  });
+  // 1. Try direct S3 presigned upload first (AWS best practice)
+  try {
+    const data = await apiFetch<PresignedResponse>("/api/media/presigned-url", {
+      method: "POST",
+      body: JSON.stringify({
+        folder,
+        filename: file.name,
+        contentType: file.type,
+      }),
+    });
 
-  // 2. Perform the PUT request directly to S3 (or mock upload)
-  const response = await fetch(data.uploadUrl, {
-    method: "PUT",
-    body: file,
-    headers: {
-      "Content-Type": file.type,
-    },
-  });
+    const response = await fetch(data.uploadUrl, {
+      method: "PUT",
+      body: file,
+      headers: {
+        "Content-Type": file.type,
+      },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to upload file to storage: ${response.statusText}`);
+    if (response.ok) {
+      return data.fileUrl;
+    }
+    console.warn("Direct S3 PUT responded with status:", response.status, response.statusText);
+  } catch (putErr) {
+    console.warn("Direct S3 PUT failed (likely S3 CORS or network), falling back to backend upload proxy:", putErr);
   }
 
-  // 3. Return the public file URL
-  return data.fileUrl;
+  // 2. Resilient fallback: Upload directly via backend multipart endpoint (bypasses any browser S3 CORS block)
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("folder", folder);
+
+  const fallbackRes = await apiFetch<{ fileUrl: string; key: string }>("/api/media/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  return fallbackRes.fileUrl;
 }

@@ -130,9 +130,22 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
               <div className="w-full h-full bg-[#DEDEDE]" />
             )}
 
-            {/* Hover Dark Overlay + Title + VIEW COLLECTION Button (appears on hover) */}
-            <div className="absolute inset-0 bg-[#26090E]/55 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="absolute inset-0 p-6 flex flex-col items-center justify-center translate-y-6 group-hover:translate-y-4 opacity-0 group-hover:opacity-100 transition-all duration-300 text-center z-10 pointer-events-none">
+            {/* Mobile Permanent Category Label (Touch friendly) */}
+            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/75 via-black/30 to-transparent sm:hidden flex flex-col items-start z-10 pointer-events-none">
+              <h3
+                style={{
+                  fontFamily: "'Stack Sans Text', sans-serif",
+                  fontWeight: 400,
+                }}
+                className="text-white text-[15px] tracking-normal drop-shadow-sm"
+              >
+                {cat.name}
+              </h3>
+            </div>
+
+            {/* Hover Dark Overlay + Title + VIEW COLLECTION Button (appears on desktop / tablet hover) */}
+            <div className="hidden sm:block absolute inset-0 bg-[#26090E]/55 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="hidden sm:flex absolute inset-0 p-6 flex-col items-center justify-center translate-y-6 group-hover:translate-y-4 opacity-0 group-hover:opacity-100 transition-all duration-300 text-center z-10 pointer-events-none">
               <h3
                 style={{
                   fontFamily: "'Stack Sans Text', sans-serif",

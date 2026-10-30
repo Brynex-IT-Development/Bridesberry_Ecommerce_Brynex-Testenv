@@ -48,6 +48,40 @@ let MediaService = MediaService_1 = class MediaService {
             this.logger.warn('AWS S3 configurations missing. Falling back to local mock uploads.');
         }
     }
+    async uploadDirect(folder, filename, buffer, contentType) {
+        const sanitizedFilename = filename
+            .replace(/\s+/g, '-')
+            .replace(/[^a-zA-Z0-9.-]/g, '');
+        const key = `${this.prefix}${folder}/${Date.now()}-${sanitizedFilename}`;
+        if (this.s3Client && this.bucketName) {
+            try {
+                const command = new client_s3_1.PutObjectCommand({
+                    Bucket: this.bucketName,
+                    Key: key,
+                    Body: buffer,
+                    ContentType: contentType,
+                });
+                await this.s3Client.send(command);
+                let fileUrl;
+                if (this.cloudFrontUrl) {
+                    const cleanCfUrl = this.cloudFrontUrl.replace(/\/$/, '');
+                    fileUrl = `${cleanCfUrl}/${key}`;
+                }
+                else {
+                    fileUrl = `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
+                }
+                return { fileUrl, key };
+            }
+            catch (err) {
+                this.logger.error(`Failed to direct upload to S3: ${err.message}`, err.stack);
+                throw err;
+            }
+        }
+        return {
+            fileUrl: `/uploads/${key}`,
+            key,
+        };
+    }
     getPrefix() {
         return this.prefix;
     }

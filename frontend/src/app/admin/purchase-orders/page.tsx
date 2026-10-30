@@ -84,15 +84,15 @@ export default function PurchaseOrdersListPage() {
             <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400">
               Filter Status
             </h2>
-            <div className="flex flex-col space-y-1.5">
+            <div className="flex flex-row overflow-x-auto lg:flex-col gap-1.5 pb-1 lg:pb-0 scrollbar-none">
               {(["All", "Draft", "Sent", "Received", "Cancelled"] as const).map((status) => (
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  className={`whitespace-nowrap text-left px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 ${
                     statusFilter === status
-                      ? "bg-neutral-950 text-white"
-                      : "text-neutral-600 hover:bg-neutral-50"
+                      ? "bg-neutral-950 text-white shadow-xs"
+                      : "text-neutral-600 hover:bg-neutral-50 bg-neutral-100/50 lg:bg-transparent"
                   }`}
                 >
                   {status} Orders

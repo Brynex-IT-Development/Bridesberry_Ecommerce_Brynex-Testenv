@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MediaController = exports.GetPresignedUrlDto = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
@@ -58,6 +59,12 @@ let MediaController = class MediaController {
         const { folder, filename, contentType } = dto;
         return this.mediaService.getPresignedUploadUrl(folder, filename, contentType);
     }
+    async uploadFile(file, folder) {
+        if (!file) {
+            throw new common_1.BadRequestException('No file provided for upload.');
+        }
+        return this.mediaService.uploadDirect(folder || 'banners', file.originalname, file.buffer, file.mimetype);
+    }
     mockUpload(key) {
         return {
             message: `Local mock S3 upload completed successfully for key: ${key}`,
@@ -77,6 +84,18 @@ __decorate([
     __metadata("design:paramtypes", [GetPresignedUrlDto]),
     __metadata("design:returntype", Promise)
 ], MediaController.prototype, "getPresignedUrl", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_js_1.UserRole.ADMIN, client_js_1.UserRole.SUPER_ADMIN),
+    (0, common_1.Post)('upload'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.Body)('folder')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], MediaController.prototype, "uploadFile", null);
 __decorate([
     (0, common_1.Put)('mock-upload'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

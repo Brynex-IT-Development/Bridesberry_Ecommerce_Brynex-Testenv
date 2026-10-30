@@ -132,7 +132,7 @@ export default function AdminInventoryPage() {
       />
 
       {/* Main Content */}
-      <div className="flex-grow p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      <div className="flex-grow p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto min-w-0">
         {/* Title and Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

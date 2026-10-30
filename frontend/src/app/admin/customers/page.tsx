@@ -47,7 +47,7 @@ export default function AdminCustomersPage() {
       />
 
       {/* Main Content */}
-      <div className="flex-1 p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto min-w-0">
         {/* Page Title */}
         <div>
           <h1 className="text-xl font-bold tracking-wider text-neutral-900 uppercase font-sans">

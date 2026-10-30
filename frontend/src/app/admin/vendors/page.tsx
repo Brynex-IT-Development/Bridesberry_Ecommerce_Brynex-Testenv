@@ -76,7 +76,7 @@ export default function VendorsListPage() {
       />
 
       {/* Main Container */}
-      <div className="flex-1 p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto min-w-0">
         
         {/* Header Block */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

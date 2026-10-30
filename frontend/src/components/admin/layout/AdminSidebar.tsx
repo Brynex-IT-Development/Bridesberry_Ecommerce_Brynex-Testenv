@@ -4,10 +4,20 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NavSection } from "@/types/admin";
+import { useAdminLayout } from "@/context/AdminLayoutContext";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { sidebarOpen, setSidebarOpen } = useAdminLayout();
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({
+    Inventory: true,
+  });
+
+  const toggleSubmenu = (title: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExpandedMenus((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
 
   const navigationData: NavSection[] = [
     {
@@ -130,22 +140,10 @@ export default function AdminSidebar() {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 bg-[#1C1B19] rounded text-white focus:outline-none hover:bg-neutral-800 transition-colors"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={mobileOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-          </svg>
-        </button>
-      </div>
-
       {/* Sidebar Layout */}
       <aside
         className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-[#1C1B19] text-neutral-300 border-r border-neutral-800 flex flex-col transition-transform duration-300 lg:translate-x-0 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
+          sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
         {/* Brand Area */}
@@ -167,9 +165,13 @@ export default function AdminSidebar() {
               </span>
             </div>
           </div>
-          <button className="text-neutral-500 hover:text-white lg:block hidden">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-1.5 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
+            aria-label="Close sidebar"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -185,42 +187,63 @@ export default function AdminSidebar() {
                 {section.items.map((item, itemIdx) => {
                   const isActive = pathname === item.href || (item.href !== "/admin" && pathname?.startsWith(item.href));
                   const isMenuExpandable = item.subItems !== undefined && item.subItems.length > 0;
+                  const isExpanded = expandedMenus[item.title] ?? false;
 
                   return (
-                    <li key={itemIdx} className="relative group">
-                      <Link
-                        href={item.href}
-                        className={`flex items-center justify-between px-3 py-2.5 rounded text-xs font-medium transition-all ${
-                          isActive
-                            ? "bg-neutral-800/60 text-[#C99213] border-l-2 border-[#C99213] pl-2.5"
-                            : "text-neutral-400 hover:text-white hover:bg-neutral-800/30"
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3">
-                          {getIcon(item.iconName, isActive)}
-                          <span>{item.title}</span>
-                        </div>
-                      </Link>
-
-                      {/* Floating Sub-selector Popover Box on Hover */}
-                      {isMenuExpandable && (
-                        <div className="absolute left-full top-0 ml-2 z-50 w-48 bg-[#252422] border border-neutral-700/80 rounded-xl p-2 shadow-2xl space-y-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-auto">
-                          <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider px-2.5 py-1 border-b border-neutral-800 mb-1">
-                            {item.title}
+                    <li key={itemIdx} className="space-y-0.5">
+                      <div className="flex items-center">
+                        <Link
+                          href={item.href}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`flex-1 flex items-center justify-between px-3 py-2.5 rounded text-xs font-medium transition-all ${
+                            isActive
+                              ? "bg-neutral-800/60 text-[#C99213] border-l-2 border-[#C99213] pl-2.5"
+                              : "text-neutral-400 hover:text-white hover:bg-neutral-800/30"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            {getIcon(item.iconName, isActive)}
+                            <span>{item.title}</span>
                           </div>
+                        </Link>
+                        {isMenuExpandable && (
+                          <button
+                            type="button"
+                            onClick={(e) => toggleSubmenu(item.title, e)}
+                            className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-800/50 rounded transition-colors cursor-pointer"
+                            aria-label={`Toggle ${item.title} submenu`}
+                          >
+                            <svg
+                              className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                                isExpanded ? "rotate-180 text-[#C99213]" : ""
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Expandable Sub-items for mobile & desktop */}
+                      {isMenuExpandable && isExpanded && (
+                        <div className="pl-9 pr-2 py-1 space-y-1">
                           {item.subItems?.map((sub, subIdx) => {
                             const isSubActive = pathname === sub.href;
                             return (
                               <Link
                                 key={subIdx}
                                 href={sub.href}
-                                className={`flex items-center space-x-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                                onClick={() => setSidebarOpen(false)}
+                                className={`flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                                   isSubActive
-                                    ? "bg-[#1C1B19] text-[#C99213] font-bold border-l-2 border-[#C99213] pl-2"
-                                    : "text-neutral-300 hover:text-white hover:bg-neutral-800/60"
+                                    ? "bg-neutral-800 text-[#C99213] font-bold border-l-2 border-[#C99213]"
+                                    : "text-neutral-400 hover:text-white hover:bg-neutral-800/40"
                                 }`}
                               >
-                                <span className={`w-1.5 h-1.5 rounded-full ${isSubActive ? "bg-[#C99213]" : "bg-neutral-500"}`} />
+                                <span className={`w-1.5 h-1.5 rounded-full ${isSubActive ? "bg-[#C99213]" : "bg-neutral-600"}`} />
                                 <span>{sub.title}</span>
                               </Link>
                             );
@@ -237,10 +260,10 @@ export default function AdminSidebar() {
       </aside>
 
       {/* Background Overlay for mobile */}
-      {mobileOpen && (
+      {sidebarOpen && (
         <div
-          onClick={() => setMobileOpen(false)}
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-30 lg:hidden"
         />
       )}
     </>

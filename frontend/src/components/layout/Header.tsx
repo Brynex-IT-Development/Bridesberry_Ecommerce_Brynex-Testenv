@@ -160,7 +160,7 @@ export default function Header() {
             </div>
 
             {/* Desktop Navigation links */}
-            <nav className="hidden md:flex space-x-8 lg:space-x-10 items-center justify-end h-full flex-grow mr-8 lg:mr-12">
+            <nav className="hidden md:flex space-x-4 lg:space-x-8 items-center justify-end h-full flex-grow mr-4 lg:mr-8">
               {menuItems.map((item, idx) => (
                 <div
                   key={idx}
@@ -174,7 +174,7 @@ export default function Header() {
                       fontFamily: "var(--font-stack-text), 'Stack Sans Text', sans-serif",
                       fontWeight: 200,
                       fontStyle: 'normal',
-                      fontSize: '14px',
+                      fontSize: 'clamp(12px, 1.1vw, 14px)',
                       lineHeight: '25.11px',
                       letterSpacing: '0%',
                       textTransform: 'uppercase',

@@ -91,8 +91,8 @@ export default function AdminShippingSettingsPage() {
 
       <AdminTopbar breadcrumbItems={breadcrumbs} showSearch={false} />
 
-      <div className="flex-1 p-6 md:p-8 space-y-6 max-w-5xl w-full mx-auto font-sans">
-        <div className="flex items-center justify-between">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 max-w-5xl w-full mx-auto font-sans min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-wider text-neutral-900 uppercase font-sans">
               SHIPPING SETTINGS
@@ -105,7 +105,7 @@ export default function AdminShippingSettingsPage() {
             type="button"
             onClick={handleTestConnection}
             disabled={testing}
-            className="px-4 py-2 bg-[#1C1B19] hover:bg-neutral-800 disabled:opacity-50 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center space-x-2"
+            className="self-start sm:self-auto px-4 py-2 bg-[#1C1B19] hover:bg-neutral-800 disabled:opacity-50 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center space-x-2 shrink-0"
           >
             {testing ? <span>Testing...</span> : <span>🔌 Test Connection</span>}
           </button>

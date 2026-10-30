@@ -12,6 +12,14 @@ export declare class MediaController {
         fileUrl: string;
         key: string;
     }>;
+    uploadFile(file: {
+        originalname: string;
+        buffer: Buffer;
+        mimetype: string;
+    }, folder: string): Promise<{
+        fileUrl: string;
+        key: string;
+    }>;
     mockUpload(key: string): {
         message: string;
         success: boolean;

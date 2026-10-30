@@ -8,6 +8,10 @@ export declare class MediaService {
     private readonly cloudFrontUrl;
     private readonly prefix;
     constructor(configService: ConfigService);
+    uploadDirect(folder: string, filename: string, buffer: Buffer, contentType: string): Promise<{
+        fileUrl: string;
+        key: string;
+    }>;
     getPrefix(): string;
     getPresignedUploadUrl(folder: string, filename: string, contentType: string): Promise<{
         uploadUrl: string;

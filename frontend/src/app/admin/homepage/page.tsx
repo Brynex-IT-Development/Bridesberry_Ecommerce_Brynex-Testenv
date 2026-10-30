@@ -1,22 +1,40 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Upload, Trash2, Video, Image as ImageIcon, Loader2, MessageSquare, AlertCircle } from "lucide-react";
+import { Upload, Trash2, Video, Image as ImageIcon, Loader2, MessageSquare, AlertCircle, Link2, ExternalLink, Plus, Check, X } from "lucide-react";
 import AdminTopbar from "@/components/admin/layout/AdminTopbar";
 import { getSystemSettings, saveSystemSetting } from "@/services/system-settings.service";
 import { uploadFile } from "@/services/media.service";
 
+export interface ReelItem {
+  url: string;
+  linkUrl?: string;
+}
+
 export default function AdminHomepageConfigPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
-  const [reels, setReels] = useState<string[]>([]);
+  const [reels, setReels] = useState<(string | ReelItem)[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Instagram Profile URL state
+  const [instagramProfileUrl, setInstagramProfileUrl] = useState("");
+  const [savingInstagramProfile, setSavingInstagramProfile] = useState(false);
+
+  // Add Reel Panel states (Dual Mode: Upload File or Paste Link)
+  const [showAddReelPanel, setShowAddReelPanel] = useState(false);
+  const [reelAddMode, setReelAddMode] = useState<"upload" | "link">("upload");
+  const [selectedUploadFile, setSelectedUploadFile] = useState<File | null>(null);
+  const [uploadDestinationLink, setUploadDestinationLink] = useState("");
+  const [uploadingReel, setUploadingReel] = useState(false);
+  const [pastedReelUrl, setPastedReelUrl] = useState("");
+  const [pastedLinkUrl, setPastedLinkUrl] = useState("");
+  const [addingLink, setAddingLink] = useState(false);
 
   // Upload loaders
   const [uploadingHero, setUploadingHero] = useState(false);
   const [uploadingCategory, setUploadingCategory] = useState(false);
   const [uploadingEditorial1, setUploadingEditorial1] = useState(false);
   const [uploadingEditorial2, setUploadingEditorial2] = useState(false);
-  const [uploadingReel, setUploadingReel] = useState(false);
 
   // Promo Popup config states
   const [promoPopupEnabled, setPromoPopupEnabled] = useState(false);
@@ -52,6 +70,9 @@ export default function AdminHomepageConfigPage() {
         }
       }
 
+      // Load instagram profile setting
+      setInstagramProfileUrl(data.instagram_profile_url || "");
+
       // Load popup settings
       setPromoPopupEnabled(data.promo_popup_enabled === "true");
       setPromoPopupTitle(data.promo_popup_title || "");
@@ -76,9 +97,14 @@ export default function AdminHomepageConfigPage() {
       await saveSystemSetting("hero_image", url);
       setSettings(prev => ({ ...prev, hero_image: url }));
       alert("Hero image updated successfully!");
-    } catch (err) {
-      console.error("Hero upload failed:", err);
-      alert("Failed to upload hero image.");
+    } catch (err: any) {
+      console.warn("Hero upload failed:", err);
+      if (err?.message?.includes("Authentication") || err?.message?.includes("credentials") || err?.message?.includes("Unauthorized")) {
+        alert("Your session has expired. Please log in again.");
+        window.location.href = "/admin/login";
+        return;
+      }
+      alert(`Failed to upload hero image: ${err?.message || "Please check your network and try again."}`);
     } finally {
       setUploadingHero(false);
     }
@@ -94,9 +120,14 @@ export default function AdminHomepageConfigPage() {
       await saveSystemSetting("category_image", url);
       setSettings(prev => ({ ...prev, category_image: url }));
       alert("Categories banner updated successfully!");
-    } catch (err) {
-      console.error("Category upload failed:", err);
-      alert("Failed to upload categories banner.");
+    } catch (err: any) {
+      console.warn("Category upload failed:", err);
+      if (err?.message?.includes("Authentication") || err?.message?.includes("credentials") || err?.message?.includes("Unauthorized")) {
+        alert("Your session has expired. Please log in again.");
+        window.location.href = "/admin/login";
+        return;
+      }
+      alert(`Failed to upload categories banner: ${err?.message || "Please check your network and try again."}`);
     } finally {
       setUploadingCategory(false);
     }
@@ -112,9 +143,14 @@ export default function AdminHomepageConfigPage() {
       await saveSystemSetting("editorial_showcase_1", url);
       setSettings(prev => ({ ...prev, editorial_showcase_1: url }));
       alert("Mid-Page Editorial Banner 1 updated successfully!");
-    } catch (err) {
-      console.error("Editorial 1 upload failed:", err);
-      alert("Failed to upload Mid-Page Editorial Banner 1.");
+    } catch (err: any) {
+      console.warn("Editorial 1 upload failed:", err);
+      if (err?.message?.includes("Authentication") || err?.message?.includes("credentials") || err?.message?.includes("Unauthorized")) {
+        alert("Your session has expired. Please log in again.");
+        window.location.href = "/admin/login";
+        return;
+      }
+      alert(`Failed to upload Mid-Page Editorial Banner 1: ${err?.message || "Please check your network and try again."}`);
     } finally {
       setUploadingEditorial1(false);
     }
@@ -130,9 +166,14 @@ export default function AdminHomepageConfigPage() {
       await saveSystemSetting("editorial_showcase_2", url);
       setSettings(prev => ({ ...prev, editorial_showcase_2: url }));
       alert("Bottom Editorial Banner 2 updated successfully!");
-    } catch (err) {
-      console.error("Editorial 2 upload failed:", err);
-      alert("Failed to upload Bottom Editorial Banner 2.");
+    } catch (err: any) {
+      console.warn("Editorial 2 upload failed:", err);
+      if (err?.message?.includes("Authentication") || err?.message?.includes("credentials") || err?.message?.includes("Unauthorized")) {
+        alert("Your session has expired. Please log in again.");
+        window.location.href = "/admin/login";
+        return;
+      }
+      alert(`Failed to upload Bottom Editorial Banner 2: ${err?.message || "Please check your network and try again."}`);
     } finally {
       setUploadingEditorial2(false);
     }
@@ -143,21 +184,135 @@ export default function AdminHomepageConfigPage() {
       await saveSystemSetting(key, "");
       setSettings(prev => ({ ...prev, [key]: "" }));
       alert(`${label} reset to default static image!`);
-    } catch (err) {
-      console.error("Reset failed:", err);
-      alert(`Failed to reset ${label}.`);
+    } catch (err: any) {
+      if (err?.message?.includes("Authentication") || err?.message?.includes("credentials") || err?.message?.includes("Unauthorized")) {
+        alert("Your session has expired. Please log in again.");
+        window.location.href = "/admin/login";
+        return;
+      }
+      console.warn("Reset failed:", err);
+      alert(`Failed to reset ${label}: ${err?.message || "Unknown error"}`);
     }
   };
 
-  // Video Reels Handlers
-  const handleReelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Instagram Profile URL Handler
+  const handleSaveInstagramProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingInstagramProfile(true);
+    try {
+      await saveSystemSetting("instagram_profile_url", instagramProfileUrl.trim());
+      alert("Instagram profile link saved successfully!");
+    } catch (err) {
+      console.error("Failed to save instagram profile link:", err);
+      alert("Failed to save Instagram profile link.");
+    } finally {
+      setSavingInstagramProfile(false);
+    }
+  };
+
+  // Video Reels Helpers & Handlers
+  const extractInstagramShortcode = (url: string): string | null => {
+    if (!url) return null;
+    const match = url.match(/(?:reel|p)\/([A-Za-z0-9_-]+)/);
+    return match ? match[1] : null;
+  };
+
+  const isInstagramUrl = (url: string): boolean => {
+    if (!url) return false;
+    return url.includes("instagram.com/reel/") || url.includes("instagram.com/p/");
+  };
+
+  const getReelData = (item: string | ReelItem): ReelItem => {
+    if (typeof item === "string") {
+      return {
+        url: item,
+        linkUrl: isInstagramUrl(item) ? item : "",
+      };
+    }
+    return {
+      url: item?.url || "",
+      linkUrl: item?.linkUrl || (isInstagramUrl(item?.url) ? item.url : ""),
+    };
+  };
+
+  const handleAddLinkReel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanUrl = pastedReelUrl.trim();
+    if (!cleanUrl) {
+      alert("Please enter a valid Instagram reel URL or video link.");
+      return;
+    }
+
+    setAddingLink(true);
+    try {
+      let finalItem: ReelItem;
+      const shortcode = extractInstagramShortcode(cleanUrl);
+      if (shortcode) {
+        const canonicalIgUrl = `https://www.instagram.com/reel/${shortcode}/`;
+        finalItem = {
+          url: canonicalIgUrl,
+          linkUrl: pastedLinkUrl.trim() || canonicalIgUrl,
+        };
+      } else {
+        finalItem = {
+          url: cleanUrl,
+          linkUrl: pastedLinkUrl.trim() || (cleanUrl.startsWith("http") ? cleanUrl : ""),
+        };
+      }
+
+      const updatedReels = [...reels, finalItem];
+      await saveSystemSetting("instagram_videos", JSON.stringify(updatedReels));
+      setReels(updatedReels);
+      setPastedReelUrl("");
+      setPastedLinkUrl("");
+      setShowAddReelPanel(false);
+      alert("Reel link added successfully!");
+    } catch (err) {
+      console.error("Failed to add reel link:", err);
+      alert("Failed to add reel link.");
+    } finally {
+      setAddingLink(false);
+    }
+  };
+
+  const handleUploadAndSaveReel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUploadFile) {
+      alert("Please select a video file (.mp4, .webm, .mov) to upload.");
+      return;
+    }
+
+    setUploadingReel(true);
+    try {
+      const url = await uploadFile(selectedUploadFile, "categories");
+      const newItem: ReelItem = {
+        url,
+        linkUrl: uploadDestinationLink.trim() || instagramProfileUrl || "",
+      };
+      const updatedReels = [...reels, newItem];
+      await saveSystemSetting("instagram_videos", JSON.stringify(updatedReels));
+      setReels(updatedReels);
+      setSelectedUploadFile(null);
+      setUploadDestinationLink("");
+      setShowAddReelPanel(false);
+      alert("Video reel uploaded and added successfully!");
+    } catch (err) {
+      console.error("Reel upload failed:", err);
+      alert("Failed to upload video reel.");
+    } finally {
+      setUploadingReel(false);
+    }
+  };
+
+  const handleQuickReelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingReel(true);
     try {
       const url = await uploadFile(file, "categories");
-      const updatedReels = [...reels, url];
+      const newItem: ReelItem = { url, linkUrl: instagramProfileUrl || "" };
+      const updatedReels = [...reels, newItem];
       await saveSystemSetting("instagram_videos", JSON.stringify(updatedReels));
       setReels(updatedReels);
       alert("Reel video added successfully!");
@@ -170,7 +325,7 @@ export default function AdminHomepageConfigPage() {
   };
 
   const handleDeleteReel = async (idxToDelete: number) => {
-    const confirmDelete = window.confirm("Are you sure you want to remove this instagram video reel?");
+    const confirmDelete = window.confirm("Are you sure you want to remove this reel?");
     if (!confirmDelete) return;
 
     const updatedReels = reels.filter((_, idx) => idx !== idxToDelete);
@@ -244,7 +399,7 @@ export default function AdminHomepageConfigPage() {
     <div className="flex flex-col min-h-screen bg-[#F8F8F8] admin-dashboard-root font-sans">
       <AdminTopbar breadcrumbItems={breadcrumbs} showSearch={false} />
 
-      <div className="flex-grow p-6 md:p-8 space-y-8 max-w-7xl w-full mx-auto">
+      <div className="flex-grow p-4 sm:p-6 md:p-8 space-y-8 max-w-7xl w-full mx-auto min-w-0">
         {/* Title block */}
         <div>
           <h1 className="text-xl font-bold tracking-wider text-neutral-900 uppercase font-sans">
@@ -602,7 +757,7 @@ export default function AdminHomepageConfigPage() {
               </div>
 
               {/* Upload block trigger */}
-              <div className="flex justify-between items-center">
+              <div className="flex flex-wrap justify-between items-center gap-2">
                 <span className="text-[9px] text-neutral-400">Supported formats: JPG, PNG, WebP.</span>
                 <label className="flex items-center space-x-2 px-4 py-2 border border-neutral-300 hover:bg-neutral-50 text-neutral-700 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-xs">
                   <Upload className="w-3.5 h-3.5" />
@@ -618,11 +773,11 @@ export default function AdminHomepageConfigPage() {
             </div>
 
             {/* Bottom Actions block */}
-            <div className="col-span-full border-t border-neutral-100 pt-5 flex justify-end">
+            <div className="col-span-full border-t border-neutral-100 pt-5 flex flex-col sm:flex-row justify-end">
               <button
                 type="submit"
                 disabled={savingPromo}
-                className="flex items-center space-x-2 px-6 py-3 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                className="flex items-center justify-center space-x-2 px-6 py-3 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer disabled:opacity-50 shadow-sm w-full sm:w-auto"
               >
                 {savingPromo ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -636,71 +791,383 @@ export default function AdminHomepageConfigPage() {
         </div>
 
         {/* Video Reels Section */}
-        <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-100 pb-4">
+        <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-4 sm:p-6 space-y-6">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-neutral-100 pb-5">
             <div>
-              <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
-                Instagram Reels / Video Showcase
+              <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-800">
+                Instagram Reels & Video Showcase
               </h2>
-              <p className="text-[10px] text-neutral-400 mt-0.5">
-                Manage the vertical videos played inside the auto-scrolling gallery widget. Supports MP4, WebM format.
+              <p className="text-xs text-neutral-400 mt-1">
+                Display your Instagram reels and vertical showcase videos in the auto-scrolling homepage marquee.
               </p>
             </div>
 
-            <label className="flex items-center space-x-2 px-5 py-2.5 bg-neutral-950 hover:bg-neutral-850 text-white rounded-full text-xs font-semibold tracking-wide transition-colors cursor-pointer self-start sm:self-auto shadow-sm">
-              {uploadingReel ? (
-                <Loader2 className="w-4 h-4 animate-spin text-[#C99213]" />
-              ) : (
-                <Video className="w-4 h-4 text-[#C99213]" />
-              )}
-              <span>Upload Video Reel</span>
-              <input
-                type="file"
-                accept="video/*"
-                onChange={handleReelUpload}
-                className="hidden"
-              />
-            </label>
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Option 1: Upload Video File Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setReelAddMode("upload");
+                  setShowAddReelPanel(showAddReelPanel && reelAddMode === "upload" ? false : true);
+                }}
+                className={`flex items-center space-x-2 px-4 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer shadow-xs ${
+                  showAddReelPanel && reelAddMode === "upload"
+                    ? "bg-[#C99213] text-white ring-2 ring-[#C99213]/20"
+                    : "bg-neutral-900 hover:bg-neutral-850 text-white"
+                }`}
+              >
+                <Upload className="w-3.5 h-3.5 text-[#C99213]" />
+                <span>Upload Video File</span>
+              </button>
+
+              {/* Option 2: Paste Reel Link Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setReelAddMode("link");
+                  setShowAddReelPanel(showAddReelPanel && reelAddMode === "link" ? false : true);
+                }}
+                className={`flex items-center space-x-2 px-4 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer shadow-xs ${
+                  showAddReelPanel && reelAddMode === "link"
+                    ? "bg-[#C99213] text-white ring-2 ring-[#C99213]/20"
+                    : "bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border border-neutral-300"
+                }`}
+              >
+                <Link2 className="w-3.5 h-3.5" />
+                <span>Paste Reel Link</span>
+              </button>
+            </div>
           </div>
 
-          {/* Reels Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
-            {reels.map((reel, idx) => (
-              <div
-                key={idx}
-                className="relative aspect-[9/16] rounded-xl overflow-hidden bg-neutral-900 border border-neutral-800 group shadow-xs hover:shadow-md transition-all"
+          {/* Connected Instagram Account Profile URL */}
+          <div className="bg-[#FAF9F5] border border-[#EADEBE] rounded-xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-neutral-900 flex items-center gap-2">
+                <svg className="w-4 h-4 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                </svg>
+                Brand Instagram Profile Link
+              </span>
+              <p className="text-[11px] text-neutral-500">
+                When visitors click &quot;Follow Us On Instagram&quot; or reels without a custom link, they will be navigated to this page.
+              </p>
+            </div>
+
+            <form onSubmit={handleSaveInstagramProfile} className="flex items-center gap-2 w-full md:w-auto">
+              <input
+                type="text"
+                placeholder="https://instagram.com/bridesberry or @bridesberry"
+                value={instagramProfileUrl}
+                onChange={(e) => setInstagramProfileUrl(e.target.value)}
+                className="flex-1 md:w-72 px-3.5 py-2 bg-white border border-neutral-300 rounded-lg text-xs outline-none focus:border-[#C99213] text-neutral-800"
+              />
+              <button
+                type="submit"
+                disabled={savingInstagramProfile}
+                className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50 shrink-0"
               >
-                <video
-                  src={getReelSource(reel)}
-                  className="w-full h-full object-cover"
-                  controls={false}
-                  muted
-                  loop
-                  playsInline
-                />
-                
-                {/* Overlay hover details */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3.5 z-10">
-                  <div className="flex justify-end">
+                {savingInstagramProfile ? "Saving..." : "Save Link"}
+              </button>
+            </form>
+          </div>
+
+          {/* Dual-Mode Add Reel Panel (Upload Video File or Paste Reel Link) */}
+          {showAddReelPanel && (
+            <div className="bg-neutral-50 border-2 border-dashed border-[#C99213]/50 rounded-xl p-4 sm:p-6 space-y-5 animate-in fade-in duration-200 shadow-xs">
+              {/* Tabs Bar inside panel */}
+              <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setReelAddMode("upload")}
+                    className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      reelAddMode === "upload"
+                        ? "bg-[#C99213] text-white shadow-xs"
+                        : "text-neutral-600 hover:bg-neutral-200"
+                    }`}
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Option 1: Upload Video File</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setReelAddMode("link")}
+                    className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      reelAddMode === "link"
+                        ? "bg-[#C99213] text-white shadow-xs"
+                        : "text-neutral-600 hover:bg-neutral-200"
+                    }`}
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                    <span>Option 2: Paste Reel Link</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAddReelPanel(false)}
+                  className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors cursor-pointer"
+                  title="Close panel"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Mode A: Upload Video File Form */}
+              {reelAddMode === "upload" && (
+                <form onSubmit={handleUploadAndSaveReel} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-800 mb-1.5">
+                      Select Video File *
+                    </label>
+                    <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-neutral-300 hover:border-[#C99213] rounded-xl bg-white transition-colors cursor-pointer group">
+                      <input
+                        type="file"
+                        accept="video/mp4,video/webm,video/quicktime,video/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setSelectedUploadFile(file);
+                        }}
+                        className="hidden"
+                      />
+                      {selectedUploadFile ? (
+                        <div className="flex flex-col items-center space-y-2 text-center">
+                          <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                            <Check className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-neutral-800 truncate max-w-sm">
+                              {selectedUploadFile.name}
+                            </p>
+                            <p className="text-[11px] text-neutral-500">
+                              {(selectedUploadFile.size / (1024 * 1024)).toFixed(1)} MB • Click to change file
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center space-y-2 text-center">
+                          <div className="w-10 h-10 rounded-full bg-neutral-100 group-hover:bg-amber-50 text-neutral-500 group-hover:text-[#C99213] flex items-center justify-center transition-colors">
+                            <Video className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-neutral-800">
+                              Click or drag to choose vertical video file
+                            </p>
+                            <p className="text-[11px] text-neutral-400 mt-0.5">
+                              Supports MP4, WebM, MOV. Recommended: 9:16 vertical ratio (e.g. 1080×1920)
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                      Instagram Reel / Post URL when clicked (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://www.instagram.com/reel/C_xxxxxx/ or your Instagram profile"
+                      value={uploadDestinationLink}
+                      onChange={(e) => setUploadDestinationLink(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs outline-none focus:border-[#C99213] text-neutral-800 placeholder-neutral-400"
+                    />
+                    <p className="text-[10px] text-neutral-400 mt-1">
+                      When customers click this uploaded video on your website, they will be redirected to this Instagram link.
+                    </p>
+                  </div>
+
+                  <div className="flex justify-end gap-2.5 pt-2">
                     <button
                       type="button"
-                      onClick={() => handleDeleteReel(idx)}
-                      className="p-1.5 bg-red-600/90 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
-                      aria-label="Delete video"
+                      onClick={() => setShowAddReelPanel(false)}
+                      className="px-4 py-2 bg-neutral-200 hover:bg-neutral-300 text-neutral-700 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={uploadingReel || !selectedUploadFile}
+                      className="flex items-center space-x-2 px-6 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shadow-xs"
+                    >
+                      {uploadingReel ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Uploading Video...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4" />
+                          <span>Upload & Add Reel</span>
+                        </>
+                      )}
                     </button>
                   </div>
-                  <span className="text-[9px] text-white/80 font-mono truncate">
-                    Reel #{idx + 1}
-                  </span>
+                </form>
+              )}
+
+              {/* Mode B: Paste Reel Link Form */}
+              {reelAddMode === "link" && (
+                <form onSubmit={handleAddLinkReel} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                        Instagram Reel URL or Video Link *
+                      </label>
+                      <input
+                        type="url"
+                        required
+                        placeholder="https://www.instagram.com/reel/C_xxxxxx/ or https://.../video.mp4"
+                        value={pastedReelUrl}
+                        onChange={(e) => setPastedReelUrl(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs outline-none focus:border-[#C99213] text-neutral-800 placeholder-neutral-400"
+                      />
+                      <p className="text-[10px] text-neutral-400 mt-1">
+                        Paste any Instagram Reel link. Clicking it on your storefront opens the reel on Instagram!
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                        Click Destination Link (Optional)
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="Defaults to the reel link or Instagram profile"
+                        value={pastedLinkUrl}
+                        onChange={(e) => setPastedLinkUrl(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs outline-none focus:border-[#C99213] text-neutral-800 placeholder-neutral-400"
+                      />
+                      <p className="text-[10px] text-neutral-400 mt-1">
+                        Leave blank to automatically redirect directly to the Instagram reel.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2.5 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddReelPanel(false)}
+                      className="px-4 py-2 bg-neutral-200 hover:bg-neutral-300 text-neutral-700 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={addingLink}
+                      className="flex items-center space-x-1.5 px-6 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-lg text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shadow-xs"
+                    >
+                      {addingLink ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Check className="w-3.5 h-3.5" />
+                      )}
+                      <span>Add Reel by Link</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+
+          {/* Reels Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-5">
+            {reels.map((reel, idx) => {
+              const reelData = getReelData(reel);
+              const isIg = isInstagramUrl(reelData.url);
+              const shortcode = extractInstagramShortcode(reelData.url);
+              const targetLink = reelData.linkUrl || (isIg ? reelData.url : instagramProfileUrl) || "https://instagram.com";
+
+              return (
+                <div
+                  key={idx}
+                  className="relative aspect-[9/16] rounded-xl overflow-hidden bg-neutral-900 border border-neutral-800 group shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+                >
+                  {/* Media Content: Instagram Embed or Video */}
+                  {isIg && shortcode ? (
+                    <div className="w-full h-full relative overflow-hidden bg-[#180a0d]">
+                      <iframe
+                        src={`https://www.instagram.com/reel/${shortcode}/embed/`}
+                        className="w-full h-full object-cover pointer-events-none scale-105 border-0"
+                        scrolling="no"
+                        title={`Instagram Reel ${idx + 1}`}
+                      />
+                      {/* Top Badge */}
+                      <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white text-[9px] font-bold shadow-xs flex items-center gap-1">
+                        <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                          <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                        </svg>
+                        IG Reel
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full relative bg-neutral-900">
+                      <video
+                        src={getReelSource(reelData.url)}
+                        className="w-full h-full object-cover"
+                        controls={false}
+                        muted
+                        loop
+                        playsInline
+                      />
+                      <div className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full bg-black/60 text-neutral-300 text-[9px] font-semibold backdrop-blur-xs">
+                        Video File
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Overlay hover details with Test Link & Delete */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3 z-20">
+                    <div className="flex items-center justify-between">
+                      {targetLink && targetLink !== "#" ? (
+                        <a
+                          href={targetLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors cursor-pointer"
+                          title="Open Instagram Link in new tab"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      ) : <span />}
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteReel(idx)}
+                        className="p-1.5 bg-red-600/90 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+                        title="Delete reel"
+                        aria-label="Delete reel"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] text-white font-bold block truncate">
+                        Reel #{idx + 1}
+                      </span>
+                      <span className="text-[8px] text-white/70 font-mono block truncate">
+                        {isIg && shortcode ? `IG: #${shortcode}` : reelData.url.split("/").pop()}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {reels.length === 0 && (
-              <div className="col-span-full py-12 text-center text-xs text-neutral-400 font-medium">
-                No custom reels uploaded. Displaying fallback catalog videos from public folder.
+              <div className="col-span-full py-12 text-center text-xs text-neutral-400 font-medium bg-neutral-50 rounded-xl border border-dashed border-neutral-200">
+                <p>No custom reels configured yet.</p>
+                <p className="mt-1 text-[11px] text-neutral-400">
+                  Click <strong>&quot;Paste Reel Link&quot;</strong> to add any Instagram Reel link, or <strong>&quot;Upload Video Reel&quot;</strong> to upload an MP4/WebM file.
+                </p>
               </div>
             )}
           </div>

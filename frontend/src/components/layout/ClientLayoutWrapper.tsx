@@ -47,7 +47,7 @@ function LayoutContent({ children }: ClientLayoutWrapperProps) {
   if (isRootAdmin) {
     return (
       <AdminRouteGuard>
-        <div className="min-h-screen bg-[#F8F8F8] text-neutral-900 admin-dashboard-root w-full flex">
+        <div className="min-h-screen bg-[#F8F8F8] text-neutral-900 admin-dashboard-root w-full min-w-0 max-w-full overflow-x-hidden flex flex-col">
           {children}
         </div>
       </AdminRouteGuard>

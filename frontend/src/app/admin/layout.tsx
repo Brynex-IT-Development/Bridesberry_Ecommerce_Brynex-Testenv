@@ -3,7 +3,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import AdminSidebar from "@/components/admin/layout/AdminSidebar";
-
+import { AdminLayoutProvider } from "@/context/AdminLayoutContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -40,16 +40,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8] flex w-full">
-      {/* Fixed sidebar */}
-      <AdminSidebar />
+    <AdminLayoutProvider>
+      <div className="min-h-screen bg-[#F8F8F8] flex flex-col lg:flex-row w-full min-w-0 max-w-full overflow-x-hidden">
+        {/* Fixed sidebar */}
+        <AdminSidebar />
 
-      {/* Main viewport area */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
-        <main className="flex-grow flex flex-col">
-          {children}
-        </main>
+        {/* Main viewport area - min-w-0 prevents flex children from blowing out viewport */}
+        <div className="flex-1 lg:pl-64 flex flex-col min-h-screen w-full min-w-0 max-w-full overflow-x-hidden">
+          <main className="flex-grow flex flex-col w-full min-w-0 max-w-full">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </AdminLayoutProvider>
   );
 }

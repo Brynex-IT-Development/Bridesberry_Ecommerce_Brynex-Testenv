@@ -78,7 +78,7 @@ export default function AdminProductDetailsPage({ params }: PageProps) {
       />
 
       {/* Main Container */}
-      <div className="flex-grow p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      <div className="flex-grow p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto min-w-0">
         
         {/* Top actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

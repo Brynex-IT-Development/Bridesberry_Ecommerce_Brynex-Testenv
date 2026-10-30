@@ -323,7 +323,7 @@ export default function AdminOrdersPage() {
       />
 
       {/* Main Content */}
-      <div className="flex-grow p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+      <div className="flex-grow p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto min-w-0">
         {/* Page Title & Action Buttons */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -335,7 +335,7 @@ export default function AdminOrdersPage() {
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Export Button */}
             <button
               onClick={handleExport}
@@ -528,7 +528,7 @@ export default function AdminOrdersPage() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <div className="col-span-1">
                             <label className="block text-[10px] font-bold text-neutral-455 uppercase mb-1">City *</label>
                             <input
@@ -601,7 +601,7 @@ export default function AdminOrdersPage() {
                             />
                           </div>
 
-                          <div className="grid grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
                               <label className="block text-[10px] font-bold text-neutral-455 uppercase mb-1">Billing City *</label>
                               <input

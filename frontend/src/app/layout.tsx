@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   Questrial,
   Raleway,
@@ -57,6 +57,12 @@ const windSong = WindSong({
   variable: "--font-windsong",
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: "Brides Berry | Bridal Jewelry & Accessories",

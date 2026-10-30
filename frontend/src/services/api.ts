@@ -10,14 +10,36 @@ const BASE_URL =
     ? process.env.NEXT_PUBLIC_API_BASE_URL || ''
     : SERVER_BASE_URL;
 
+const TOKEN_KEY = 'jewel_auth_token';
 let inMemoryToken = '';
 
 export function setAccessToken(token: string) {
   inMemoryToken = token;
+  if (typeof window !== 'undefined') {
+    if (token) {
+      try {
+        localStorage.setItem(TOKEN_KEY, token);
+      } catch {}
+    } else {
+      try {
+        localStorage.removeItem(TOKEN_KEY);
+      } catch {}
+    }
+  }
 }
 
-export function getAccessToken() {
-  return inMemoryToken;
+export function getAccessToken(): string {
+  if (inMemoryToken) return inMemoryToken;
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(TOKEN_KEY);
+      if (stored) {
+        inMemoryToken = stored;
+        return stored;
+      }
+    } catch {}
+  }
+  return '';
 }
 
 export interface RequestOptions extends RequestInit {
@@ -38,8 +60,9 @@ export async function apiFetch<T = unknown>(path: string, options: RequestOption
 
   const headers = new Headers(options.headers || {});
 
-  if (inMemoryToken && !headers.has('Authorization')) {
-    headers.set('Authorization', `Bearer ${inMemoryToken}`);
+  const token = getAccessToken();
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
