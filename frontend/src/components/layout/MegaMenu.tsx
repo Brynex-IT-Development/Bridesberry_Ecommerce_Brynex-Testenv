@@ -9,7 +9,7 @@ interface MegaMenuProps {
 }
 
 export default function MegaMenu({ item, onClose }: MegaMenuProps) {
-  if (!item.megaMenuColumns) return null;
+  if (!item.megaMenuColumns?.length) return null;
 
   return (
     <div

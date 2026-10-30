@@ -13,7 +13,7 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
   const [slug, setSlug] = useState(initialData?.slug || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [status, setStatus] = useState<"Active" | "Draft" | "Hidden">(initialData?.status || "Active");
-  const [displayOrder, setDisplayOrder] = useState(initialData?.displayOrder || 1);
+  const [displayOrder, setDisplayOrder] = useState(initialData?.displayOrder ?? 1);
   const [imageUrl, setImageUrl] = useState(initialData?.image || "");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -60,7 +60,7 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
       slug,
       description,
       status,
-      displayOrder: Number(displayOrder) || 1,
+      displayOrder: Number(displayOrder),
       image: imageUrl,
     });
   };
@@ -144,8 +144,12 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
           </label>
           <input
             type="number"
+            min={0}
             value={displayOrder}
-            onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 1)}
+            onChange={(e) => {
+              const value = Number.parseInt(e.target.value, 10);
+              setDisplayOrder(Number.isNaN(value) ? 0 : value);
+            }}
             className="px-3 py-1.5 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] text-neutral-850"
           />
         </div>

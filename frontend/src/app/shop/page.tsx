@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { getProductsPaginated, getFilterMetadata, FilterMetadata } from '../../services/products.service';
 import { Product } from '../../types/product';
 import ProductGrid from '../../components/product/ProductGrid';
@@ -13,7 +14,9 @@ export default function ShopPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedParams = use(searchParams);
+  const activeSearchParams = useSearchParams();
   const paramCategory = resolvedParams.category as string || '';
+  const selectedCollection = activeSearchParams.get('collection') || '';
   const paramSort = resolvedParams.sort as string || 'featured';
   const paramSearch = resolvedParams.q as string || '';
   const paramGender = resolvedParams.gender as string || '';
@@ -67,6 +70,7 @@ export default function ShopPage({
   useEffect(() => {
     const params = new URLSearchParams();
     if (selectedCategory) params.set('category', selectedCategory);
+    if (selectedCollection) params.set('collection', selectedCollection);
     if (selectedOccasion) params.set('occasion', selectedOccasion);
     if (selectedGender) params.set('gender', selectedGender);
     if (selectedStock) {
@@ -83,6 +87,7 @@ export default function ShopPage({
     window.history.pushState({}, '', newUrl);
   }, [
     selectedCategory,
+    selectedCollection,
     selectedOccasion,
     selectedGender,
     selectedStock,
@@ -106,6 +111,7 @@ export default function ShopPage({
       limit: 12,
     };
     if (selectedCategory) queryParams.category = selectedCategory;
+    if (selectedCollection) queryParams.collection = selectedCollection;
     if (selectedOccasion) queryParams.occasion = selectedOccasion;
     if (selectedGender) queryParams.gender = selectedGender;
     if (selectedStock) {
@@ -137,6 +143,7 @@ export default function ShopPage({
     };
   }, [
     selectedCategory,
+    selectedCollection,
     selectedOccasion,
     selectedGender,
     selectedStock,

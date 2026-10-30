@@ -59,6 +59,12 @@ export class ProductsController {
   }
 
   @Public()
+  @Get('collections')
+  async getProductCollections() {
+    return this.productsService.findCollections();
+  }
+
+  @Public()
   @Get(':idOrSlug')
   async getProductDetails(@Param('idOrSlug') idOrSlug: string) {
     return this.productsService.findOne(idOrSlug);

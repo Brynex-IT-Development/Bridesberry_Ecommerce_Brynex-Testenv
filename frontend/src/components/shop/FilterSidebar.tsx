@@ -102,7 +102,7 @@ export default function FilterSidebar({
           className="w-full flex items-center justify-between py-3"
           onClick={() => setProductTypeOpen(o => !o)}
         >
-          <span style={sectionHeadingStyle}>Product Type</span>
+          <span style={sectionHeadingStyle}>Category</span>
           <Chevron open={productTypeOpen} />
         </button>
         {productTypeOpen && (

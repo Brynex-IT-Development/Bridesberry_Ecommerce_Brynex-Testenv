@@ -1,5 +1,38 @@
-import { Vendor } from "@/types/vendor";
+import { Vendor, VendorAddress } from "@/types/vendor";
 import { apiFetch } from "@/services/api";
+
+type VendorWithRelations = Vendor & {
+  addresses?: (VendorAddress & { type: string })[];
+};
+
+const EMPTY_ADDRESS: VendorAddress = {
+  attention: "",
+  countryRegion: "",
+  street1: "",
+  street2: "",
+  city: "",
+  state: "",
+  zipCode: "",
+  phone: "",
+  fax: "",
+};
+
+function mapVendorRelations(vendor: VendorWithRelations): Vendor {
+  const addresses = vendor.addresses ?? [];
+
+  return {
+    ...vendor,
+    billingAddress:
+      vendor.billingAddress ??
+      addresses.find((address) => address.type === "BILLING") ??
+      { ...EMPTY_ADDRESS },
+    shippingAddress:
+      vendor.shippingAddress ??
+      addresses.find((address) => address.type === "SHIPPING") ??
+      { ...EMPTY_ADDRESS },
+    contactPersons: vendor.contactPersons ?? vendor.contacts ?? [],
+  };
+}
 
 export async function getVendors(): Promise<Vendor[]> {
   try {
@@ -12,7 +45,8 @@ export async function getVendors(): Promise<Vendor[]> {
 
 export async function getVendorById(id: string): Promise<Vendor | undefined> {
   try {
-    return await apiFetch<Vendor>(`/api/vendors/${id}`);
+    const vendor = await apiFetch<VendorWithRelations>(`/api/vendors/${id}`);
+    return mapVendorRelations(vendor);
   } catch {
     return undefined;
   }

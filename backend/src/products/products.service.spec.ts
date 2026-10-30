@@ -24,6 +24,9 @@ describe('ProductsService', () => {
       },
       productVariant: {
         createMany: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+        deleteMany: jest.fn(),
       },
       inventory: {
         createMany: jest.fn(),
@@ -106,6 +109,8 @@ describe('ProductsService', () => {
         mrp: 12000,
         categoryId: 'cat-123',
         status: 'Active',
+        material: 'Wood',
+        collection: 'Summer Edit',
         trackInventory: true,
         initialStock: 10,
         images: [{ url: 'http://s3/img.jpg', isPrimary: true, sortOrder: 1 }],
@@ -113,8 +118,98 @@ describe('ProductsService', () => {
       });
 
       expect(prismaMock.product.create).toHaveBeenCalled();
+      expect(prismaMock.product.create.mock.calls[0][0].data).toMatchObject({
+        material: 'Wood',
+        collection: 'Summer Edit',
+      });
       expect(prismaMock.inventory.create).toHaveBeenCalled();
       expect(result.id).toBe('new-prod-id');
+    });
+  });
+
+  describe('findCollections', () => {
+    it('returns distinct collection names for active products', async () => {
+      prismaMock.product.findMany.mockResolvedValue([
+        { collection: 'Bridal Edit' },
+        { collection: ' Everyday ' },
+        { collection: null },
+        { collection: '   ' },
+      ]);
+
+      await expect(service.findCollections()).resolves.toEqual([
+        'Bridal Edit',
+        'Everyday',
+      ]);
+      expect(prismaMock.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            status: ProductStatus.ACTIVE,
+            collection: { not: null },
+          },
+          distinct: ['collection'],
+        }),
+      );
+    });
+  });
+
+  describe('update variants', () => {
+    it('creates new variants with their opening stock', async () => {
+      prismaMock.product.findUnique.mockResolvedValue({
+        id: 'product-1',
+        images: [],
+        variants: [],
+      });
+      prismaMock.productVariant.create.mockResolvedValue({ id: 'variant-new' });
+      prismaMock.product.update.mockResolvedValue({ id: 'product-1' });
+
+      await service.update('product-1', {
+        variants: [
+          {
+            name: 'Size: 16 inch',
+            sku: 'SKU-16',
+            isActive: true,
+            initialStock: 7,
+          },
+        ],
+      });
+
+      expect(prismaMock.productVariant.create).toHaveBeenCalledWith({
+        data: {
+          productId: 'product-1',
+          name: 'Size: 16 inch',
+          sku: 'SKU-16',
+          sellingPrice: undefined,
+          isActive: true,
+        },
+      });
+      expect(prismaMock.inventory.create).toHaveBeenCalledWith({
+        data: {
+          variantId: 'variant-new',
+          currentStock: 7,
+        },
+      });
+    });
+
+    it('rejects variant IDs that belong to another product', async () => {
+      prismaMock.product.findUnique.mockResolvedValue({
+        id: 'product-1',
+        images: [],
+        variants: [],
+      });
+
+      await expect(
+        service.update('product-1', {
+          variants: [
+            {
+              id: 'variant-other-product',
+              name: 'Size: 16 inch',
+              sku: 'SKU-16',
+              isActive: true,
+            },
+          ],
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prismaMock.productVariant.update).not.toHaveBeenCalled();
     });
   });
 
@@ -345,6 +440,19 @@ describe('ProductsService', () => {
       });
     });
 
+    it('should apply the collection filter case-insensitively', async () => {
+      prismaMock.product.findMany.mockResolvedValue([]);
+      await service.findAll({
+        collection: 'Summer Edit',
+        isAdmin: false,
+      });
+      const whereClause = prismaMock.product.findMany.mock.calls[0][0].where;
+      expect(whereClause.collection).toEqual({
+        equals: 'Summer Edit',
+        mode: 'insensitive',
+      });
+    });
+
     it('should apply sorting mapping', async () => {
       prismaMock.product.findMany.mockResolvedValue([]);
       await service.findAll({ sort: 'price_asc', isAdmin: false });
@@ -375,6 +483,44 @@ describe('ProductsService', () => {
   });
 
   describe('getFilterMetadata', () => {
+    it('orders category filter options by category display order', async () => {
+      prismaMock.product.findMany.mockResolvedValue([
+        {
+          sellingPrice: 100,
+          occasion: 'Everyday',
+          gender: 'Unisex',
+          category: {
+            id: 'later',
+            name: 'Later Category',
+            slug: 'later',
+            sortOrder: 2,
+          },
+          variants: [],
+          inventory: { currentStock: 1 },
+        },
+        {
+          sellingPrice: 200,
+          occasion: 'Everyday',
+          gender: 'Unisex',
+          category: {
+            id: 'first',
+            name: 'First Category',
+            slug: 'first',
+            sortOrder: 1,
+          },
+          variants: [],
+          inventory: { currentStock: 1 },
+        },
+      ]);
+
+      const metadata = await service.getFilterMetadata();
+
+      expect(metadata.categories.map((category) => category.slug)).toEqual([
+        'first',
+        'later',
+      ]);
+    });
+
     it('should compile correct counts and pricing bounds', async () => {
       const activeProducts = [
         {
@@ -382,7 +528,7 @@ describe('ProductsService', () => {
           sellingPrice: 5000,
           occasion: 'Everyday',
           gender: 'Women',
-          category: { id: 'c1', name: 'Rings', slug: 'rings' },
+          category: { id: 'c1', name: 'Rings', slug: 'rings', sortOrder: 2 },
           variants: [],
           inventory: { currentStock: 10 },
         },
@@ -391,7 +537,7 @@ describe('ProductsService', () => {
           sellingPrice: 15000,
           occasion: 'Bridal',
           gender: 'Men',
-          category: { id: 'c1', name: 'Rings', slug: 'rings' },
+          category: { id: 'c1', name: 'Rings', slug: 'rings', sortOrder: 2 },
           variants: [],
           inventory: { currentStock: 0 },
         },

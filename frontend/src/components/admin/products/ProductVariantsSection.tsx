@@ -142,7 +142,7 @@ export default function ProductVariantsSection({ variants, onChange, basePrice, 
 
                   {/* Stock */}
                   <td className="py-2 px-2">
-                    {mode === "create" ? (
+                    {mode === "create" || variant.id.startsWith("var-") ? (
                       <input
                         type="number"
                         value={variant.stock}

@@ -1,5 +1,9 @@
 import { Product, BackendProductResponse, BackendProductImage } from "@/types/product";
-import { AdminProduct, AdminProductFormData } from "@/types/admin";
+import {
+  AdminProduct,
+  AdminProductFormData,
+  CUSTOM_MATERIAL_VALUE,
+} from "@/types/admin";
 import { apiFetch } from "@/services/api";
 
 // ----- Helpers & Mappers -----
@@ -81,6 +85,10 @@ export function mapBackendProduct(p: BackendProductResponse): Product {
 }
 
 export function mapBackendProductToAdminFormData(data: BackendProductResponse): AdminProductFormData {
+  const standardMaterials = ["Gold", "Silver", "Platinum", "Diamond", "Emerald"];
+  const savedMaterial = data.material || "Gold";
+  const isStandardMaterial = standardMaterials.includes(savedMaterial);
+
   return {
     id: data.id,
     name: data.name,
@@ -91,7 +99,9 @@ export function mapBackendProductToAdminFormData(data: BackendProductResponse): 
     category: data.categoryId || "", // Category ID
     gender: data.gender || "Unisex",
     occasion: data.occasion || "Everyday",
-    material: data.material || "Gold",
+    material: isStandardMaterial ? savedMaterial : CUSTOM_MATERIAL_VALUE,
+    customMaterial: isStandardMaterial ? "" : savedMaterial,
+    collection: data.collection || "",
     sellingPrice: data.sellingPrice?.toString() || "",
     mrp: data.mrp?.toString() || "",
     discountPercent: data.discountPercent || 0,
@@ -161,6 +171,7 @@ export function mapBackendProductToAdminProduct(p: BackendProductResponse): Admi
 // ----- Public storefront -----
 export interface GetProductsParams {
   category?: string;
+  collection?: string;
   minPrice?: number;
   maxPrice?: number;
   occasion?: string;
@@ -173,6 +184,17 @@ export interface GetProductsParams {
   newArrival?: boolean;
   bestSeller?: boolean;
   featured?: boolean;
+}
+
+export async function getProductCollections(): Promise<string[]> {
+  try {
+    const data = await apiFetch<string[]>("/api/products/collections", {
+      cache: "no-store",
+    });
+    return data ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getProducts(params?: GetProductsParams): Promise<Product[]> {

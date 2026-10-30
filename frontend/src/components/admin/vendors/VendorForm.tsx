@@ -255,6 +255,20 @@ export default function VendorForm({ initialVendorId }: VendorFormProps) {
       validationErrors.primaryContact = "Either Company Name or First & Last Name is required.";
     }
 
+    const requiredAddressFields: (keyof VendorAddress)[] = [
+      "street1",
+      "city",
+      "zipCode",
+    ];
+    const hasMissingAddressFields = [billingAddress, shippingAddress].some(
+      (address) =>
+        requiredAddressFields.some((field) => !address[field]?.trim()),
+    );
+    if (hasMissingAddressFields) {
+      validationErrors.address =
+        "Street address, city, and ZIP / Pin Code are required for both billing and shipping addresses.";
+    }
+
     // Verify bank accounts match
     bankAccounts.forEach((b, idx) => {
       if (b.accountNumber !== b.reAccountNumber) {
@@ -264,6 +278,9 @@ export default function VendorForm({ initialVendorId }: VendorFormProps) {
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      if (validationErrors.address) {
+        setActiveTab("Address");
+      }
       if (Object.keys(validationErrors).some((key) => key.startsWith("bank_"))) {
         setActiveTab("Bank Details");
       }
@@ -298,8 +315,8 @@ export default function VendorForm({ initialVendorId }: VendorFormProps) {
         currency,
         paymentTerms,
         tdsRate,
-        billingAddress,
-        shippingAddress,
+        billingAddress: { ...billingAddress, type: "BILLING" },
+        shippingAddress: { ...shippingAddress, type: "SHIPPING" },
         contactPersons,
         bankAccounts: cleanBankAccounts,
         remarks,
@@ -748,6 +765,12 @@ export default function VendorForm({ initialVendorId }: VendorFormProps) {
           {/* TAB 2: ADDRESS */}
           {activeTab === "Address" && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 divide-y lg:divide-y-0 lg:divide-x divide-neutral-100">
+              {errors.address && (
+                <div className="lg:col-span-2 flex items-center space-x-2 text-xs text-red-600 bg-red-50 px-4 py-2.5 rounded-xl">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{errors.address}</span>
+                </div>
+              )}
               
               {/* Billing Address */}
               <div className="space-y-4 pr-0 lg:pr-8">

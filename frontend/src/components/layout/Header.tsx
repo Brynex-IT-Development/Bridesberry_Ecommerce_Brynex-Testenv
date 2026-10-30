@@ -8,6 +8,8 @@ import { useCart } from '../../context/CartContext';
 import MegaMenu from './MegaMenu';
 import { MenuItem } from '../../types/menu';
 import { useAuth } from '../../context/AuthContext';
+import { getCategories } from '../../services/categories.service';
+import { getProductCollections } from '../../services/products.service';
 
 export default function Header() {
   const pathname = usePathname();
@@ -30,53 +32,51 @@ export default function Header() {
   useEffect(() => {
     async function fetchDynamicMenu() {
       try {
-        const rawBase =
-          process.env.NEXT_PUBLIC_API_BASE_URL ||
-          process.env.API_BASE_URL ||
-          '';
-        const baseUrl = rawBase.endsWith('/api')
-          ? rawBase
-          : `${rawBase.replace(/\/$/, '')}/api`;
-        const res = await fetch(`${baseUrl}/products?limit=50`);
-        if (!res.ok) return;
-        const data = await res.json();
-        const products = data.products || [];
-
-        // Group active products by category
-        const productsByCategory: Record<string, any[]> = {};
-        
-        products.forEach((p: any) => {
-          if (p.status !== 'ACTIVE') return;
-          
-          const catName = p.category?.name || 'Other';
-          if (!productsByCategory[catName]) {
-            productsByCategory[catName] = [];
-          }
-          productsByCategory[catName].push(p);
-        });
-
-        // Build Mega Menu columns
-        const columns = Object.keys(productsByCategory).map(catName => {
-          const catProducts = productsByCategory[catName].slice(0, 5);
-          return {
-            title: catName.toUpperCase(),
-            items: catProducts.map((p: any) => ({
-              name: p.name.toUpperCase(),
-              href: `/shop/product/${p.slug || p.id}`
-            }))
-          };
-        });
-
-        if (columns.length > 0) {
-          setMenuItems(prev => prev.map(item => {
-            if (item.name === 'Collections') {
-              return { ...item, megaMenuColumns: columns };
+        const [categories, collections] = await Promise.all([
+          getCategories(),
+          getProductCollections(),
+        ]);
+        setMenuItems((items) =>
+          items.map((item) => {
+            if (item.name === 'Category') {
+              return {
+                ...item,
+                megaMenuColumns: categories.length
+                  ? [
+                      {
+                        title: 'CATEGORIES',
+                        items: categories.map((category) => ({
+                          name: category.name,
+                          href: `/shop?category=${encodeURIComponent(category.slug)}`,
+                        })),
+                      },
+                    ]
+                  : [],
+              };
             }
+
+            if (item.name === 'Collections') {
+              return {
+                ...item,
+                megaMenuColumns: collections.length
+                  ? [
+                      {
+                        title: 'COLLECTIONS',
+                        items: collections.map((collection) => ({
+                          name: collection,
+                          href: `/shop?collection=${encodeURIComponent(collection)}`,
+                        })),
+                      },
+                    ]
+                  : [],
+              };
+            }
+
             return item;
-          }));
-        }
+          }),
+        );
       } catch (err) {
-        console.error('Failed to load dynamic mega menu', err);
+        console.error('Failed to load category navigation menu', err);
       }
     }
     fetchDynamicMenu();
@@ -111,7 +111,7 @@ export default function Header() {
   const headerBgClass = 'bg-white border-b border-neutral-100';
 
   const navLinkClass = (itemHref: string, itemName: string) => {
-    const isCurrent = itemName === 'Collections' || itemName === 'Women' ? false : pathname === itemHref;
+    const isCurrent = itemName === 'Collections' || itemName === 'Category' ? false : pathname === itemHref;
     return isCurrent
       ? 'text-[#000000] border-b border-gold-550'
       : 'text-[#000000] hover:text-gold-600';
@@ -186,7 +186,7 @@ export default function Header() {
                     )}`}
                   >
                     <span>{item.name}</span>
-                    {(item.name === 'Collections' || item.name === 'Women') && (
+                    {(item.name === 'Collections' || item.name === 'Category') && (
                       <svg className="w-3.5 h-3.5 text-[#000000]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 9l-7 7-7-7" />
                       </svg>

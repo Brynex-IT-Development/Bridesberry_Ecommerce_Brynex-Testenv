@@ -29,6 +29,7 @@ export class ProductsService {
 
   async findAll(query: {
     category?: string;
+    collection?: string;
     minPrice?: number;
     maxPrice?: number;
     occasion?: string;
@@ -74,6 +75,13 @@ export class ProductsService {
     if (query.category) {
       where.category = {
         slug: query.category,
+      };
+    }
+
+    if (query.collection) {
+      where.collection = {
+        equals: query.collection,
+        mode: 'insensitive',
       };
     }
 
@@ -217,6 +225,24 @@ export class ProductsService {
     };
   }
 
+  async findCollections(): Promise<string[]> {
+    const products = await this.prisma.product.findMany({
+      where: {
+        status: ProductStatus.ACTIVE,
+        collection: { not: null },
+      },
+      select: { collection: true },
+      distinct: ['collection'],
+      orderBy: { collection: 'asc' },
+    });
+
+    const collections = products
+      .map((product) => product.collection?.trim())
+      .filter((collection): collection is string => Boolean(collection));
+
+    return [...new Set(collections)].sort((a, b) => a.localeCompare(b));
+  }
+
   async getFilterMetadata() {
     const activeProducts = await this.prisma.product.findMany({
       where: {
@@ -235,7 +261,13 @@ export class ProductsService {
 
     const categoryMap = new Map<
       string,
-      { id: string; name: string; slug: string; count: number }
+      {
+        id: string;
+        name: string;
+        slug: string;
+        count: number;
+        sortOrder: number;
+      }
     >();
     for (const p of activeProducts) {
       if (p.category) {
@@ -249,11 +281,14 @@ export class ProductsService {
             name: cat.name,
             slug: cat.slug,
             count: 1,
+            sortOrder: cat.sortOrder,
           });
         }
       }
     }
-    const categories = Array.from(categoryMap.values());
+    const categories = Array.from(categoryMap.values())
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map(({ id, name, slug, count }) => ({ id, name, slug, count }));
 
     let minPrice = 0;
     let maxPrice = 0;
@@ -428,6 +463,8 @@ export class ProductsService {
           showOnHomepage: dto.showOnHomepage ?? false,
           occasion: dto.occasion || 'Everyday',
           gender: dto.gender || 'Unisex',
+          material: dto.material,
+          collection: dto.collection,
           categoryId: dto.categoryId,
           images: {
             create: (dto.images || []).map((img) => ({
@@ -598,9 +635,15 @@ export class ProductsService {
       // 2. Update variants if provided
       if (dto.variants) {
         const variantIdsToKeep: string[] = [];
+        const existingVariantIds = new Set(product.variants.map((v) => v.id));
 
         for (const varDto of dto.variants) {
           if (varDto.id) {
+            if (!existingVariantIds.has(varDto.id)) {
+              throw new BadRequestException(
+                `Variant ${varDto.id} does not belong to product ${id}.`,
+              );
+            }
             // Update existing variant
             const updatedVar = await tx.productVariant.update({
               where: { id: varDto.id },
@@ -613,7 +656,7 @@ export class ProductsService {
             });
             variantIdsToKeep.push(updatedVar.id);
           } else {
-            // Create new variant with 0 initial stock
+            // Create new variant and initialize its stock.
             const newVar = await tx.productVariant.create({
               data: {
                 productId: id,
@@ -627,7 +670,7 @@ export class ProductsService {
             await tx.inventory.create({
               data: {
                 variantId: newVar.id,
-                currentStock: 0,
+                currentStock: varDto.initialStock ?? 0,
               },
             });
             variantIdsToKeep.push(newVar.id);
@@ -667,6 +710,8 @@ export class ProductsService {
           showOnHomepage: dto.showOnHomepage,
           occasion: dto.occasion,
           gender: dto.gender,
+          material: dto.material,
+          collection: dto.collection,
         },
       });
     });

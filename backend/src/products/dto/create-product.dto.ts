@@ -127,6 +127,14 @@ export class CreateProductDto {
   @IsOptional()
   gender?: string;
 
+  @IsString()
+  @IsOptional()
+  material?: string;
+
+  @IsString()
+  @IsOptional()
+  collection?: string;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateProductImageDto)

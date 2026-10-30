@@ -4,4 +4,5 @@ export interface Category {
   slug: string;
   image: string;
   count: number;
+  sortOrder?: number;
 }

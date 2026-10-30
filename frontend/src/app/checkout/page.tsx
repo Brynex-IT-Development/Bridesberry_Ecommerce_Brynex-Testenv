@@ -91,7 +91,7 @@ export default function CheckoutPage() {
   // Financial splits
   const selectedOption = shippingOptions.find((o) => o.code === selectedOptionCode);
   const shippingCharge = selectedOption ? selectedOption.rate : 0;
-  const taxTotal = Math.round(cartSubtotal * 0.03); // 3% GST on jewelry items in India
+  const taxTotal = Math.round(cartSubtotal * 0.03 * 100) / 100;
   const total = cartSubtotal + taxTotal + shippingCharge;
 
 
@@ -552,7 +552,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="uppercase tracking-wider">Estimated GST (3%)</span>
-                  <span className="text-neutral-800">₹ {taxTotal.toLocaleString('en-IN')}.00</span>
+                  <span className="text-neutral-800">₹ {taxTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 
                 <div className="border-t border-neutral-200 pt-4 flex justify-between items-baseline">

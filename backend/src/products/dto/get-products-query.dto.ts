@@ -20,6 +20,10 @@ export class GetProductsQueryDto {
   @IsOptional()
   category?: string;
 
+  @IsString()
+  @IsOptional()
+  collection?: string;
+
   @Transform(({ value }) => {
     const num = Number(value);
     return isNaN(num) ? undefined : num;

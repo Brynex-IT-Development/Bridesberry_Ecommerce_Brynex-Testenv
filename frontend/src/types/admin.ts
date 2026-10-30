@@ -100,6 +100,7 @@ export interface NavSection {
 }
 
 // New UI Types
+export const CUSTOM_MATERIAL_VALUE = "__custom_material__";
 
 export interface AdminProductMedia {
   id: string;
@@ -133,6 +134,7 @@ export interface AdminProductFormData {
   gender: string;
   occasion: string;
   material: string;
+  customMaterial?: string;
   purity?: string;
   hsnCode?: string;
   unit?: string;
@@ -296,4 +298,3 @@ export interface AdminOrderDetails {
   timeline: OrderTimelineEvent[];
   shipment?: any;
 }
-

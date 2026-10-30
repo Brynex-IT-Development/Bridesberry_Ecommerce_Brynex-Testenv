@@ -35,7 +35,7 @@ export default function CartPage() {
   }, [cartItems]);
 
   // Summary figures
-  const tax = 189; // Static matching the screenshot
+  const tax = Math.round(cartSubtotal * 0.03 * 100) / 100;
   const total = cartSubtotal + tax;
 
   return (
@@ -209,7 +209,7 @@ export default function CartPage() {
                 {/* Subtotal */}
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="text-neutral-900">₹ {cartSubtotal.toLocaleString('en-IN')}.00</span>
+                  <span className="text-neutral-900">₹ {cartSubtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
 
                 {/* Estimated Shipping */}
@@ -220,8 +220,8 @@ export default function CartPage() {
 
                 {/* Tax */}
                 <div className="flex justify-between">
-                  <span>Tax</span>
-                  <span className="text-neutral-900">₹ {tax.toLocaleString('en-IN')}.00</span>
+                  <span>Estimated GST (3%)</span>
+                  <span className="text-neutral-900">₹ {tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
 
                 <div className="border-t border-neutral-200 pt-4 flex justify-between items-baseline">
@@ -232,7 +232,7 @@ export default function CartPage() {
                     className="text-2xl font-semibold text-neutral-900"
                     style={{ fontFamily: "'Google Sans Flex', 'Google Sans', sans-serif" }}
                   >
-                    ₹ {total.toLocaleString('en-IN')}
+                    ₹ {total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
 

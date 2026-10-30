@@ -1,5 +1,5 @@
 import React from "react";
-import { AdminProductFormData } from "@/types/admin";
+import { AdminProductFormData, CUSTOM_MATERIAL_VALUE } from "@/types/admin";
 
 interface CategoryOption {
   id: string;
@@ -209,7 +209,13 @@ export default function ProductBasicInfoSection({ errors, formData, onChange, ca
           </label>
           <select
             value={formData.material || "Gold"}
-            onChange={(e) => onChange("material", e.target.value)}
+            onChange={(e) => {
+              const material = e.target.value;
+              onChange("material", material);
+              if (material !== CUSTOM_MATERIAL_VALUE) {
+                onChange("customMaterial", "");
+              }
+            }}
             className="px-3 py-2 border border-neutral-200 rounded text-xs bg-white outline-none focus:border-[#C99213] transition-all text-neutral-850"
           >
             <option value="Gold">Gold</option>
@@ -217,7 +223,21 @@ export default function ProductBasicInfoSection({ errors, formData, onChange, ca
             <option value="Platinum">Platinum</option>
             <option value="Diamond">Diamond</option>
             <option value="Emerald">Emerald</option>
+            <option value={CUSTOM_MATERIAL_VALUE}>Custom</option>
           </select>
+          {formData.material === CUSTOM_MATERIAL_VALUE && (
+            <input
+              type="text"
+              value={formData.customMaterial || ""}
+              onChange={(e) => onChange("customMaterial", e.target.value)}
+              placeholder="Enter material type"
+              aria-label="Custom material type"
+              className="px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850 placeholder-neutral-400"
+            />
+          )}
+          {errors.material && (
+            <span className="text-[10px] text-red-500">{errors.material}</span>
+          )}
         </div>
 
         {/* Purity */}

@@ -45,6 +45,7 @@ export interface BackendProductResponse {
   gender?: string;
   occasion?: string;
   material?: string;
+  collection?: string;
   discountPercent?: number;
   taxCategory?: string;
   allowBackorder?: boolean;

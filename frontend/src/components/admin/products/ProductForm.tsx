@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AdminProductFormData, AdminProductMedia, AdminProductVariant, AdminCategory } from "@/types/admin";
+import {
+  AdminProductFormData,
+  AdminProductMedia,
+  AdminProductVariant,
+  AdminCategory,
+  CUSTOM_MATERIAL_VALUE,
+} from "@/types/admin";
 import { createProduct, updateProduct, archiveProduct } from "@/services/products.service";
 import { getAdminCategories } from "@/services/categories.service";
 import { uploadFile } from "@/services/media.service";
@@ -27,6 +33,7 @@ const defaultFormData: AdminProductFormData = {
   gender: "Unisex",
   occasion: "Everyday",
   material: "Gold",
+  collection: "",
   sellingPrice: "",
   mrp: "",
   discountPercent: 0,
@@ -58,12 +65,7 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
 
   useEffect(() => {
     getAdminCategories().then((data) => {
-      // Backend returns isActive: boolean; AdminCategory type declares status (mismatch).
-      // Cast to access the real field and keep only active categories.
-      const active = (data as unknown as { id: string; name: string; isActive: boolean }[]).filter(
-        (c) => c.isActive
-      );
-      setCategories(active as unknown as AdminCategory[]);
+      setCategories(data.filter((category) => category.status === "Active"));
       setCategoriesLoading(false);
     });
   }, []);
@@ -100,6 +102,12 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
     if (!formData.category) tempErrors.category = "Category selection is required";
     if (!formData.mrp) tempErrors.mrp = "MRP is required";
     if (!formData.sellingPrice) tempErrors.sellingPrice = "Selling price is required";
+    if (
+      formData.material === CUSTOM_MATERIAL_VALUE &&
+      !formData.customMaterial?.trim()
+    ) {
+      tempErrors.material = "Enter a custom material type";
+    }
 
     const mrpNum = parseFloat(formData.mrp);
     const sellNum = parseFloat(formData.sellingPrice);
@@ -161,6 +169,11 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
         showOnHomepage: formData.showOnHomepage,
         occasion: formData.occasion,
         gender: formData.gender,
+        collection: formData.collection?.trim() || undefined,
+        material:
+          formData.material === CUSTOM_MATERIAL_VALUE
+            ? formData.customMaterial?.trim()
+            : formData.material,
         trackInventory: formData.trackInventory,
         initialStock: Number(formData.initialStock),
         minStock: Number(formData.minStock),
@@ -172,11 +185,12 @@ export default function ProductForm({ initialData, mode }: ProductFormProps) {
           sortOrder: index + 1,
         })),
         variants: formData.variants.map((v) => ({
-          id: v.id || undefined,
+          id: v.id.startsWith("var-") ? undefined : v.id,
           name: v.name,
           sku: v.sku,
           sellingPrice: v.price ? parseFloat(v.price) : undefined,
           isActive: v.status === "Active",
+          initialStock: v.id.startsWith("var-") ? v.stock : undefined,
         })),
       };
 

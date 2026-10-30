@@ -29,6 +29,10 @@ export class UpdateProductVariantDto {
 
   @IsBoolean()
   isActive: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  initialStock?: number;
 }
 
 export class UpdateProductDto {
@@ -95,6 +99,14 @@ export class UpdateProductDto {
   @IsString()
   @IsOptional()
   gender?: string;
+
+  @IsString()
+  @IsOptional()
+  material?: string;
+
+  @IsString()
+  @IsOptional()
+  collection?: string;
 
   @IsArray()
   @IsOptional()
