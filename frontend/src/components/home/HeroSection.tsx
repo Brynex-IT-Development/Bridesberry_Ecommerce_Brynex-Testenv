@@ -17,7 +17,7 @@ export default async function HeroSection() {
           priority
           quality={100}
           sizes="100vw"
-          className="object-cover object-[48.5%_28%] md:object-[56%_32%] saturate-115 contrast-[1.03]"
+          className="object-cover object-[48%_41%] md:object-[50%_46%] saturate-115 contrast-[1.03]"
         />
       </div>
 

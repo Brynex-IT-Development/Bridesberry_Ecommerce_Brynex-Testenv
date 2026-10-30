@@ -43,7 +43,7 @@ export default function Footer() {
                 }}
                 className="text-[20px] tracking-normal text-[#310C13] leading-none"
               >
-                Jewelry by Zorucci
+                Brides Berry
               </span>
             </div>
 
@@ -182,7 +182,7 @@ export default function Footer() {
           className="border-t border-[#D9D9D9] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[#595959] text-[13px]"
         >
           <span>Copyrights</span>
-          <span>© 2026 Your Brand. All Rights Reserved.</span>
+          <span>© {new Date().getFullYear()} Brides Berry. All Rights Reserved.</span>
         </div>
       </div>
     </footer>
