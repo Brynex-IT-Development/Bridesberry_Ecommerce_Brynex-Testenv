@@ -11,12 +11,12 @@ export default function Footer() {
     { name: 'Bridal Journal', href: '/blog' },
   ];
 
-  const helpLinks = [
-    { name: 'Shipping', href: '#' },
-    { name: 'Returns', href: '#' },
-    { name: 'FAQs', href: '#' },
+  const policyLinks = [
     { name: 'Privacy Policy', href: '/privacy-policy' },
-    { name: 'Contact Us', href: '#footer' },
+    { name: 'Shipping Policy', href: '/shipping-policy' },
+    { name: 'Return Policy', href: '/return-policy' },
+    { name: 'Refund Policy', href: '/refund-policy' },
+    { name: 'Terms & Conditions', href: '/terms-and-conditions' },
   ];
 
   const followLinks = [
@@ -31,21 +31,31 @@ export default function Footer() {
       <div className="w-full px-[6.5%] mx-auto max-w-[1440px] pt-12 sm:pt-16 pb-10">
         {/* Footer Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 pb-12">
-          {/* Left Column (Brand + Newsletter Form) */}
-          <div className="lg:col-span-6 flex flex-col justify-between space-y-10">
-            <div className="flex items-center gap-2.5 select-none">
-              <span className="text-[#310C13] text-[30px] font-normal leading-none select-none">
-                ✳
-              </span>
-              <span
+          {/* Left Column (Brand + Newsletter Form + Registered Address) */}
+          <div className="lg:col-span-6 flex flex-col justify-between space-y-8">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5 select-none">
+                <span className="text-[#310C13] text-[30px] font-normal leading-none select-none">
+                  ✳
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-stack-headline), 'Raleway', sans-serif",
+                    fontWeight: 400,
+                  }}
+                  className="text-[20px] tracking-normal text-[#310C13] leading-none"
+                >
+                  BridesBerry
+                </span>
+              </div>
+              <p
                 style={{
-                  fontFamily: "var(--font-stack-headline), 'Raleway', sans-serif",
-                  fontWeight: 400,
+                  fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
                 }}
-                className="text-[20px] tracking-normal text-[#310C13] leading-none"
+                className="text-xs text-[#8C6A16] font-medium"
               >
-                Brides Berry
-              </span>
+                A Unit of Brynex Apparels Pvt Ltd
+              </p>
             </div>
 
             <div className="space-y-3.5 max-w-[480px]">
@@ -83,6 +93,17 @@ export default function Footer() {
                 </button>
               </form>
             </div>
+
+            <div
+              style={{
+                fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
+              }}
+              className="text-xs text-neutral-500 space-y-1 pt-2"
+            >
+              <p className="font-semibold text-neutral-700">Registered Office:</p>
+              <p>37/3688A3, Harikeerthi Complex, Edapally, Ernakulam, Kerala - 682024</p>
+              <p>Support: <a href="mailto:rootmentsit@gmail.com" className="text-[#8C6A16] hover:underline">rootmentsit@gmail.com</a></p>
+            </div>
           </div>
 
           {/* Right Columns (Links Grid) */}
@@ -115,7 +136,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Column 2: Help */}
+            {/* Column 2: Customer Policies */}
             <div className="space-y-4">
               <h4
                 style={{
@@ -124,10 +145,10 @@ export default function Footer() {
                 }}
                 className="text-[13px] uppercase text-[#513137] tracking-wider"
               >
-                Help
+                Policies
               </h4>
               <ul className="space-y-3">
-                {helpLinks.map((link, idx) => (
+                {policyLinks.map((link, idx) => (
                   <li key={idx}>
                     <Link
                       href={link.href}
@@ -180,16 +201,34 @@ export default function Footer() {
           style={{
             fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
           }}
-          className="border-t border-[#D9D9D9] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[#595959] text-[13px]"
+          className="border-t border-[#D9D9D9] pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[#595959] text-[13px]"
         >
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            <span>© {new Date().getFullYear()} Brides Berry. All Rights Reserved.</span>
-            <span className="text-neutral-300">|</span>
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 text-center md:text-left">
+            <span>© {new Date().getFullYear()} BridesBerry. All Rights Reserved.</span>
+            <span className="text-neutral-300 hidden sm:inline">|</span>
             <Link href="/privacy-policy" className="hover:text-[#310C13] transition-colors underline-offset-4 hover:underline">
               Privacy Policy
             </Link>
+            <span className="text-neutral-300 hidden sm:inline">|</span>
+            <Link href="/shipping-policy" className="hover:text-[#310C13] transition-colors underline-offset-4 hover:underline">
+              Shipping Policy
+            </Link>
+            <span className="text-neutral-300 hidden sm:inline">|</span>
+            <Link href="/return-policy" className="hover:text-[#310C13] transition-colors underline-offset-4 hover:underline">
+              Return Policy
+            </Link>
+            <span className="text-neutral-300 hidden sm:inline">|</span>
+            <Link href="/refund-policy" className="hover:text-[#310C13] transition-colors underline-offset-4 hover:underline">
+              Refund Policy
+            </Link>
+            <span className="text-neutral-300 hidden sm:inline">|</span>
+            <Link href="/terms-and-conditions" className="hover:text-[#310C13] transition-colors underline-offset-4 hover:underline">
+              Terms &amp; Conditions
+            </Link>
           </div>
-          <span>Brynex Apparels Private Ltd</span>
+          <span className="text-xs text-neutral-400">
+            Brynex Apparels Private Ltd
+          </span>
         </div>
       </div>
     </footer>

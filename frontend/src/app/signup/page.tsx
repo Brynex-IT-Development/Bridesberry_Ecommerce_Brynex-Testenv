@@ -166,6 +166,17 @@ function SignupForm() {
             />
           </div>
 
+          <p className="text-[11px] text-neutral-500 font-questrial leading-relaxed">
+            By creating an account, you agree to BridesBerry&apos;s{' '}
+            <Link href="/terms-and-conditions" className="text-[#c59b27] hover:underline font-medium">
+              Terms &amp; Conditions
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy-policy" className="text-[#c59b27] hover:underline font-medium">
+              Privacy Policy
+            </Link>.
+          </p>
+
           <button
             type="submit"
             disabled={loading}
