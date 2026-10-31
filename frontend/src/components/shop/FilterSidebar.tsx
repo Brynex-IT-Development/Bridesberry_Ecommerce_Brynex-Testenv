@@ -7,6 +7,8 @@ interface FilterSidebarProps {
   metadata: FilterMetadata;
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
+  selectedCollection?: string;
+  setSelectedCollection?: (collection: string) => void;
   selectedGender: string;
   setSelectedGender: (gender: string) => void;
   selectedOccasion: string;
@@ -18,11 +20,11 @@ interface FilterSidebarProps {
   onClearAll: () => void;
 }
 
-/* Section heading style: Raleway 500, 14px, uppercase, letter-spacing 13%, #B78924 */
+/* Section heading style: Raleway 500, 12px, uppercase, letter-spacing 13%, #B78924 */
 const sectionHeadingStyle: React.CSSProperties = {
   fontFamily: 'Raleway, sans-serif',
   fontWeight: 500,
-  fontSize: '14px',
+  fontSize: '12px',
   lineHeight: '100%',
   letterSpacing: '0.13em',
   textTransform: 'uppercase',
@@ -33,8 +35,8 @@ const sectionHeadingStyle: React.CSSProperties = {
 const optionTextStyle: React.CSSProperties = {
   fontFamily: 'Raleway, sans-serif',
   fontWeight: 400,
-  fontSize: '13px',
-  lineHeight: '20px',
+  fontSize: '12px',
+  lineHeight: '18px',
   color: '#1E1E1E',
 };
 
@@ -53,6 +55,8 @@ export default function FilterSidebar({
   metadata,
   selectedCategory,
   setSelectedCategory,
+  selectedCollection = '',
+  setSelectedCollection,
   selectedGender,
   setSelectedGender,
   selectedOccasion,
@@ -64,6 +68,7 @@ export default function FilterSidebar({
   onClearAll,
 }: FilterSidebarProps) {
   const [productTypeOpen, setProductTypeOpen] = useState(true);
+  const [collectionOpen, setCollectionOpen] = useState(true);
   const [priceOpen, setPriceOpen] = useState(true);
   const [occasionsOpen, setOccasionsOpen] = useState(true);
   const [genderOpen, setGenderOpen] = useState(true);
@@ -135,6 +140,47 @@ export default function FilterSidebar({
         )}
       </div>
 
+      {/* ── COLLECTION ── */}
+      {metadata.collections && metadata.collections.length > 0 && (
+        <div className="border-t border-neutral-200">
+          <button
+            className="w-full flex items-center justify-between py-3"
+            onClick={() => setCollectionOpen((o) => !o)}
+          >
+            <span style={sectionHeadingStyle}>Collection</span>
+            <Chevron open={collectionOpen} />
+          </button>
+          {collectionOpen && (
+            <div className="pb-4 space-y-2.5">
+              {metadata.collections.map((col) => (
+                <label key={col.value} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedCollection.toLowerCase() === col.value.toLowerCase()}
+                    onChange={() => {
+                      if (setSelectedCollection) {
+                        if (selectedCollection.toLowerCase() === col.value.toLowerCase()) {
+                          setSelectedCollection('');
+                        } else {
+                          setSelectedCollection(col.value);
+                        }
+                      }
+                    }}
+                    className="w-3.5 h-3.5 flex-shrink-0 border border-neutral-400 rounded-sm accent-neutral-800"
+                  />
+                  <span style={optionTextStyle}>
+                    {col.value}
+                    {col.count !== undefined && col.count > 0 && (
+                      <span style={{ color: '#6B6B6B' }}> ({col.count})</span>
+                    )}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── PRICE ── */}
       <div className="border-t border-neutral-200">
         <button
@@ -151,7 +197,7 @@ export default function FilterSidebar({
                 style={{
                   fontFamily: 'Raleway, sans-serif',
                   fontWeight: 500,
-                  fontSize: '13px',
+                  fontSize: '12px',
                   color: '#1E1E1E',
                 }}
               >
@@ -161,7 +207,7 @@ export default function FilterSidebar({
                 style={{
                   fontFamily: 'Raleway, sans-serif',
                   fontWeight: 500,
-                  fontSize: '13px',
+                  fontSize: '12px',
                   color: '#1E1E1E',
                 }}
               >

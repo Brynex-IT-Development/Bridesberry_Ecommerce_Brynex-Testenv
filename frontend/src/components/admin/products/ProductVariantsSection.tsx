@@ -145,9 +145,10 @@ export default function ProductVariantsSection({ variants, onChange, basePrice, 
                     {mode === "create" || variant.id.startsWith("var-") ? (
                       <input
                         type="number"
-                        value={variant.stock}
+                        value={variant.stock ?? ""}
                         onChange={(e) => {
-                          const stock = parseInt(e.target.value) || 0;
+                          const val = e.target.value;
+                          const stock = val === "" ? 0 : parseInt(val, 10) || 0;
                           handleRowChange(variant.id, "stock", stock);
                           if (stock === 0) {
                             handleRowChange(variant.id, "status", "Out of Stock");

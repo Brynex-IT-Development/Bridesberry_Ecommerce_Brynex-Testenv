@@ -285,6 +285,7 @@ export interface FilterValueMetadata {
 
 export interface FilterMetadata {
   categories: FilterCategoryMetadata[];
+  collections: FilterValueMetadata[];
   price: {
     min: number;
     max: number;
@@ -306,6 +307,7 @@ export async function getFilterMetadata(): Promise<FilterMetadata> {
     });
     return data ?? {
       categories: [],
+      collections: [],
       price: { min: 0, max: 0 },
       occasions: [],
       genders: [],
@@ -316,6 +318,7 @@ export async function getFilterMetadata(): Promise<FilterMetadata> {
   } catch {
     return {
       categories: [],
+      collections: [],
       price: { min: 0, max: 0 },
       occasions: [],
       genders: [],

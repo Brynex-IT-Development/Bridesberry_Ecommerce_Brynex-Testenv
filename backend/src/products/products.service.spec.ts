@@ -78,17 +78,20 @@ describe('ProductsService', () => {
     it('should throw BadRequestException if sku already exists', async () => {
       prismaMock.product.findUnique.mockResolvedValue({ id: '123' });
       await expect(
-        service.create({
-          name: 'Diamond Ring',
-          sku: 'DR-001',
-          slug: 'diamond-ring',
-          sellingPrice: 10000,
-          mrp: 12000,
-          categoryId: 'cat-123',
-          status: 'Active',
-          images: [],
-          variants: [],
-        }),
+        service.create(
+          {
+            name: 'Diamond Ring',
+            sku: 'DR-001',
+            slug: 'diamond-ring',
+            sellingPrice: 10000,
+            mrp: 12000,
+            categoryId: 'cat-123',
+            status: 'Active',
+            images: [],
+            variants: [],
+          },
+          'admin@bridesberry.com',
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -101,21 +104,24 @@ describe('ProductsService', () => {
         status: ProductStatus.ACTIVE,
       });
 
-      const result = await service.create({
-        name: 'Diamond Ring',
-        sku: 'DR-001',
-        slug: 'diamond-ring',
-        sellingPrice: 10000,
-        mrp: 12000,
-        categoryId: 'cat-123',
-        status: 'Active',
-        material: 'Wood',
-        collection: 'Summer Edit',
-        trackInventory: true,
-        initialStock: 10,
-        images: [{ url: 'http://s3/img.jpg', isPrimary: true, sortOrder: 1 }],
-        variants: [],
-      });
+      const result = await service.create(
+        {
+          name: 'Diamond Ring',
+          sku: 'DR-001',
+          slug: 'diamond-ring',
+          sellingPrice: 10000,
+          mrp: 12000,
+          categoryId: 'cat-123',
+          status: 'Active',
+          material: 'Wood',
+          collection: 'Summer Edit',
+          trackInventory: true,
+          initialStock: 10,
+          images: [{ url: 'http://s3/img.jpg', isPrimary: true, sortOrder: 1 }],
+          variants: [],
+        },
+        'admin@bridesberry.com',
+      );
 
       expect(prismaMock.product.create).toHaveBeenCalled();
       expect(prismaMock.product.create.mock.calls[0][0].data).toMatchObject({

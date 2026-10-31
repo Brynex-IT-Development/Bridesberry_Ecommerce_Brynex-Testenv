@@ -115,3 +115,14 @@ h1, h2, h3, h4, h5, h6, .font-serif-luxury {
   text-transform: uppercase !important;
 }
 
+/* Hide spin-button scrollers / steppers so number inputs behave as clean typing fields */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+

@@ -137,8 +137,9 @@ export default function OrderShippingCard({
               <label className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">Length (cm)</label>
               <input
                 type="number"
-                value={length}
-                onChange={(e) => setLength(parseFloat(e.target.value) || 20)}
+                value={length === 0 ? "" : length}
+                placeholder="20"
+                onChange={(e) => setLength(e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                 className="w-full border border-neutral-200 rounded-lg p-2 text-xs outline-none focus:border-[#C99213]"
               />
             </div>
@@ -146,8 +147,9 @@ export default function OrderShippingCard({
               <label className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">Width (cm)</label>
               <input
                 type="number"
-                value={width}
-                onChange={(e) => setWidth(parseFloat(e.target.value) || 20)}
+                value={width === 0 ? "" : width}
+                placeholder="20"
+                onChange={(e) => setWidth(e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                 className="w-full border border-neutral-200 rounded-lg p-2 text-xs outline-none focus:border-[#C99213]"
               />
             </div>
@@ -155,8 +157,9 @@ export default function OrderShippingCard({
               <label className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">Height (cm)</label>
               <input
                 type="number"
-                value={height}
-                onChange={(e) => setHeight(parseFloat(e.target.value) || 10)}
+                value={height === 0 ? "" : height}
+                placeholder="10"
+                onChange={(e) => setHeight(e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                 className="w-full border border-neutral-200 rounded-lg p-2 text-xs outline-none focus:border-[#C99213]"
               />
             </div>
@@ -165,8 +168,9 @@ export default function OrderShippingCard({
               <input
                 type="number"
                 step="0.1"
-                value={weight}
-                onChange={(e) => setWeight(parseFloat(e.target.value) || 0.5)}
+                value={weight === 0 ? "" : weight}
+                placeholder="0.5"
+                onChange={(e) => setWeight(e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                 className="w-full border border-neutral-200 rounded-lg p-2 text-xs outline-none focus:border-[#C99213]"
               />
             </div>

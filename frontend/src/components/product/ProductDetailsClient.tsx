@@ -19,6 +19,7 @@ export default function ProductDetailsClient({
   const router = useRouter();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(product.stock > 0 ? 1 : 0);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   const handleAddToCart = () => {
     if (product.stock <= 0 || quantity <= 0) return;
@@ -29,7 +30,8 @@ export default function ProductDetailsClient({
       attributes.push({ name: 'Length', value: '18 inches' });
     }
     addToCart(product, quantity, attributes);
-    router.push('/cart');
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2000);
   };
 
   const handleBuyNow = () => {
@@ -162,9 +164,13 @@ export default function ProductDetailsClient({
                   {product.stock > 0 && (
                     <button
                       onClick={handleAddToCart}
-                      className="h-12 w-full sm:w-auto bg-white hover:bg-neutral-50 border border-neutral-300 text-neutral-900 font-questrial text-[12px] uppercase tracking-widest px-6 sm:px-8 transition-colors flex items-center justify-center cursor-pointer font-medium"
+                      className={`h-12 w-full sm:w-auto border font-questrial text-[12px] uppercase tracking-widest px-6 sm:px-8 transition-colors flex items-center justify-center cursor-pointer font-medium ${
+                        addedToCart
+                          ? 'bg-emerald-50 border-emerald-500 text-emerald-800'
+                          : 'bg-white hover:bg-neutral-50 border-neutral-300 text-neutral-900'
+                      }`}
                     >
-                      Add To Cart
+                      {addedToCart ? '✓ Added To Bag' : 'Add To Cart'}
                     </button>
                   )}
                 </div>

@@ -10,7 +10,7 @@ export default async function HeroSection() {
 
   return (
     <section className="relative w-full h-[76vh] sm:h-[85vh] min-h-[520px] sm:min-h-[640px] max-h-[860px] mt-16 md:mt-20 flex items-center overflow-hidden bg-neutral-900">
-      {/* Single Full-Color Background Image (focal alignment and fit configurable via Admin) */}
+      {/* Full Background Image (focal alignment and fit configurable via Admin) */}
       <div className="absolute inset-0 w-full h-full">
         <Image
           src={heroImage}
@@ -20,38 +20,31 @@ export default async function HeroSection() {
           quality={100}
           sizes="100vw"
           style={{ objectPosition: heroPosition, objectFit: heroFit }}
-          className="saturate-115 contrast-[1.03]"
         />
-      </div>
-
-      {/* Four surrounding grayscale backdrop panels forming the exact square window in the center */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none grid grid-rows-[0.74fr_auto_1.26fr] md:grid-rows-[0.65fr_auto_1.38fr] grid-cols-[1fr_auto_1fr]">
-        {/* Top grayscale band */}
-        <div className="col-span-3 backdrop-grayscale backdrop-contrast-[1.04]" />
-        {/* Middle row: Left grayscale, Center transparent square window, Right grayscale */}
-        <div className="backdrop-grayscale backdrop-contrast-[1.04]" />
-        <div className="w-[220px] sm:w-[270px] md:w-[330px] aspect-square" />
-        <div className="backdrop-grayscale backdrop-contrast-[1.04]" />
-        {/* Bottom grayscale band */}
-        <div className="col-span-3 backdrop-grayscale backdrop-contrast-[1.04]" />
       </div>
 
       {/* Split Editorial Headline: "MADE FOR YOUR MOST" & "BEAUTIFUL MOMENTS" */}
       <div className="relative z-20 w-full h-full max-w-[1440px] mx-auto px-[6.5%] flex flex-col justify-center">
         <div
           style={{
-            fontFamily: "'Stack Sans Headline', sans-serif",
+            fontFamily: "'Stack Sans Headline', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
             fontWeight: 200,
             fontSize: 'clamp(32px, 5.1vw, 74px)',
             lineHeight: '100%',
             letterSpacing: '0%',
             textTransform: 'uppercase',
           }}
-          className="w-full grid grid-cols-1 md:grid-cols-12 items-start pt-20 sm:pt-36 md:pt-48 text-white select-none drop-shadow-xs"
+          className="w-full grid grid-cols-1 md:grid-cols-12 items-start pt-20 sm:pt-36 md:pt-48 text-white select-none drop-shadow-md"
         >
           {/* Left Headline Block */}
           <div className="md:col-span-6 md:pl-[12%] lg:pl-[16%]">
-            <h1>
+            <h1
+              style={{
+                fontFamily: 'inherit',
+                fontWeight: 'inherit',
+                letterSpacing: 'inherit',
+              }}
+            >
               MADE FOR
               <br />
               YOUR MOST
@@ -60,7 +53,13 @@ export default async function HeroSection() {
 
           {/* Right Headline Block: offset by 1em on desktop so "BEAUTIFUL" aligns on the exact same line as "YOUR MOST", right-aligned on mobile for editorial balance */}
           <div className="md:col-span-6 mt-3 md:mt-[1em] text-right md:text-left md:pl-[10%] lg:pl-[14%]">
-            <p>
+            <p
+              style={{
+                fontFamily: 'inherit',
+                fontWeight: 'inherit',
+                letterSpacing: 'inherit',
+              }}
+            >
               BEAUTIFUL
               <br />
               MOMENTS

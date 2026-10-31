@@ -145,10 +145,11 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
           <input
             type="number"
             min={0}
-            value={displayOrder}
+            value={displayOrder === 0 ? "" : displayOrder}
+            placeholder="0"
             onChange={(e) => {
-              const value = Number.parseInt(e.target.value, 10);
-              setDisplayOrder(Number.isNaN(value) ? 0 : value);
+              const val = e.target.value;
+              setDisplayOrder(val === "" ? 0 : Number.parseInt(val, 10) || 0);
             }}
             className="px-3 py-1.5 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] text-neutral-850"
           />

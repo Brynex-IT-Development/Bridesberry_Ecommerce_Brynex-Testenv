@@ -1,50 +1,39 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getProductsPaginated, getFilterMetadata, FilterMetadata } from '../../services/products.service';
+import { getProductsPaginated, getFilterMetadata, getProductCollections, FilterMetadata } from '../../services/products.service';
 import { Product } from '../../types/product';
 import ProductGrid from '../../components/product/ProductGrid';
 import FilterSidebar from '../../components/shop/FilterSidebar';
 import SortDropdown from '../../components/shop/SortDropdown';
 
-export default function ShopPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+function ShopContent() {
   const router = useRouter();
-  const resolvedParams = use(searchParams);
   const activeSearchParams = useSearchParams();
-  const paramCategory = (resolvedParams.category as string) || activeSearchParams.get('category') || '';
-  const paramCollection = (resolvedParams.collection as string) || activeSearchParams.get('collection') || '';
-  const paramSort = resolvedParams.sort as string || 'featured';
-  const paramSearch = resolvedParams.q as string || '';
-  const paramGender = resolvedParams.gender as string || '';
-  const paramOccasion = resolvedParams.occasion as string || '';
-  const paramStock = resolvedParams.inStock as string || '';
-  const paramMaxPrice = resolvedParams.maxPrice as string || '';
-  const paramPage = resolvedParams.page as string || '1';
 
-  // State bindings
+  // Read current filter values directly from the URL
+  const selectedCategory = activeSearchParams.get('category') || '';
+  const selectedCollection = activeSearchParams.get('collection') || '';
+  const selectedGender = activeSearchParams.get('gender') || '';
+  const selectedOccasion = activeSearchParams.get('occasion') || '';
+  const stockParam = activeSearchParams.get('inStock');
+  const selectedStock = stockParam === 'true' ? 'in' : stockParam === 'false' ? 'out' : '';
+  const sortBy = activeSearchParams.get('sort') || 'featured';
+  const urlSearch = activeSearchParams.get('q') || '';
+  const urlMaxPrice = activeSearchParams.get('maxPrice');
+  const currentPage = Math.max(1, parseInt(activeSearchParams.get('page') || '1', 10) || 1);
+
+  // Local state for UI feedback, slider, and search typing
   const [productsList, setProductsList] = useState<Product[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState(paramCategory);
-  const [selectedCollection, setSelectedCollection] = useState(paramCollection);
-  const [selectedGender, setSelectedGender] = useState(paramGender);
-  const [selectedOccasion, setSelectedOccasion] = useState(paramOccasion);
-  const [selectedStock, setSelectedStock] = useState(paramStock === 'true' ? 'in' : paramStock === 'false' ? 'out' : '');
-  const [priceRange, setPriceRange] = useState<number[]>([0, 250000]);
-  const [sortBy, setSortBy] = useState(paramSort);
-  const [searchQuery, setSearchQuery] = useState(paramSearch);
-  const [currentPage, setCurrentPage] = useState(parseInt(paramPage, 10) || 1);
   const [totalPages, setTotalPages] = useState(1);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const [metadata, setMetadata] = useState<FilterMetadata>({
     categories: [],
+    collections: [],
     price: { min: 0, max: 250000 },
     occasions: [],
     genders: [],
@@ -53,72 +42,93 @@ export default function ShopPage({
     availability: { inStock: 0, outOfStock: 0 },
   });
 
-  const maxPriceBound = metadata.price?.max ?? 250000;
   const minPriceBound = metadata.price?.min ?? 0;
+  const maxPriceBound = metadata.price?.max ?? 250000;
 
-  // Keep selectedCollection in sync with URL changes
+  const [priceRange, setPriceRange] = useState<number[]>([0, 250000]);
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+
+  // Sync search input if URL changes externally (e.g. back/forward navigation)
   useEffect(() => {
-    const colFromUrl = activeSearchParams.get('collection') || '';
-    setSelectedCollection(colFromUrl);
-  }, [activeSearchParams]);
+    setSearchQuery(urlSearch);
+  }, [urlSearch]);
 
   // Load filter metadata once on mount
   useEffect(() => {
-    getFilterMetadata().then((meta) => {
-      setMetadata(meta);
-      if (meta.price?.max) {
-        // Initialize priceRange with values from metadata or URL query maxPrice
-        const initialMax = paramMaxPrice ? Number(paramMaxPrice) : meta.price.max;
-        setPriceRange([meta.price.min, initialMax]);
+    getFilterMetadata().then(async (meta) => {
+      let finalMeta = meta;
+      if (!finalMeta.collections || finalMeta.collections.length === 0) {
+        try {
+          const colNames = await getProductCollections();
+          if (colNames && colNames.length > 0) {
+            finalMeta = {
+              ...finalMeta,
+              collections: colNames.map((name) => ({ value: name, count: 0 })),
+            };
+          }
+        } catch {
+          // Ignore fallback error
+        }
+      }
+      setMetadata(finalMeta);
+      if (finalMeta.price?.max) {
+        const initialMax = urlMaxPrice ? Number(urlMaxPrice) : finalMeta.price.max;
+        setPriceRange([finalMeta.price.min, initialMax]);
       }
     });
-  }, [paramMaxPrice]);
+  }, [urlMaxPrice]);
 
-  // Synchronize state and URL
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (selectedCategory) params.set('category', selectedCategory);
-    if (selectedCollection) params.set('collection', selectedCollection);
-    if (selectedOccasion) params.set('occasion', selectedOccasion);
-    if (selectedGender) params.set('gender', selectedGender);
-    if (selectedStock) {
-      params.set('inStock', selectedStock === 'in' ? 'true' : 'false');
-    }
-    if (priceRange[1] < maxPriceBound) {
-      params.set('maxPrice', String(priceRange[1]));
-    }
-    if (sortBy !== 'featured') params.set('sort', sortBy);
-    if (searchQuery) params.set('q', searchQuery);
-    if (currentPage > 1) params.set('page', String(currentPage));
-
-    const newQuery = params.toString();
-    const currentQuery = activeSearchParams.toString();
-    if (newQuery !== currentQuery) {
+  // URL updater: updates search parameters without causing loops
+  const updateUrlFilters = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(activeSearchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        if (
+          value === null ||
+          value === '' ||
+          (key === 'page' && value === '1') ||
+          (key === 'sort' && value === 'featured')
+        ) {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+      const newQuery = params.toString();
       const newUrl = newQuery ? `/shop?${newQuery}` : '/shop';
       router.replace(newUrl, { scroll: false });
-    }
-  }, [
-    selectedCategory,
-    selectedCollection,
-    selectedOccasion,
-    selectedGender,
-    selectedStock,
-    priceRange,
-    sortBy,
-    searchQuery,
-    currentPage,
-    maxPriceBound,
-    router,
-    activeSearchParams,
-  ]);
+    },
+    [activeSearchParams, router]
+  );
 
-  // Fetch paginated products based on filters
+  // Debounced search sync to URL
+  useEffect(() => {
+    if (searchQuery.trim() === urlSearch) return;
+    const timer = setTimeout(() => {
+      updateUrlFilters({ q: searchQuery.trim() || null, page: null });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery, urlSearch, updateUrlFilters]);
+
+  // Debounced price range sync to URL
+  useEffect(() => {
+    if (!metadata.price?.max) return;
+    const currentMaxInUrl = urlMaxPrice ? Number(urlMaxPrice) : metadata.price.max;
+    if (priceRange[1] === currentMaxInUrl) return;
+
+    const timer = setTimeout(() => {
+      updateUrlFilters({
+        maxPrice: priceRange[1] < metadata.price.max ? String(priceRange[1]) : null,
+        page: null,
+      });
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [priceRange, metadata.price?.max, urlMaxPrice, updateUrlFilters]);
+
+  // Fetch paginated products whenever URL filter parameters change
   useEffect(() => {
     let active = true;
-
-    Promise.resolve().then(() => {
-      if (active) setLoading(true);
-    });
+    setLoading(true);
 
     const queryParams: Record<string, string | number | boolean> = {
       page: currentPage,
@@ -131,11 +141,13 @@ export default function ShopPage({
     if (selectedStock) {
       queryParams.inStock = selectedStock === 'in';
     }
-    if (priceRange[1] < maxPriceBound) {
+    if (urlMaxPrice) {
+      queryParams.maxPrice = Number(urlMaxPrice);
+    } else if (priceRange[1] < maxPriceBound) {
       queryParams.maxPrice = priceRange[1];
     }
     if (sortBy) queryParams.sort = sortBy;
-    if (searchQuery) queryParams.search = searchQuery;
+    if (urlSearch) queryParams.search = urlSearch;
 
     getProductsPaginated(queryParams)
       .then((res) => {
@@ -161,59 +173,52 @@ export default function ShopPage({
     selectedOccasion,
     selectedGender,
     selectedStock,
+    urlMaxPrice,
     priceRange,
-    sortBy,
-    searchQuery,
-    currentPage,
     maxPriceBound,
+    sortBy,
+    urlSearch,
+    currentPage,
   ]);
 
-  // Reset page helper actions
+  // Filter change handlers
   const changeCategory = (cat: string) => {
-    setSelectedCategory(cat);
-    setCurrentPage(1);
+    updateUrlFilters({ category: cat || null, page: null });
+  };
+  const changeCollection = (col: string) => {
+    updateUrlFilters({ collection: col || null, page: null });
   };
   const changeOccasion = (occ: string) => {
-    setSelectedOccasion(occ);
-    setCurrentPage(1);
+    updateUrlFilters({ occasion: occ || null, page: null });
   };
   const changeGender = (gen: string) => {
-    setSelectedGender(gen);
-    setCurrentPage(1);
+    updateUrlFilters({ gender: gen || null, page: null });
   };
   const changeStock = (stock: string) => {
-    setSelectedStock(stock);
-    setCurrentPage(1);
+    const stockVal = stock === 'in' ? 'true' : stock === 'out' ? 'false' : null;
+    updateUrlFilters({ inStock: stockVal, page: null });
   };
   const changePriceRange = (range: number[]) => {
     setPriceRange(range);
-    setCurrentPage(1);
   };
   const changeSortBy = (sort: string) => {
-    setSortBy(sort);
-    setCurrentPage(1);
+    updateUrlFilters({ sort: sort || null, page: null });
+  };
+  const changePage = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    updateUrlFilters({ page: newPage > 1 ? String(newPage) : null });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleRemoveCollection = () => {
-    setSelectedCollection('');
-    setCurrentPage(1);
-    const params = new URLSearchParams(activeSearchParams.toString());
-    params.delete('collection');
-    params.delete('page');
-    const newUrl = params.toString() ? `/shop?${params.toString()}` : '/shop';
-    router.replace(newUrl, { scroll: false });
+    updateUrlFilters({ collection: null, page: null });
   };
 
   const handleClearAll = () => {
-    setSelectedCategory('');
-    setSelectedCollection('');
-    setSelectedGender('');
-    setSelectedOccasion('');
-    setSelectedStock('');
-    setPriceRange([minPriceBound, maxPriceBound]);
-    setSortBy('featured');
     setSearchQuery('');
-    setCurrentPage(1);
+    if (metadata.price?.max) {
+      setPriceRange([metadata.price.min, metadata.price.max]);
+    }
     router.replace('/shop', { scroll: false });
   };
 
@@ -227,6 +232,8 @@ export default function ShopPage({
             metadata={metadata}
             selectedCategory={selectedCategory}
             setSelectedCategory={changeCategory}
+            selectedCollection={selectedCollection}
+            setSelectedCollection={changeCollection}
             selectedGender={selectedGender}
             setSelectedGender={changeGender}
             selectedOccasion={selectedOccasion}
@@ -247,10 +254,18 @@ export default function ShopPage({
               Shop Now
             </h1>
             <div className="flex items-center gap-3 sm:gap-4">
-              {searchQuery && (
+              {urlSearch && (
                 <div className="hidden sm:flex items-center gap-2 bg-neutral-100 px-3 py-1.5 rounded-full text-xs font-questrial text-neutral-600">
-                  Search: &quot;{searchQuery}&quot;
-                  <button onClick={() => setSearchQuery('')} className="hover:text-black font-bold ml-1">×</button>
+                  Search: &quot;{urlSearch}&quot;
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      updateUrlFilters({ q: null, page: null });
+                    }}
+                    className="hover:text-black font-bold ml-1"
+                  >
+                    ×
+                  </button>
                 </div>
               )}
               <SortDropdown sortBy={sortBy} setSortBy={changeSortBy} />
@@ -284,9 +299,11 @@ export default function ShopPage({
               type="text"
               placeholder="Search products..."
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  updateUrlFilters({ q: searchQuery.trim() || null, page: null });
+                }
               }}
               className="w-full max-w-md border border-neutral-300 px-4 py-2 text-sm font-questrial placeholder-neutral-400 focus:outline-none focus:border-neutral-800 transition-colors"
             />
@@ -303,7 +320,7 @@ export default function ShopPage({
               </svg>
               Filter
             </button>
-            {searchQuery && (
+            {urlSearch && (
               <span className="text-xs font-questrial text-neutral-500">
                 Found {productsList.length} items
               </span>
@@ -320,7 +337,7 @@ export default function ShopPage({
               <div className="flex flex-col items-center justify-center min-h-[300px] text-center font-questrial">
                 <p className="text-red-500 mb-2 font-medium">Failed to load products.</p>
                 <button
-                  onClick={() => handleClearAll()}
+                  onClick={handleClearAll}
                   className="px-4 py-2 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-neutral-800 transition-colors"
                 >
                   Reset Page
@@ -345,7 +362,7 @@ export default function ShopPage({
                   <div className="flex items-center justify-center gap-6 mt-12 font-questrial">
                     <button
                       disabled={currentPage <= 1}
-                      onClick={() => setCurrentPage((p) => p - 1)}
+                      onClick={() => changePage(currentPage - 1)}
                       className="px-4 py-2 border border-neutral-300 text-xs uppercase tracking-widest text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-50 transition-colors"
                     >
                       Previous
@@ -355,7 +372,7 @@ export default function ShopPage({
                     </span>
                     <button
                       disabled={currentPage >= totalPages}
-                      onClick={() => setCurrentPage((p) => p + 1)}
+                      onClick={() => changePage(currentPage + 1)}
                       className="px-4 py-2 border border-neutral-300 text-xs uppercase tracking-widest text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-50 transition-colors"
                     >
                       Next
@@ -385,6 +402,8 @@ export default function ShopPage({
               metadata={metadata}
               selectedCategory={selectedCategory}
               setSelectedCategory={changeCategory}
+              selectedCollection={selectedCollection}
+              setSelectedCollection={changeCollection}
               selectedGender={selectedGender}
               setSelectedGender={changeGender}
               selectedOccasion={selectedOccasion}
@@ -402,5 +421,19 @@ export default function ShopPage({
         </div>
       )}
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-white min-h-screen pt-24 sm:pt-28 pb-12 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-neutral-800" />
+        </div>
+      }
+    >
+      <ShopContent />
+    </Suspense>
   );
 }

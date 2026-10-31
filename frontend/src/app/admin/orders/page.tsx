@@ -732,8 +732,9 @@ export default function AdminOrdersPage() {
                                 <input
                                   type="number"
                                   min={1}
-                                  value={item.quantity}
-                                  onChange={(e) => handleQuantityChange(idx, parseInt(e.target.value) || 1)}
+                                  value={item.quantity || ""}
+                                  placeholder="1"
+                                  onChange={(e) => handleQuantityChange(idx, e.target.value === "" ? 1 : parseInt(e.target.value, 10) || 1)}
                                   className="w-full px-2 py-1 border border-neutral-200 rounded-lg text-[11px] outline-none text-center focus:border-[#C99213] text-neutral-850"
                                 />
                               </div>
@@ -744,8 +745,9 @@ export default function AdminOrdersPage() {
                                 <input
                                   type="number"
                                   min={0}
-                                  value={item.price}
-                                  onChange={(e) => handlePriceChange(idx, parseFloat(e.target.value) || 0)}
+                                  value={item.price === 0 ? "" : item.price}
+                                  placeholder="0"
+                                  onChange={(e) => handlePriceChange(idx, e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                                   className="w-full px-2 py-1 border border-neutral-200 rounded-lg text-[11px] outline-none text-right focus:border-[#C99213] text-neutral-850"
                                 />
                               </div>

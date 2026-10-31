@@ -141,13 +141,24 @@ function ImageFrameAlignmentControls({
         </div>
       </div>
 
-      {/* Fine-Tuning Vertical Offset Slider */}
+      {/* Fine-Tuning Vertical Offset Slider & Direct Type Input */}
       <div className="space-y-1.5 pt-1">
         <div className="flex justify-between items-center text-[10px]">
           <span className="font-semibold text-neutral-600">Vertical Framing Position (Focal Y):</span>
-          <span className="font-mono font-bold text-[#C99213] bg-white px-1.5 py-0.5 rounded border border-neutral-200">
-            {currentPercent}%
-          </span>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={currentPercent}
+              onChange={(e) => {
+                const val = e.target.value === "" ? 0 : Math.min(100, Math.max(0, parseInt(e.target.value, 10) || 0));
+                onChange(fit, `50% ${val}%`);
+              }}
+              className="w-14 px-1.5 py-0.5 border border-neutral-300 rounded text-center font-mono font-bold text-xs text-[#C99213] bg-white outline-none focus:border-[#C99213]"
+            />
+            <span className="font-bold text-neutral-500">%</span>
+          </div>
         </div>
         <input
           type="range"

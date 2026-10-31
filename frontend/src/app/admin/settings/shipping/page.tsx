@@ -155,8 +155,9 @@ export default function AdminShippingSettingsPage() {
                 </label>
                 <input
                   type="number"
-                  value={settings?.defaultLength || 20}
-                  onChange={(e) => handleChange("defaultLength", parseFloat(e.target.value))}
+                  value={settings?.defaultLength ?? ""}
+                  placeholder="20"
+                  onChange={(e) => handleChange("defaultLength", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
                 />
               </div>
@@ -166,8 +167,9 @@ export default function AdminShippingSettingsPage() {
                 </label>
                 <input
                   type="number"
-                  value={settings?.defaultWidth || 20}
-                  onChange={(e) => handleChange("defaultWidth", parseFloat(e.target.value))}
+                  value={settings?.defaultWidth ?? ""}
+                  placeholder="20"
+                  onChange={(e) => handleChange("defaultWidth", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
                 />
               </div>
@@ -177,8 +179,9 @@ export default function AdminShippingSettingsPage() {
                 </label>
                 <input
                   type="number"
-                  value={settings?.defaultHeight || 10}
-                  onChange={(e) => handleChange("defaultHeight", parseFloat(e.target.value))}
+                  value={settings?.defaultHeight ?? ""}
+                  placeholder="10"
+                  onChange={(e) => handleChange("defaultHeight", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
                 />
               </div>
@@ -189,8 +192,9 @@ export default function AdminShippingSettingsPage() {
                 <input
                   type="number"
                   step="0.05"
-                  value={settings?.defaultWeight || 0.5}
-                  onChange={(e) => handleChange("defaultWeight", parseFloat(e.target.value))}
+                  value={settings?.defaultWeight ?? ""}
+                  placeholder="0.5"
+                  onChange={(e) => handleChange("defaultWeight", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
                 />
               </div>
@@ -328,8 +332,9 @@ export default function AdminShippingSettingsPage() {
                 </label>
                 <input
                   type="number"
-                  value={settings?.freeShippingThreshold || 2000}
-                  onChange={(e) => handleChange("freeShippingThreshold", parseFloat(e.target.value))}
+                  value={settings?.freeShippingThreshold ?? ""}
+                  placeholder="2000"
+                  onChange={(e) => handleChange("freeShippingThreshold", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
                 />
               </div>
@@ -339,8 +344,9 @@ export default function AdminShippingSettingsPage() {
                 </label>
                 <input
                   type="number"
-                  value={settings?.standardShippingFee || 100}
-                  onChange={(e) => handleChange("standardShippingFee", parseFloat(e.target.value))}
+                  value={settings?.standardShippingFee ?? ""}
+                  placeholder="100"
+                  onChange={(e) => handleChange("standardShippingFee", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
                 />
               </div>
@@ -350,8 +356,9 @@ export default function AdminShippingSettingsPage() {
                 </label>
                 <input
                   type="number"
-                  value={settings?.expressShippingFee || 200}
-                  onChange={(e) => handleChange("expressShippingFee", parseFloat(e.target.value))}
+                  value={settings?.expressShippingFee ?? ""}
+                  placeholder="200"
+                  onChange={(e) => handleChange("expressShippingFee", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
                   className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
                 />
               </div>

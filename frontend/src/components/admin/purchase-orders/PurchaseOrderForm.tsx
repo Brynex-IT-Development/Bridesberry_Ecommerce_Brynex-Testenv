@@ -763,8 +763,9 @@ export default function PurchaseOrderForm({ initialPOId }: PurchaseOrderFormProp
                         type="number"
                         min={0.01}
                         step={0.01}
-                        value={item.quantity}
-                        onChange={(e) => handleRowQtyChange(idx, Number(e.target.value))}
+                        value={item.quantity === 0 ? "" : item.quantity}
+                        placeholder="1"
+                        onChange={(e) => handleRowQtyChange(idx, e.target.value === "" ? 0 : Number(e.target.value) || 0)}
                         className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-xl text-xs outline-none text-right font-medium"
                         required
                       />
@@ -776,8 +777,9 @@ export default function PurchaseOrderForm({ initialPOId }: PurchaseOrderFormProp
                         type="number"
                         min={0}
                         step={0.01}
-                        value={item.rate}
-                        onChange={(e) => handleRowRateChange(idx, Number(e.target.value))}
+                        value={item.rate === 0 ? "" : item.rate}
+                        placeholder="0.00"
+                        onChange={(e) => handleRowRateChange(idx, e.target.value === "" ? 0 : Number(e.target.value) || 0)}
                         className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-xl text-xs outline-none text-right font-medium"
                         required
                       />
@@ -977,8 +979,8 @@ export default function PurchaseOrderForm({ initialPOId }: PurchaseOrderFormProp
                     type="number"
                     min={0}
                     placeholder="Enter discount value"
-                    value={discountValue}
-                    onChange={(e) => setDiscountValue(Number(e.target.value))}
+                    value={discountValue === 0 ? "" : discountValue}
+                    onChange={(e) => setDiscountValue(e.target.value === "" ? 0 : Number(e.target.value) || 0)}
                     className="w-28 px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none text-right font-medium"
                   />
                   <div className="text-xs text-neutral-500 font-semibold flex items-center gap-2">
@@ -1123,8 +1125,9 @@ export default function PurchaseOrderForm({ initialPOId }: PurchaseOrderFormProp
               <span className="text-xs text-neutral-450 uppercase tracking-wider">Adjustments</span>
               <input
                 type="number"
-                value={adjustment}
-                onChange={(e) => setAdjustment(Number(e.target.value))}
+                value={adjustment === 0 ? "" : adjustment}
+                placeholder="0"
+                onChange={(e) => setAdjustment(e.target.value === "" ? 0 : Number(e.target.value) || 0)}
                 className="w-24 px-3 py-1 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none text-right font-medium"
               />
             </div>

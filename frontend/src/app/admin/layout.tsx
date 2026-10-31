@@ -39,6 +39,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return null;
   }
 
+  // Prevent mouse wheel from inadvertently changing values when scrolling past number inputs
+  useEffect(() => {
+    const handleWheel = () => {
+      if (
+        document.activeElement instanceof HTMLInputElement &&
+        document.activeElement.type === "number"
+      ) {
+        document.activeElement.blur();
+      }
+    };
+    window.addEventListener("wheel", handleWheel, { passive: true });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, []);
+
   return (
     <AdminLayoutProvider>
       <div className="min-h-screen bg-[#F8F8F8] flex flex-col lg:flex-row w-full min-w-0 max-w-full overflow-x-hidden">

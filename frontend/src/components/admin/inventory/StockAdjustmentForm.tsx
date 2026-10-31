@@ -215,9 +215,11 @@ export default function StockAdjustmentForm({ product, initialVariantId, onSubmi
           <input
             type="number"
             min={0}
-            value={quantity}
+            value={quantity === 0 ? "" : quantity}
+            placeholder="0"
             onChange={(e) => {
-              setQuantity(parseInt(e.target.value) || 0);
+              const val = e.target.value === "" ? 0 : parseInt(e.target.value, 10) || 0;
+              setQuantity(val);
               if (errors.quantity) {
                 setErrors((prev) => {
                   const copy = { ...prev };

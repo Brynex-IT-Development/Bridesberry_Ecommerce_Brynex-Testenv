@@ -336,6 +336,22 @@ export class ProductsService {
       count,
     }));
 
+    const collectionMap = new Map<string, number>();
+    for (const p of activeProducts) {
+      if (p.collection) {
+        const val = p.collection.trim();
+        if (val) {
+          collectionMap.set(val, (collectionMap.get(val) || 0) + 1);
+        }
+      }
+    }
+    const collections = Array.from(collectionMap.entries())
+      .map(([value, count]) => ({
+        value,
+        count,
+      }))
+      .sort((a, b) => a.value.localeCompare(b.value));
+
     const purities: { value: string; count: number }[] = [];
     const brands: { value: string; count: number }[] = [];
 
@@ -358,6 +374,7 @@ export class ProductsService {
 
     return {
       categories,
+      collections,
       price: {
         min: minPrice,
         max: maxPrice,

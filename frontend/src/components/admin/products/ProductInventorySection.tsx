@@ -105,8 +105,8 @@ export default function ProductInventorySection({ formData, onChange, mode }: Pr
               {mode === "create" ? (
                 <input
                   type="number"
-                  value={formData.initialStock}
-                  onChange={(e) => onChange("initialStock", parseInt(e.target.value) || 0)}
+                  value={formData.initialStock ?? ""}
+                  onChange={(e) => onChange("initialStock", e.target.value === "" ? 0 : parseInt(e.target.value, 10) || 0)}
                   placeholder="e.g. 20"
                   className="px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850"
                 />
@@ -130,8 +130,8 @@ export default function ProductInventorySection({ formData, onChange, mode }: Pr
               </label>
               <input
                 type="number"
-                value={formData.minStock}
-                onChange={(e) => onChange("minStock", parseInt(e.target.value) || 0)}
+                value={formData.minStock ?? ""}
+                onChange={(e) => onChange("minStock", e.target.value === "" ? 0 : parseInt(e.target.value, 10) || 0)}
                 placeholder="e.g. 5"
                 className="px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850"
               />
@@ -144,8 +144,8 @@ export default function ProductInventorySection({ formData, onChange, mode }: Pr
               </label>
               <input
                 type="number"
-                value={reorderPoint}
-                onChange={(e) => onChange("reorderPoint", parseInt(e.target.value) || 0)}
+                value={reorderPoint ?? ""}
+                onChange={(e) => onChange("reorderPoint", e.target.value === "" ? 0 : parseInt(e.target.value, 10) || 0)}
                 placeholder="e.g. 8"
                 className="px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850"
               />
