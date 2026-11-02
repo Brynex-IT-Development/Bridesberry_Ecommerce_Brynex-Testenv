@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import * as nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -14,32 +15,44 @@ export interface SendEmailOptions {
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private readonly sesClient: SESClient | null = null;
+  private readonly smtpTransporter: Transporter | null = null;
   private readonly senderEmail: string;
+  private readonly senderName: string;
 
   constructor(private configService: ConfigService) {
-    const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>(
-      'AWS_SECRET_ACCESS_KEY',
-    );
-    const region =
-      this.configService.get<string>('AWS_REGION') || 'ap-southeast-2';
-    this.senderEmail =
-      this.configService.get<string>('AWS_SES_SENDER') ||
-      'no-reply@localhost.local';
+    this.senderName =
+      this.configService.get<string>('SMTP_FROM_NAME') || 'Brides Berry';
 
-    if (accessKeyId && secretAccessKey) {
-      this.sesClient = new SESClient({
-        region,
-        credentials: {
-          accessKeyId,
-          secretAccessKey,
+    const smtpUser = this.configService.get<string>('SMTP_USER');
+    const smtpPass = this.configService.get<string>('SMTP_PASS');
+    const smtpHost =
+      this.configService.get<string>('SMTP_HOST') || 'smtp.gmail.com';
+    const smtpPort =
+      Number(this.configService.get<string>('SMTP_PORT')) || 465;
+    const smtpSecure =
+      this.configService.get<string>('SMTP_SECURE') !== 'false';
+
+    this.senderEmail =
+      this.configService.get<string>('SMTP_FROM_EMAIL') ||
+      smtpUser ||
+      'no-reply@bridesberry.com';
+
+    if (smtpUser && smtpPass) {
+      this.smtpTransporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpSecure,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
         },
       });
-      this.logger.log('AWS SES Email Provider initialized.');
+      this.logger.log(
+        `SMTP Email Provider initialized (${smtpHost}:${smtpPort}) for ${this.senderEmail}.`,
+      );
     } else {
       this.logger.warn(
-        'AWS Credentials missing. Falling back to local console/file email provider.',
+        'SMTP credentials (SMTP_USER / SMTP_PASS) not configured in .env. Emails will be logged locally to console & logs/sent-emails.log.',
       );
     }
   }
@@ -47,47 +60,31 @@ export class EmailService {
   async sendEmail(options: SendEmailOptions): Promise<void> {
     const { to, subject, html, text } = options;
 
-    let sentViaSes = false;
+    let emailSent = false;
+    const fromAddress = `"${this.senderName}" <${this.senderEmail}>`;
 
-    if (this.sesClient) {
+    // 1. Send via Nodemailer SMTP (App Password / Mail server)
+    if (this.smtpTransporter) {
       try {
-        const command = new SendEmailCommand({
-          Source: this.senderEmail,
-          Destination: {
-            ToAddresses: [to],
-          },
-          Message: {
-            Subject: {
-              Data: subject,
-              Charset: 'UTF-8',
-            },
-            Body: {
-              Html: {
-                Data: html,
-                Charset: 'UTF-8',
-              },
-              ...(text && {
-                Text: {
-                  Data: text,
-                  Charset: 'UTF-8',
-                },
-              }),
-            },
-          },
+        await this.smtpTransporter.sendMail({
+          from: fromAddress,
+          to,
+          subject,
+          html,
+          text,
         });
-        await this.sesClient.send(command);
-        this.logger.log(`Email successfully sent to ${to} via AWS SES.`);
-        sentViaSes = true;
+        this.logger.log(`Email successfully sent to ${to} via SMTP.`);
+        emailSent = true;
       } catch (error) {
         const stack = error instanceof Error ? error.stack : '';
-        this.logger.warn(
-          `Failed to send email to ${to} via AWS SES (falling back to local file log): ${stack}`,
+        this.logger.error(
+          `Failed to send email to ${to} via SMTP: ${stack}`,
         );
       }
     }
 
-    if (!sentViaSes) {
-      // Fallback local development behavior
+    // 2. Fallback local development behavior when SMTP is not configured or failed
+    if (!emailSent) {
       const isProduction =
         process.env.NODE_ENV === 'production' ||
         process.env.NODE_ENV === 'staging';
@@ -104,11 +101,11 @@ export class EmailService {
       }
       this.logger.log('==================================================');
 
-      // Write to scratch/sent-emails.log for testing validation
+      // Write to sent-emails.log for testing validation
       try {
-        const artifactsDir =
-          '/Users/abijithgkaimal/.gemini/antigravity-ide/brain/c83e1200-1990-4523-9d03-382b8d6125fb';
-        const scratchDir = path.join(artifactsDir, 'scratch');
+        const scratchDir =
+          this.configService.get<string>('EMAIL_LOG_DIR') ||
+          path.join(process.cwd(), 'logs');
         if (!fs.existsSync(scratchDir)) {
           fs.mkdirSync(scratchDir, { recursive: true });
         }
@@ -118,7 +115,7 @@ export class EmailService {
         fs.appendFileSync(logFile, logEntry);
       } catch (err) {
         this.logger.error(
-          'Failed to write email to scratch/sent-emails.log:',
+          'Failed to write email to logs/sent-emails.log:',
           err,
         );
       }

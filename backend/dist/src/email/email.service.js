@@ -46,75 +46,66 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmailService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
-const client_ses_1 = require("@aws-sdk/client-ses");
+const nodemailer = __importStar(require("nodemailer"));
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 let EmailService = EmailService_1 = class EmailService {
     configService;
     logger = new common_1.Logger(EmailService_1.name);
-    sesClient = null;
+    smtpTransporter = null;
     senderEmail;
+    senderName;
     constructor(configService) {
         this.configService = configService;
-        const accessKeyId = this.configService.get('AWS_ACCESS_KEY_ID');
-        const secretAccessKey = this.configService.get('AWS_SECRET_ACCESS_KEY');
-        const region = this.configService.get('AWS_REGION') || 'ap-southeast-2';
+        this.senderName =
+            this.configService.get('SMTP_FROM_NAME') || 'Brides Berry';
+        const smtpUser = this.configService.get('SMTP_USER');
+        const smtpPass = this.configService.get('SMTP_PASS');
+        const smtpHost = this.configService.get('SMTP_HOST') || 'smtp.gmail.com';
+        const smtpPort = Number(this.configService.get('SMTP_PORT')) || 465;
+        const smtpSecure = this.configService.get('SMTP_SECURE') !== 'false';
         this.senderEmail =
-            this.configService.get('AWS_SES_SENDER') ||
-                'no-reply@localhost.local';
-        if (accessKeyId && secretAccessKey) {
-            this.sesClient = new client_ses_1.SESClient({
-                region,
-                credentials: {
-                    accessKeyId,
-                    secretAccessKey,
+            this.configService.get('SMTP_FROM_EMAIL') ||
+                smtpUser ||
+                'no-reply@bridesberry.com';
+        if (smtpUser && smtpPass) {
+            this.smtpTransporter = nodemailer.createTransport({
+                host: smtpHost,
+                port: smtpPort,
+                secure: smtpSecure,
+                auth: {
+                    user: smtpUser,
+                    pass: smtpPass,
                 },
             });
-            this.logger.log('AWS SES Email Provider initialized.');
+            this.logger.log(`SMTP Email Provider initialized (${smtpHost}:${smtpPort}) for ${this.senderEmail}.`);
         }
         else {
-            this.logger.warn('AWS Credentials missing. Falling back to local console/file email provider.');
+            this.logger.warn('SMTP credentials (SMTP_USER / SMTP_PASS) not configured in .env. Emails will be logged locally to console & logs/sent-emails.log.');
         }
     }
     async sendEmail(options) {
         const { to, subject, html, text } = options;
-        let sentViaSes = false;
-        if (this.sesClient) {
+        let emailSent = false;
+        const fromAddress = `"${this.senderName}" <${this.senderEmail}>`;
+        if (this.smtpTransporter) {
             try {
-                const command = new client_ses_1.SendEmailCommand({
-                    Source: this.senderEmail,
-                    Destination: {
-                        ToAddresses: [to],
-                    },
-                    Message: {
-                        Subject: {
-                            Data: subject,
-                            Charset: 'UTF-8',
-                        },
-                        Body: {
-                            Html: {
-                                Data: html,
-                                Charset: 'UTF-8',
-                            },
-                            ...(text && {
-                                Text: {
-                                    Data: text,
-                                    Charset: 'UTF-8',
-                                },
-                            }),
-                        },
-                    },
+                await this.smtpTransporter.sendMail({
+                    from: fromAddress,
+                    to,
+                    subject,
+                    html,
+                    text,
                 });
-                await this.sesClient.send(command);
-                this.logger.log(`Email successfully sent to ${to} via AWS SES.`);
-                sentViaSes = true;
+                this.logger.log(`Email successfully sent to ${to} via SMTP.`);
+                emailSent = true;
             }
             catch (error) {
                 const stack = error instanceof Error ? error.stack : '';
-                this.logger.warn(`Failed to send email to ${to} via AWS SES (falling back to local file log): ${stack}`);
+                this.logger.error(`Failed to send email to ${to} via SMTP: ${stack}`);
             }
         }
-        if (!sentViaSes) {
+        if (!emailSent) {
             const isProduction = process.env.NODE_ENV === 'production' ||
                 process.env.NODE_ENV === 'staging';
             this.logger.log('==================================================');
@@ -128,8 +119,8 @@ let EmailService = EmailService_1 = class EmailService {
             }
             this.logger.log('==================================================');
             try {
-                const artifactsDir = '/Users/abijithgkaimal/.gemini/antigravity-ide/brain/c83e1200-1990-4523-9d03-382b8d6125fb';
-                const scratchDir = path.join(artifactsDir, 'scratch');
+                const scratchDir = this.configService.get('EMAIL_LOG_DIR') ||
+                    path.join(process.cwd(), 'logs');
                 if (!fs.existsSync(scratchDir)) {
                     fs.mkdirSync(scratchDir, { recursive: true });
                 }
@@ -139,7 +130,7 @@ let EmailService = EmailService_1 = class EmailService {
                 fs.appendFileSync(logFile, logEntry);
             }
             catch (err) {
-                this.logger.error('Failed to write email to scratch/sent-emails.log:', err);
+                this.logger.error('Failed to write email to logs/sent-emails.log:', err);
             }
         }
     }

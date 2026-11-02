@@ -8,8 +8,9 @@ export interface SendEmailOptions {
 export declare class EmailService {
     private configService;
     private readonly logger;
-    private readonly sesClient;
+    private readonly smtpTransporter;
     private readonly senderEmail;
+    private readonly senderName;
     constructor(configService: ConfigService);
     sendEmail(options: SendEmailOptions): Promise<void>;
     sendOrderConfirmation(order: any, customer: {

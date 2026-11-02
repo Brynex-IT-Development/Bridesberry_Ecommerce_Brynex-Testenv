@@ -350,7 +350,7 @@ export default function PurchaseOrderDetailPage() {
               )}
               
               {/* Attachments */}
-              {po.attachments && po.attachments.length > 0 && (
+              {Array.isArray(po.attachments) && po.attachments.length > 0 && (
                 <div className="space-y-1 pt-2">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-400 block">Attached Agreement Files</span>
                   <div className="flex flex-wrap gap-1.5">

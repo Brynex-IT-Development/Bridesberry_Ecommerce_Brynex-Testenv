@@ -27,7 +27,7 @@ import {
   IsArray,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { UpdatePOStatusBodyDto } from './dto/update-po-status.dto';
 
 class CreatePOItemBodyDto implements CreatePOItemDto {
@@ -177,8 +177,14 @@ export class CreatePOBodyDto implements CreatePurchaseOrderDto {
   @IsOptional()
   termsAndConditions?: string;
 
-  @IsString()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return JSON.stringify(value);
+    }
+    return value;
+  })
+  @IsString()
   attachments?: string;
 }
 
@@ -331,8 +337,14 @@ export class UpdatePOBodyDto {
   @IsOptional()
   termsAndConditions?: string;
 
-  @IsString()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return JSON.stringify(value);
+    }
+    return value;
+  })
+  @IsString()
   attachments?: string;
 
   @IsArray()

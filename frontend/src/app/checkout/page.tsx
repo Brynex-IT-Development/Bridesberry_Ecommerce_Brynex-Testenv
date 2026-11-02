@@ -26,6 +26,13 @@ export default function CheckoutPage() {
   const { cartItems, cartSubtotal, clearCart } = useCart();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
 
+  // Require login/signup before checkout
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/login?redirect=/checkout');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
   const [shipping, setShipping] = useState<AddressState>({
     firstName: '',
     lastName: '',
@@ -144,6 +151,14 @@ export default function CheckoutPage() {
       setRedirecting(false);
     }
   };
+
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-24">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c59b27]"></div>
+      </div>
+    );
+  }
 
   if (confirmedOrder) {
     return (

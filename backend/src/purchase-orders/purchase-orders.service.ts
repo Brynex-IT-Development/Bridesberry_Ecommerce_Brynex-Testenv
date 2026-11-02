@@ -50,7 +50,35 @@ export interface CreatePurchaseOrderDto {
   total: number;
   customerNotes?: string;
   termsAndConditions?: string;
-  attachments?: string; // serialized JSON array
+  attachments?: string | string[]; // serialized JSON array or array of strings
+}
+
+function parseDateSafely(d?: string | Date | null): Date {
+  if (!d) return new Date();
+  if (d instanceof Date) return isNaN(d.getTime()) ? new Date() : d;
+  if (typeof d === 'string') {
+    const dmyMatch = d.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (dmyMatch) {
+      const [, day, month, year] = dmyMatch;
+      return new Date(Number(year), Number(month) - 1, Number(day));
+    }
+  }
+  const parsed = new Date(d);
+  return isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
+function parseOptionalDateSafely(d?: string | Date | null): Date | null {
+  if (!d) return null;
+  if (d instanceof Date) return isNaN(d.getTime()) ? null : d;
+  if (typeof d === 'string') {
+    const dmyMatch = d.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (dmyMatch) {
+      const [, day, month, year] = dmyMatch;
+      return new Date(Number(year), Number(month) - 1, Number(day));
+    }
+  }
+  const parsed = new Date(d);
+  return isNaN(parsed.getTime()) ? null : parsed;
 }
 
 export interface ReceivePOItemsDto {
@@ -109,8 +137,8 @@ export class PurchaseOrdersService {
           deliverToState: dto.deliverToState,
           deliverToAddress: dto.deliverToAddress,
           referenceNumber: dto.referenceNumber,
-          date: new Date(dto.date),
-          deliveryDate: dto.deliveryDate ? new Date(dto.deliveryDate) : null,
+          date: parseDateSafely(dto.date),
+          deliveryDate: parseOptionalDateSafely(dto.deliveryDate),
           paymentTerms: dto.paymentTerms,
           shipmentPreference: dto.shipmentPreference,
           status: dto.status,
@@ -133,7 +161,11 @@ export class PurchaseOrdersService {
           total: dto.total,
           customerNotes: dto.customerNotes,
           termsAndConditions: dto.termsAndConditions,
-          attachments: dto.attachments,
+          attachments: typeof dto.attachments === 'string'
+            ? dto.attachments
+            : Array.isArray(dto.attachments)
+            ? JSON.stringify(dto.attachments)
+            : null,
           items: {
             create: dto.items,
           },
@@ -177,8 +209,8 @@ export class PurchaseOrdersService {
           deliverToState: dto.deliverToState,
           deliverToAddress: dto.deliverToAddress,
           referenceNumber: dto.referenceNumber,
-          date: new Date(dto.date),
-          deliveryDate: dto.deliveryDate ? new Date(dto.deliveryDate) : null,
+          date: parseDateSafely(dto.date),
+          deliveryDate: parseOptionalDateSafely(dto.deliveryDate),
           paymentTerms: dto.paymentTerms,
           shipmentPreference: dto.shipmentPreference,
           status: dto.status,
@@ -201,7 +233,11 @@ export class PurchaseOrdersService {
           total: dto.total,
           customerNotes: dto.customerNotes,
           termsAndConditions: dto.termsAndConditions,
-          attachments: dto.attachments,
+          attachments: typeof dto.attachments === 'string'
+            ? dto.attachments
+            : Array.isArray(dto.attachments)
+            ? JSON.stringify(dto.attachments)
+            : null,
           items: {
             create: dto.items,
           },

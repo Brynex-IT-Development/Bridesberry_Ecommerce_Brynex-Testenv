@@ -10,7 +10,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams?.get('redirect') || '/';
 
-  const { login } = useAuth();
+  const { login, resendOtp } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,6 +34,19 @@ function LoginForm() {
       router.push(redirect);
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : 'Login failed. Invalid credentials.';
+      if (/verify your email/i.test(errMsg)) {
+        // Account exists but email not verified: send a fresh OTP and go to verification
+        try {
+          await resendOtp(email);
+        } catch {
+          // cooldown active or already sent — user can still enter the existing code
+        }
+        const verifyUrl = `/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}${
+          redirect !== '/' ? `&redirect=${encodeURIComponent(redirect)}` : ''
+        }`;
+        router.push(verifyUrl);
+        return;
+      }
       setError(errMsg);
     } finally {
       setLoading(false);
@@ -52,7 +65,11 @@ function LoginForm() {
         <div className="text-center mb-8">
           <span className="text-[#c59b27] text-2xl font-bold select-none leading-none">✳</span>
           <h1 className="font-raleway text-2xl uppercase tracking-widest text-[#111111] mt-2">Welcome Back</h1>
-          <p className="font-questrial text-xs text-neutral-500 mt-1.5">Sign in to your Brides Berry account.</p>
+          <p className="font-questrial text-xs text-neutral-500 mt-1.5">
+            {redirect === '/checkout'
+              ? 'Please sign in or create an account to continue to checkout.'
+              : 'Sign in to your Brides Berry account.'}
+          </p>
         </div>
 
         {error && (

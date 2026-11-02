@@ -187,6 +187,10 @@ export declare class ProductsService {
             slug: string;
             count: number;
         }[];
+        collections: {
+            value: string;
+            count: number;
+        }[];
         price: {
             min: number;
             max: number;

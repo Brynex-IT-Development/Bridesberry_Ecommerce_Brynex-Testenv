@@ -42,7 +42,7 @@ export interface CreatePurchaseOrderDto {
     total: number;
     customerNotes?: string;
     termsAndConditions?: string;
-    attachments?: string;
+    attachments?: string | string[];
 }
 export interface ReceivePOItemsDto {
     receivedBy: string;

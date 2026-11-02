@@ -23,7 +23,15 @@ export class PhonepeService {
     this.merchantId = this.configService.get<string>('PHONEPE_MERCHANT_ID') || 'YOUR_MERCHANT_ID';
     this.saltKey = this.configService.get<string>('PHONEPE_SALT_KEY') || 'YOUR_SALT_KEY';
     this.saltIndex = Number(this.configService.get<string>('PHONEPE_SALT_INDEX') || '1');
-    this.baseUrl = this.configService.get<string>('PHONEPE_BASE_URL') || 'https://api-preprod.phonepe.com';
+
+    let rawBaseUrl = this.configService.get<string>('PHONEPE_BASE_URL') || 'https://api-preprod.phonepe.com/apis/pg-sandbox';
+    if (rawBaseUrl.includes('api-preprod.phonepe.com') && !rawBaseUrl.includes('/apis/pg-sandbox')) {
+      rawBaseUrl = rawBaseUrl.replace(/\/+$/, '') + '/apis/pg-sandbox';
+    } else if (rawBaseUrl.includes('api.phonepe.com') && !rawBaseUrl.includes('/apis/hermes')) {
+      rawBaseUrl = rawBaseUrl.replace(/\/+$/, '') + '/apis/hermes';
+    }
+    this.baseUrl = rawBaseUrl.replace(/\/+$/, '');
+
     this.callbackUrl = this.configService.get<string>('PHONEPE_CALLBACK_URL') || 'http://localhost:7001/api/payments/phonepe/callback';
     this.redirectUrl = this.configService.get<string>('PHONEPE_REDIRECT_URL') || 'http://localhost:3000/payment/success';
 
@@ -303,5 +311,52 @@ export class PhonepeService {
 
     this.logger.log(`Placeholder refund completed for Order: ${orderId}`);
     return mockRefundResponse;
+  }
+
+  /**
+   * Diagnostic health check for PhonePe configuration and connectivity
+   */
+  async getHealthStatus() {
+    const isConfigured = this.merchantId !== 'YOUR_MERCHANT_ID' && this.saltKey !== 'YOUR_SALT_KEY';
+    const isUAT = this.baseUrl.includes('api-preprod.phonepe.com') || this.merchantId.includes('UAT');
+
+    let gatewayReachable = false;
+    let message = '';
+
+    if (isConfigured) {
+      try {
+        const testRes = await fetch(`${this.baseUrl}/pg/v1/status/${this.merchantId}/TEST_CONNECTIVITY`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-VERIFY': 'test',
+            'X-MERCHANT-ID': this.merchantId,
+          },
+        });
+        gatewayReachable = testRes.status > 0;
+        message = gatewayReachable
+          ? 'PhonePe gateway server reached and responding.'
+          : 'Unable to connect to PhonePe gateway.';
+      } catch (err) {
+        gatewayReachable = false;
+        message = `Gateway connection error: ${err.message}`;
+      }
+    } else {
+      message = 'PhonePe credentials are not configured in backend/.env';
+    }
+
+    return {
+      status: isConfigured ? 'CONFIGURED' : 'NOT_CONFIGURED',
+      environment: isUAT ? 'UAT_SANDBOX' : 'PRODUCTION',
+      merchantId: this.merchantId ? `${this.merchantId.slice(0, 4)}***${this.merchantId.slice(-2)}` : null,
+      baseUrl: this.baseUrl,
+      redirectUrl: this.redirectUrl,
+      callbackUrl: this.callbackUrl,
+      gatewayReachable,
+      message,
+      instructions: isUAT
+        ? 'Using PhonePe Sandbox/UAT mode. You can simulate payments with the PhonePe test simulator.'
+        : 'Using PhonePe Production mode. Real money transactions will be processed.',
+    };
   }
 }

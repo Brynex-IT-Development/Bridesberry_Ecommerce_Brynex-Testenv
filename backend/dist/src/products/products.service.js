@@ -283,6 +283,21 @@ let ProductsService = ProductsService_1 = class ProductsService {
             value,
             count,
         }));
+        const collectionMap = new Map();
+        for (const p of activeProducts) {
+            if (p.collection) {
+                const val = p.collection.trim();
+                if (val) {
+                    collectionMap.set(val, (collectionMap.get(val) || 0) + 1);
+                }
+            }
+        }
+        const collections = Array.from(collectionMap.entries())
+            .map(([value, count]) => ({
+            value,
+            count,
+        }))
+            .sort((a, b) => a.value.localeCompare(b.value));
         const purities = [];
         const brands = [];
         let inStock = 0;
@@ -300,6 +315,7 @@ let ProductsService = ProductsService_1 = class ProductsService {
         }
         return {
             categories,
+            collections,
             price: {
                 min: minPrice,
                 max: maxPrice,

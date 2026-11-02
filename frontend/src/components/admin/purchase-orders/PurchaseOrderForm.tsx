@@ -140,6 +140,7 @@ export default function PurchaseOrderForm({ initialPOId }: PurchaseOrderFormProp
 
             const parseDate = (dStr?: string) => {
               if (!dStr) return "";
+              if (dStr.includes("T")) return dStr.split("T")[0];
               const parts = dStr.split("/");
               if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
               return dStr;
@@ -163,7 +164,19 @@ export default function PurchaseOrderForm({ initialPOId }: PurchaseOrderFormProp
             setAdjustment(po.adjustment);
             setCustomerNotes(po.customerNotes || "");
             setTermsAndConditions(po.termsAndConditions || "");
-            setAttachments(po.attachments || []);
+            const rawAttachments = po.attachments;
+            if (typeof rawAttachments === "string") {
+              try {
+                const parsed = JSON.parse(rawAttachments);
+                setAttachments(Array.isArray(parsed) ? parsed : [rawAttachments]);
+              } catch {
+                setAttachments(rawAttachments ? [rawAttachments] : []);
+              }
+            } else if (Array.isArray(rawAttachments)) {
+              setAttachments(rawAttachments);
+            } else {
+              setAttachments([]);
+            }
           }
         });
       }

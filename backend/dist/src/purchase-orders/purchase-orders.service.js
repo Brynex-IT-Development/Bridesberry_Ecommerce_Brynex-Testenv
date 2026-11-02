@@ -13,6 +13,36 @@ exports.PurchaseOrdersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_js_1 = require("../generated/prisma/client.js");
+function parseDateSafely(d) {
+    if (!d)
+        return new Date();
+    if (d instanceof Date)
+        return isNaN(d.getTime()) ? new Date() : d;
+    if (typeof d === 'string') {
+        const dmyMatch = d.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (dmyMatch) {
+            const [, day, month, year] = dmyMatch;
+            return new Date(Number(year), Number(month) - 1, Number(day));
+        }
+    }
+    const parsed = new Date(d);
+    return isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+function parseOptionalDateSafely(d) {
+    if (!d)
+        return null;
+    if (d instanceof Date)
+        return isNaN(d.getTime()) ? null : d;
+    if (typeof d === 'string') {
+        const dmyMatch = d.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (dmyMatch) {
+            const [, day, month, year] = dmyMatch;
+            return new Date(Number(year), Number(month) - 1, Number(day));
+        }
+    }
+    const parsed = new Date(d);
+    return isNaN(parsed.getTime()) ? null : parsed;
+}
 let PurchaseOrdersService = class PurchaseOrdersService {
     prisma;
     constructor(prisma) {
@@ -60,8 +90,8 @@ let PurchaseOrdersService = class PurchaseOrdersService {
                     deliverToState: dto.deliverToState,
                     deliverToAddress: dto.deliverToAddress,
                     referenceNumber: dto.referenceNumber,
-                    date: new Date(dto.date),
-                    deliveryDate: dto.deliveryDate ? new Date(dto.deliveryDate) : null,
+                    date: parseDateSafely(dto.date),
+                    deliveryDate: parseOptionalDateSafely(dto.deliveryDate),
                     paymentTerms: dto.paymentTerms,
                     shipmentPreference: dto.shipmentPreference,
                     status: dto.status,
@@ -84,7 +114,11 @@ let PurchaseOrdersService = class PurchaseOrdersService {
                     total: dto.total,
                     customerNotes: dto.customerNotes,
                     termsAndConditions: dto.termsAndConditions,
-                    attachments: dto.attachments,
+                    attachments: typeof dto.attachments === 'string'
+                        ? dto.attachments
+                        : Array.isArray(dto.attachments)
+                            ? JSON.stringify(dto.attachments)
+                            : null,
                     items: {
                         create: dto.items,
                     },
@@ -118,8 +152,8 @@ let PurchaseOrdersService = class PurchaseOrdersService {
                     deliverToState: dto.deliverToState,
                     deliverToAddress: dto.deliverToAddress,
                     referenceNumber: dto.referenceNumber,
-                    date: new Date(dto.date),
-                    deliveryDate: dto.deliveryDate ? new Date(dto.deliveryDate) : null,
+                    date: parseDateSafely(dto.date),
+                    deliveryDate: parseOptionalDateSafely(dto.deliveryDate),
                     paymentTerms: dto.paymentTerms,
                     shipmentPreference: dto.shipmentPreference,
                     status: dto.status,
@@ -142,7 +176,11 @@ let PurchaseOrdersService = class PurchaseOrdersService {
                     total: dto.total,
                     customerNotes: dto.customerNotes,
                     termsAndConditions: dto.termsAndConditions,
-                    attachments: dto.attachments,
+                    attachments: typeof dto.attachments === 'string'
+                        ? dto.attachments
+                        : Array.isArray(dto.attachments)
+                            ? JSON.stringify(dto.attachments)
+                            : null,
                     items: {
                         create: dto.items,
                     },

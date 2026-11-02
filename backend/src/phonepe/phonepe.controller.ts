@@ -9,6 +9,15 @@ export class PhonepeController {
   constructor(private readonly phonepeService: PhonepeService) {}
 
   /**
+   * Health and diagnostic check for PhonePe configuration and gateway reachability
+   */
+  @Public()
+  @Get('health')
+  async checkHealth() {
+    return this.phonepeService.getHealthStatus();
+  }
+
+  /**
    * Generates a PhonePe payment redirect link for an order
    */
   @Post('create')

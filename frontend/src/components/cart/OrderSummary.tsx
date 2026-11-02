@@ -2,12 +2,16 @@
 
 import React, { useState } from 'react';
 import { formatPrice } from '../../lib/utils';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../context/AuthContext';
 
 interface OrderSummaryProps {
   subtotal: number;
 }
 
 export default function OrderSummary({ subtotal }: OrderSummaryProps) {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [promoError, setPromoError] = useState('');
@@ -94,7 +98,7 @@ export default function OrderSummary({ subtotal }: OrderSummaryProps) {
       {/* Checkout CTA */}
       <div className="pt-2">
         <button
-          onClick={() => alert('Proceeding to luxury checkout secure gateway...')}
+          onClick={() => router.push(isAuthenticated ? '/checkout' : '/login?redirect=/checkout')}
           className="w-full bg-gold-600 hover:bg-gold-700 text-white transition-all duration-300 py-4 text-[10px] uppercase tracking-[0.25em] font-medium shadow-md hover:shadow-lg text-center"
         >
           Secure Checkout
