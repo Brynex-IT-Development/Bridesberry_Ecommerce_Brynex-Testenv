@@ -54,6 +54,12 @@ export default function DashboardStats() {
           value: stats.productsSoldToday.toString(),
           subNote: "units today",
         },
+        {
+          id: "online",
+          title: "ONLINE USERS",
+          value: `${stats.onlineUsersCount ?? 0}`,
+          subNote: `${stats.activeSessionsCount ?? 0} active sessions`,
+        },
       ]
     : [
         { id: "revenue", title: "TODAY'S REVENUE", value: "—", subNote: "loading..." },
@@ -61,10 +67,11 @@ export default function DashboardStats() {
         { id: "customers", title: "NEW CUSTOMERS", value: "—", subNote: "loading..." },
         { id: "lowstock", title: "LOW STOCK ITEMS", value: "—", subNote: "loading..." },
         { id: "sold", title: "PRODUCTS SOLD", value: "—", subNote: "loading..." },
+        { id: "online", title: "ONLINE USERS", value: "—", subNote: "loading..." },
       ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
       {cards.map((stat) => (
         <AdminStatCard
           key={stat.id}

@@ -126,7 +126,11 @@ let AuthController = class AuthController {
         this.clearRefreshCookie(res);
         return { message: 'Logged out successfully.' };
     }
-    me(user) {
+    async me(user, req, ip) {
+        const refreshToken = req.cookies?.['refreshToken'];
+        if (user?.id) {
+            await this.authService.updateSessionActivity(user.id, refreshToken, ip);
+        }
         return { user: this.authService.sanitizeUser(user) };
     }
     async forgotPassword(dto) {
@@ -204,9 +208,11 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('me'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Req)()),
+    __param(2, (0, common_1.Ip)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object, Object, String]),
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "me", null);
 __decorate([
     (0, public_decorator_1.Public)(),

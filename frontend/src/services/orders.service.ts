@@ -237,6 +237,33 @@ export async function getCustomers(): Promise<AdminCustomer[]> {
   }
 }
 
+export async function getActiveSessions(): Promise<import("@/types/admin").AdminUserSession[]> {
+  try {
+    const data = await apiFetch<import("@/types/admin").AdminUserSession[]>("/api/customers/sessions");
+    return data ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function revokeSession(sessionId: string): Promise<boolean> {
+  try {
+    await apiFetch(`/api/customers/sessions/${sessionId}`, { method: "DELETE" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function revokeAllUserSessions(userId: string): Promise<boolean> {
+  try {
+    await apiFetch(`/api/customers/${userId}/sessions`, { method: "DELETE" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function getCustomerById(id: string): Promise<AdminCustomer | undefined> {
   try {
     return await apiFetch<AdminCustomer>(`/api/customers/${id}`);

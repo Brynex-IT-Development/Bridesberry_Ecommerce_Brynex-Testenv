@@ -168,6 +168,7 @@ export declare const RefreshSessionScalarFieldEnum: {
     readonly expiresAt: "expiresAt";
     readonly userAgent: "userAgent";
     readonly ipAddress: "ipAddress";
+    readonly lastActiveAt: "lastActiveAt";
     readonly createdAt: "createdAt";
 };
 export type RefreshSessionScalarFieldEnum = (typeof RefreshSessionScalarFieldEnum)[keyof typeof RefreshSessionScalarFieldEnum];

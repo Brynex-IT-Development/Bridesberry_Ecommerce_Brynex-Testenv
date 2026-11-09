@@ -37,6 +37,7 @@ export declare class AuthService {
     logout(refreshToken: string): Promise<void>;
     forgotPassword(email: string): Promise<void>;
     resetPassword(dto: ResetPasswordDto): Promise<void>;
+    updateSessionActivity(userId: string, refreshToken?: string, ipAddress?: string): Promise<void>;
     private generateTokenSet;
     sanitizeUser(user: User): {
         id: string;

@@ -208,6 +208,7 @@ exports.RefreshSessionScalarFieldEnum = {
     expiresAt: 'expiresAt',
     userAgent: 'userAgent',
     ipAddress: 'ipAddress',
+    lastActiveAt: 'lastActiveAt',
     createdAt: 'createdAt'
 };
 exports.VendorScalarFieldEnum = {

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Delete, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -14,6 +14,21 @@ export class CustomersController {
   @Get()
   async getCustomers() {
     return this.customersService.findAll();
+  }
+
+  @Get('sessions')
+  async getActiveSessions() {
+    return this.customersService.getActiveSessions();
+  }
+
+  @Delete('sessions/:sessionId')
+  async revokeSession(@Param('sessionId') sessionId: string) {
+    return this.customersService.revokeSession(sessionId);
+  }
+
+  @Delete(':id/sessions')
+  async revokeAllUserSessions(@Param('id') userId: string) {
+    return this.customersService.revokeAllUserSessions(userId);
   }
 
   @Get(':id')

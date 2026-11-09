@@ -22,6 +22,9 @@ export class DashboardService {
     endOfYear.setMonth(11, 31);
     endOfYear.setHours(23, 59, 59, 999);
 
+    const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
+    const now = new Date();
+
     // Run queries in parallel to drastically improve loading speed
     const [
       todaysRevenueResult,
@@ -33,6 +36,8 @@ export class DashboardService {
       totalProducts,
       totalCategories,
       yearOrders,
+      onlineUsersCount,
+      activeSessionsCount,
     ] = await Promise.all([
       // 1. Today's Revenue (orders not pending or cancelled) - uses aggregate sum
       this.prisma.order.aggregate({
@@ -110,6 +115,21 @@ export class DashboardService {
           createdAt: true,
         },
       }),
+
+      // 10. Online Users Count (active in last 15 mins)
+      this.prisma.refreshSession.count({
+        where: {
+          expiresAt: { gt: now },
+          lastActiveAt: { gte: fifteenMinsAgo },
+        },
+      }),
+
+      // 11. Active Sessions Total
+      this.prisma.refreshSession.count({
+        where: {
+          expiresAt: { gt: now },
+        },
+      }),
     ]);
 
     const todaysRevenue = Number(todaysRevenueResult._sum?.total ?? 0);
@@ -161,6 +181,8 @@ export class DashboardService {
       lowStockCount,
       totalProducts,
       totalCategories,
+      onlineUsersCount,
+      activeSessionsCount,
       monthlySales,
     };
   }

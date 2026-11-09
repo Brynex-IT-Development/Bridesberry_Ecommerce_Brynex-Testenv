@@ -281,6 +281,37 @@ let AuthService = AuthService_1 = class AuthService {
             where: { userId: user.id },
         });
     }
+    async updateSessionActivity(userId, refreshToken, ipAddress) {
+        try {
+            if (refreshToken) {
+                const tokenHash = this.hashValue(refreshToken);
+                await this.prisma.refreshSession.updateMany({
+                    where: { tokenHash, userId },
+                    data: {
+                        lastActiveAt: new Date(),
+                        ...(ipAddress ? { ipAddress } : {}),
+                    },
+                });
+            }
+            else {
+                const latestSession = await this.prisma.refreshSession.findFirst({
+                    where: { userId },
+                    orderBy: { createdAt: 'desc' },
+                });
+                if (latestSession) {
+                    await this.prisma.refreshSession.update({
+                        where: { id: latestSession.id },
+                        data: {
+                            lastActiveAt: new Date(),
+                            ...(ipAddress ? { ipAddress } : {}),
+                        },
+                    });
+                }
+            }
+        }
+        catch {
+        }
+    }
     async generateTokenSet(user, userAgent, ipAddress) {
         const payload = { userId: user.id, email: user.email, role: user.role };
         const accessToken = await this.jwtService.signAsync(payload, {

@@ -30,7 +30,9 @@ let DashboardService = class DashboardService {
         const endOfYear = new Date();
         endOfYear.setMonth(11, 31);
         endOfYear.setHours(23, 59, 59, 999);
-        const [todaysRevenueResult, monthlyRevenueResult, todaysOrdersCount, newCustomersCount, orderItemsTodayResult, lowStockResult, totalProducts, totalCategories, yearOrders,] = await Promise.all([
+        const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
+        const now = new Date();
+        const [todaysRevenueResult, monthlyRevenueResult, todaysOrdersCount, newCustomersCount, orderItemsTodayResult, lowStockResult, totalProducts, totalCategories, yearOrders, onlineUsersCount, activeSessionsCount,] = await Promise.all([
             this.prisma.order.aggregate({
                 where: {
                     createdAt: { gte: startOfToday },
@@ -88,6 +90,17 @@ let DashboardService = class DashboardService {
                     createdAt: true,
                 },
             }),
+            this.prisma.refreshSession.count({
+                where: {
+                    expiresAt: { gt: now },
+                    lastActiveAt: { gte: fifteenMinsAgo },
+                },
+            }),
+            this.prisma.refreshSession.count({
+                where: {
+                    expiresAt: { gt: now },
+                },
+            }),
         ]);
         const todaysRevenue = Number(todaysRevenueResult._sum?.total ?? 0);
         const monthlyRevenue = Number(monthlyRevenueResult._sum?.total ?? 0);
@@ -132,6 +145,8 @@ let DashboardService = class DashboardService {
             lowStockCount,
             totalProducts,
             totalCategories,
+            onlineUsersCount,
+            activeSessionsCount,
             monthlySales,
         };
     }

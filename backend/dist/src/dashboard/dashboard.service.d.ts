@@ -11,6 +11,8 @@ export declare class DashboardService {
         lowStockCount: number;
         totalProducts: number;
         totalCategories: number;
+        onlineUsersCount: number;
+        activeSessionsCount: number;
         monthlySales: {
             month: string;
             revenue: number;

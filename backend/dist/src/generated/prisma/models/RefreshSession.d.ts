@@ -13,6 +13,7 @@ export type RefreshSessionMinAggregateOutputType = {
     expiresAt: Date | null;
     userAgent: string | null;
     ipAddress: string | null;
+    lastActiveAt: Date | null;
     createdAt: Date | null;
 };
 export type RefreshSessionMaxAggregateOutputType = {
@@ -22,6 +23,7 @@ export type RefreshSessionMaxAggregateOutputType = {
     expiresAt: Date | null;
     userAgent: string | null;
     ipAddress: string | null;
+    lastActiveAt: Date | null;
     createdAt: Date | null;
 };
 export type RefreshSessionCountAggregateOutputType = {
@@ -31,6 +33,7 @@ export type RefreshSessionCountAggregateOutputType = {
     expiresAt: number;
     userAgent: number;
     ipAddress: number;
+    lastActiveAt: number;
     createdAt: number;
     _all: number;
 };
@@ -41,6 +44,7 @@ export type RefreshSessionMinAggregateInputType = {
     expiresAt?: true;
     userAgent?: true;
     ipAddress?: true;
+    lastActiveAt?: true;
     createdAt?: true;
 };
 export type RefreshSessionMaxAggregateInputType = {
@@ -50,6 +54,7 @@ export type RefreshSessionMaxAggregateInputType = {
     expiresAt?: true;
     userAgent?: true;
     ipAddress?: true;
+    lastActiveAt?: true;
     createdAt?: true;
 };
 export type RefreshSessionCountAggregateInputType = {
@@ -59,6 +64,7 @@ export type RefreshSessionCountAggregateInputType = {
     expiresAt?: true;
     userAgent?: true;
     ipAddress?: true;
+    lastActiveAt?: true;
     createdAt?: true;
     _all?: true;
 };
@@ -93,6 +99,7 @@ export type RefreshSessionGroupByOutputType = {
     expiresAt: Date;
     userAgent: string | null;
     ipAddress: string | null;
+    lastActiveAt: Date;
     createdAt: Date;
     _count: RefreshSessionCountAggregateOutputType | null;
     _min: RefreshSessionMinAggregateOutputType | null;
@@ -111,6 +118,7 @@ export type RefreshSessionWhereInput = {
     expiresAt?: Prisma.DateTimeFilter<"RefreshSession"> | Date | string;
     userAgent?: Prisma.StringNullableFilter<"RefreshSession"> | string | null;
     ipAddress?: Prisma.StringNullableFilter<"RefreshSession"> | string | null;
+    lastActiveAt?: Prisma.DateTimeFilter<"RefreshSession"> | Date | string;
     createdAt?: Prisma.DateTimeFilter<"RefreshSession"> | Date | string;
     user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
 };
@@ -121,6 +129,7 @@ export type RefreshSessionOrderByWithRelationInput = {
     expiresAt?: Prisma.SortOrder;
     userAgent?: Prisma.SortOrderInput | Prisma.SortOrder;
     ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder;
+    lastActiveAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     user?: Prisma.UserOrderByWithRelationInput;
 };
@@ -134,6 +143,7 @@ export type RefreshSessionWhereUniqueInput = Prisma.AtLeast<{
     expiresAt?: Prisma.DateTimeFilter<"RefreshSession"> | Date | string;
     userAgent?: Prisma.StringNullableFilter<"RefreshSession"> | string | null;
     ipAddress?: Prisma.StringNullableFilter<"RefreshSession"> | string | null;
+    lastActiveAt?: Prisma.DateTimeFilter<"RefreshSession"> | Date | string;
     createdAt?: Prisma.DateTimeFilter<"RefreshSession"> | Date | string;
     user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
 }, "id" | "tokenHash">;
@@ -144,6 +154,7 @@ export type RefreshSessionOrderByWithAggregationInput = {
     expiresAt?: Prisma.SortOrder;
     userAgent?: Prisma.SortOrderInput | Prisma.SortOrder;
     ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder;
+    lastActiveAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     _count?: Prisma.RefreshSessionCountOrderByAggregateInput;
     _max?: Prisma.RefreshSessionMaxOrderByAggregateInput;
@@ -159,6 +170,7 @@ export type RefreshSessionScalarWhereWithAggregatesInput = {
     expiresAt?: Prisma.DateTimeWithAggregatesFilter<"RefreshSession"> | Date | string;
     userAgent?: Prisma.StringNullableWithAggregatesFilter<"RefreshSession"> | string | null;
     ipAddress?: Prisma.StringNullableWithAggregatesFilter<"RefreshSession"> | string | null;
+    lastActiveAt?: Prisma.DateTimeWithAggregatesFilter<"RefreshSession"> | Date | string;
     createdAt?: Prisma.DateTimeWithAggregatesFilter<"RefreshSession"> | Date | string;
 };
 export type RefreshSessionCreateInput = {
@@ -167,6 +179,7 @@ export type RefreshSessionCreateInput = {
     expiresAt: Date | string;
     userAgent?: string | null;
     ipAddress?: string | null;
+    lastActiveAt?: Date | string;
     createdAt?: Date | string;
     user: Prisma.UserCreateNestedOneWithoutSessionsInput;
 };
@@ -177,6 +190,7 @@ export type RefreshSessionUncheckedCreateInput = {
     expiresAt: Date | string;
     userAgent?: string | null;
     ipAddress?: string | null;
+    lastActiveAt?: Date | string;
     createdAt?: Date | string;
 };
 export type RefreshSessionUpdateInput = {
@@ -185,6 +199,7 @@ export type RefreshSessionUpdateInput = {
     expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    lastActiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     user?: Prisma.UserUpdateOneRequiredWithoutSessionsNestedInput;
 };
@@ -195,6 +210,7 @@ export type RefreshSessionUncheckedUpdateInput = {
     expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    lastActiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type RefreshSessionCreateManyInput = {
@@ -204,6 +220,7 @@ export type RefreshSessionCreateManyInput = {
     expiresAt: Date | string;
     userAgent?: string | null;
     ipAddress?: string | null;
+    lastActiveAt?: Date | string;
     createdAt?: Date | string;
 };
 export type RefreshSessionUpdateManyMutationInput = {
@@ -212,6 +229,7 @@ export type RefreshSessionUpdateManyMutationInput = {
     expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    lastActiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type RefreshSessionUncheckedUpdateManyInput = {
@@ -221,6 +239,7 @@ export type RefreshSessionUncheckedUpdateManyInput = {
     expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    lastActiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type RefreshSessionListRelationFilter = {
@@ -238,6 +257,7 @@ export type RefreshSessionCountOrderByAggregateInput = {
     expiresAt?: Prisma.SortOrder;
     userAgent?: Prisma.SortOrder;
     ipAddress?: Prisma.SortOrder;
+    lastActiveAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
 };
 export type RefreshSessionMaxOrderByAggregateInput = {
@@ -247,6 +267,7 @@ export type RefreshSessionMaxOrderByAggregateInput = {
     expiresAt?: Prisma.SortOrder;
     userAgent?: Prisma.SortOrder;
     ipAddress?: Prisma.SortOrder;
+    lastActiveAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
 };
 export type RefreshSessionMinOrderByAggregateInput = {
@@ -256,6 +277,7 @@ export type RefreshSessionMinOrderByAggregateInput = {
     expiresAt?: Prisma.SortOrder;
     userAgent?: Prisma.SortOrder;
     ipAddress?: Prisma.SortOrder;
+    lastActiveAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
 };
 export type RefreshSessionCreateNestedManyWithoutUserInput = {
@@ -302,6 +324,7 @@ export type RefreshSessionCreateWithoutUserInput = {
     expiresAt: Date | string;
     userAgent?: string | null;
     ipAddress?: string | null;
+    lastActiveAt?: Date | string;
     createdAt?: Date | string;
 };
 export type RefreshSessionUncheckedCreateWithoutUserInput = {
@@ -310,6 +333,7 @@ export type RefreshSessionUncheckedCreateWithoutUserInput = {
     expiresAt: Date | string;
     userAgent?: string | null;
     ipAddress?: string | null;
+    lastActiveAt?: Date | string;
     createdAt?: Date | string;
 };
 export type RefreshSessionCreateOrConnectWithoutUserInput = {
@@ -343,6 +367,7 @@ export type RefreshSessionScalarWhereInput = {
     expiresAt?: Prisma.DateTimeFilter<"RefreshSession"> | Date | string;
     userAgent?: Prisma.StringNullableFilter<"RefreshSession"> | string | null;
     ipAddress?: Prisma.StringNullableFilter<"RefreshSession"> | string | null;
+    lastActiveAt?: Prisma.DateTimeFilter<"RefreshSession"> | Date | string;
     createdAt?: Prisma.DateTimeFilter<"RefreshSession"> | Date | string;
 };
 export type RefreshSessionCreateManyUserInput = {
@@ -351,6 +376,7 @@ export type RefreshSessionCreateManyUserInput = {
     expiresAt: Date | string;
     userAgent?: string | null;
     ipAddress?: string | null;
+    lastActiveAt?: Date | string;
     createdAt?: Date | string;
 };
 export type RefreshSessionUpdateWithoutUserInput = {
@@ -359,6 +385,7 @@ export type RefreshSessionUpdateWithoutUserInput = {
     expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    lastActiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type RefreshSessionUncheckedUpdateWithoutUserInput = {
@@ -367,6 +394,7 @@ export type RefreshSessionUncheckedUpdateWithoutUserInput = {
     expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    lastActiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type RefreshSessionUncheckedUpdateManyWithoutUserInput = {
@@ -375,6 +403,7 @@ export type RefreshSessionUncheckedUpdateManyWithoutUserInput = {
     expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+    lastActiveAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type RefreshSessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -384,6 +413,7 @@ export type RefreshSessionSelect<ExtArgs extends runtime.Types.Extensions.Intern
     expiresAt?: boolean;
     userAgent?: boolean;
     ipAddress?: boolean;
+    lastActiveAt?: boolean;
     createdAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["refreshSession"]>;
@@ -394,6 +424,7 @@ export type RefreshSessionSelectCreateManyAndReturn<ExtArgs extends runtime.Type
     expiresAt?: boolean;
     userAgent?: boolean;
     ipAddress?: boolean;
+    lastActiveAt?: boolean;
     createdAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["refreshSession"]>;
@@ -404,6 +435,7 @@ export type RefreshSessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
     expiresAt?: boolean;
     userAgent?: boolean;
     ipAddress?: boolean;
+    lastActiveAt?: boolean;
     createdAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["refreshSession"]>;
@@ -414,9 +446,10 @@ export type RefreshSessionSelectScalar = {
     expiresAt?: boolean;
     userAgent?: boolean;
     ipAddress?: boolean;
+    lastActiveAt?: boolean;
     createdAt?: boolean;
 };
-export type RefreshSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "tokenHash" | "expiresAt" | "userAgent" | "ipAddress" | "createdAt", ExtArgs["result"]["refreshSession"]>;
+export type RefreshSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "tokenHash" | "expiresAt" | "userAgent" | "ipAddress" | "lastActiveAt" | "createdAt", ExtArgs["result"]["refreshSession"]>;
 export type RefreshSessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
 };
@@ -438,6 +471,7 @@ export type $RefreshSessionPayload<ExtArgs extends runtime.Types.Extensions.Inte
         expiresAt: Date;
         userAgent: string | null;
         ipAddress: string | null;
+        lastActiveAt: Date;
         createdAt: Date;
     }, ExtArgs["result"]["refreshSession"]>;
     composites: {};
@@ -503,6 +537,7 @@ export interface RefreshSessionFieldRefs {
     readonly expiresAt: Prisma.FieldRef<"RefreshSession", 'DateTime'>;
     readonly userAgent: Prisma.FieldRef<"RefreshSession", 'String'>;
     readonly ipAddress: Prisma.FieldRef<"RefreshSession", 'String'>;
+    readonly lastActiveAt: Prisma.FieldRef<"RefreshSession", 'DateTime'>;
     readonly createdAt: Prisma.FieldRef<"RefreshSession", 'DateTime'>;
 }
 export type RefreshSessionFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {

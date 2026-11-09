@@ -27,6 +27,15 @@ let CustomersController = class CustomersController {
     async getCustomers() {
         return this.customersService.findAll();
     }
+    async getActiveSessions() {
+        return this.customersService.getActiveSessions();
+    }
+    async revokeSession(sessionId) {
+        return this.customersService.revokeSession(sessionId);
+    }
+    async revokeAllUserSessions(userId) {
+        return this.customersService.revokeAllUserSessions(userId);
+    }
     async getCustomerDetails(id) {
         return this.customersService.findOne(id);
     }
@@ -38,6 +47,26 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], CustomersController.prototype, "getCustomers", null);
+__decorate([
+    (0, common_1.Get)('sessions'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], CustomersController.prototype, "getActiveSessions", null);
+__decorate([
+    (0, common_1.Delete)('sessions/:sessionId'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CustomersController.prototype, "revokeSession", null);
+__decorate([
+    (0, common_1.Delete)(':id/sessions'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CustomersController.prototype, "revokeAllUserSessions", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

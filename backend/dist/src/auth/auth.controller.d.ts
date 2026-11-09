@@ -26,7 +26,7 @@ export declare class AuthController {
     logout(req: express.Request, res: express.Response): Promise<{
         message: string;
     }>;
-    me(user: any): {
+    me(user: any, req: express.Request, ip: string): Promise<{
         user: {
             id: string;
             email: string;
@@ -36,7 +36,7 @@ export declare class AuthController {
             status: import("../generated/prisma/enums").UserStatus;
             createdAt: Date;
         };
-    };
+    }>;
     forgotPassword(dto: ForgotPasswordDto): Promise<{
         message: string;
     }>;

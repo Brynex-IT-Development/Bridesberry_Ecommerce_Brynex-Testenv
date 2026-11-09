@@ -339,6 +339,38 @@ export class AuthService {
     });
   }
 
+  async updateSessionActivity(userId: string, refreshToken?: string, ipAddress?: string) {
+    try {
+      if (refreshToken) {
+        const tokenHash = this.hashValue(refreshToken);
+        await this.prisma.refreshSession.updateMany({
+          where: { tokenHash, userId },
+          data: {
+            lastActiveAt: new Date(),
+            ...(ipAddress ? { ipAddress } : {}),
+          },
+        });
+      } else {
+        // Fallback: update most recent session for this user
+        const latestSession = await this.prisma.refreshSession.findFirst({
+          where: { userId },
+          orderBy: { createdAt: 'desc' },
+        });
+        if (latestSession) {
+          await this.prisma.refreshSession.update({
+            where: { id: latestSession.id },
+            data: {
+              lastActiveAt: new Date(),
+              ...(ipAddress ? { ipAddress } : {}),
+            },
+          });
+        }
+      }
+    } catch {
+      // Ignore background activity touch errors
+    }
+  }
+
   private async generateTokenSet(
     user: User,
     userAgent?: string,

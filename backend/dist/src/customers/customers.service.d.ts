@@ -1,4 +1,5 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { UserRole } from '../generated/prisma/client.js';
 export declare class CustomersService {
     private readonly prisma;
     constructor(prisma: PrismaService);
@@ -12,6 +13,11 @@ export declare class CustomersService {
         joinedDate: Date;
         orderCount: number;
         totalSpend: number;
+        isOnline: boolean;
+        lastActiveAt: Date;
+        activeSessionsCount: number;
+        currentDevice: string | null;
+        currentIp: string | null;
     }[]>;
     findOne(id: string): Promise<{
         id: string;
@@ -23,6 +29,8 @@ export declare class CustomersService {
         joinedDate: Date;
         orderCount: number;
         totalSpend: number;
+        isOnline: boolean;
+        lastActiveAt: Date;
         orders: {
             id: string;
             createdAt: Date;
@@ -60,5 +68,40 @@ export declare class CustomersService {
             phone: string | null;
             country: string;
         }[];
+        sessions: {
+            id: string;
+            userAgent: string | null;
+            ipAddress: string | null;
+            lastActiveAt: Date;
+            createdAt: Date;
+            expiresAt: Date;
+            isOnline: boolean;
+        }[];
+    }>;
+    getActiveSessions(): Promise<{
+        id: string;
+        userId: string;
+        user: {
+            id: string;
+            email: string;
+            name: string;
+            role: UserRole;
+            status: import("../generated/prisma/enums").UserStatus;
+            orderCount: number;
+        };
+        ipAddress: string | null;
+        userAgent: string | null;
+        lastActiveAt: Date;
+        createdAt: Date;
+        expiresAt: Date;
+        isOnline: boolean;
+    }[]>;
+    revokeSession(sessionId: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    revokeAllUserSessions(userId: string): Promise<{
+        success: boolean;
+        message: string;
     }>;
 }

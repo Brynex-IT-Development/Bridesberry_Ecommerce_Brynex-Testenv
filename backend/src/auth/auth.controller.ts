@@ -142,7 +142,15 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  me(@CurrentUser() user: any) {
+  async me(
+    @CurrentUser() user: any,
+    @Req() req: express.Request,
+    @Ip() ip: string,
+  ) {
+    const refreshToken = req.cookies?.['refreshToken'];
+    if (user?.id) {
+      await this.authService.updateSessionActivity(user.id, refreshToken, ip);
+    }
     return { user: this.authService.sanitizeUser(user) };
   }
 

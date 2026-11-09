@@ -84,6 +84,30 @@ export interface AdminCustomer {
   totalSpend?: number | string;
   joinedDate?: string | Date;
   createdAt?: string | Date;
+  isOnline?: boolean;
+  lastActiveAt?: string | Date | null;
+  activeSessionsCount?: number;
+  currentDevice?: string | null;
+  currentIp?: string | null;
+}
+
+export interface AdminUserSession {
+  id: string;
+  userId: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    status: string;
+    orderCount: number;
+  };
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  lastActiveAt: string | Date;
+  createdAt: string | Date;
+  expiresAt: string | Date;
+  isOnline: boolean;
 }
 
 export interface AdminNavItem {
