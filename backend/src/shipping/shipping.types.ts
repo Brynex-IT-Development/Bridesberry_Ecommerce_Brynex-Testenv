@@ -202,6 +202,7 @@ export interface WebhookShiprocketPayload {
 
 export interface ShippingSettingsData {
   pickupLocation: string;
+  pickupPincode?: string;
   defaultLength: number;
   defaultWidth: number;
   defaultHeight: number;

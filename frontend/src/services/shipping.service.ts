@@ -63,6 +63,7 @@ export interface EstimateShippingResult {
 export interface ShippingSettings {
   provider?: string;
   pickupLocation: string;
+  pickupPincode?: string;
   defaultLength: number;
   defaultWidth: number;
   defaultHeight: number;

@@ -128,18 +128,33 @@ export default function AdminShippingSettingsPage() {
           {/* Section 1: Default Pickup Location */}
           <div className="bg-white border border-neutral-200 rounded-xl p-6 space-y-4 shadow-sm">
             <h2 className="text-sm font-bold text-neutral-900 uppercase tracking-wider border-b border-neutral-100 pb-2">
-              Default Pickup Location
+              Default Pickup Location & Warehouse Pincode
             </h2>
-            <div>
-              <label className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
-                Pickup Location Name (as registered on Shiprocket panel)
-              </label>
-              <input
-                type="text"
-                value={settings?.pickupLocation || ""}
-                onChange={(e) => handleChange("pickupLocation", e.target.value)}
-                className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+                  Pickup Location Nickname (as registered on Shiprocket panel)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. warehouse or Primary"
+                  value={settings?.pickupLocation || ""}
+                  onChange={(e) => handleChange("pickupLocation", e.target.value)}
+                  className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+                  Warehouse Pickup Pincode (Origin Pincode)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 682024"
+                  value={settings?.pickupPincode || ""}
+                  onChange={(e) => handleChange("pickupPincode", e.target.value)}
+                  className="w-full border border-neutral-200 rounded-lg p-2.5 text-xs outline-none focus:border-[#C99213]"
+                />
+              </div>
             </div>
           </div>
 

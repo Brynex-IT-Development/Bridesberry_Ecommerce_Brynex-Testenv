@@ -2456,6 +2456,7 @@ export declare const ShippingSettingsScalarFieldEnum: {
     readonly shiprocketEmail: "shiprocketEmail";
     readonly shiprocketPassword: "shiprocketPassword";
     readonly pickupLocation: "pickupLocation";
+    readonly pickupPincode: "pickupPincode";
     readonly defaultLength: "defaultLength";
     readonly defaultWidth: "defaultWidth";
     readonly defaultHeight: "defaultHeight";

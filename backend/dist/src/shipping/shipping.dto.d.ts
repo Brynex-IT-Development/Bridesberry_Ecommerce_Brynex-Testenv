@@ -16,6 +16,7 @@ export declare class EstimateShippingDto {
 }
 export declare class UpdateShippingSettingsDto {
     pickupLocation?: string;
+    pickupPincode?: string;
     defaultLength?: number;
     defaultWidth?: number;
     defaultHeight?: number;

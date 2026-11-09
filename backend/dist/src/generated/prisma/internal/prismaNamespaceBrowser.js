@@ -361,6 +361,7 @@ exports.ShippingSettingsScalarFieldEnum = {
     shiprocketEmail: 'shiprocketEmail',
     shiprocketPassword: 'shiprocketPassword',
     pickupLocation: 'pickupLocation',
+    pickupPincode: 'pickupPincode',
     defaultLength: 'defaultLength',
     defaultWidth: 'defaultWidth',
     defaultHeight: 'defaultHeight',

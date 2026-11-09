@@ -449,6 +449,7 @@ model ShippingSettings {
   shiprocketEmail        String?
   shiprocketPassword     String?
   pickupLocation         String   @default("Primary")
+  pickupPincode          String   @default("682024")
   defaultLength          Float    @default(20)
   defaultWidth           Float    @default(20)
   defaultHeight          Float    @default(10)

@@ -99,6 +99,7 @@ __decorate([
 ], EstimateShippingDto.prototype, "orderValue", void 0);
 class UpdateShippingSettingsDto {
     pickupLocation;
+    pickupPincode;
     defaultLength;
     defaultWidth;
     defaultHeight;
@@ -122,6 +123,11 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateShippingSettingsDto.prototype, "pickupLocation", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateShippingSettingsDto.prototype, "pickupPincode", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),

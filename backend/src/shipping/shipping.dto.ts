@@ -72,6 +72,10 @@ export class UpdateShippingSettingsDto {
   @IsOptional()
   pickupLocation?: string;
 
+  @IsString()
+  @IsOptional()
+  pickupPincode?: string;
+
   @IsNumber()
   @IsOptional()
   defaultLength?: number;

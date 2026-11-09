@@ -320,6 +320,7 @@ export declare class ShippingController {
         shiprocketEmail: string;
         shiprocketPassword: string;
         pickupLocation: string;
+        pickupPincode: string;
         defaultLength: number;
         defaultWidth: number;
         defaultHeight: number;
@@ -345,6 +346,7 @@ export declare class ShippingController {
         shiprocketEmail: string;
         shiprocketPassword: string;
         pickupLocation: string;
+        pickupPincode: string;
         defaultLength: number;
         defaultWidth: number;
         defaultHeight: number;

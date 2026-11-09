@@ -147,6 +147,7 @@ let ShippingService = ShippingService_1 = class ShippingService {
                     shiprocketEmail: this.configService.get('SHIPROCKET_EMAIL') || '',
                     shiprocketPassword: this.configService.get('SHIPROCKET_PASSWORD') || '',
                     pickupLocation: this.configService.get('SHIPROCKET_PICKUP_LOCATION') || 'Primary',
+                    pickupPincode: this.configService.get('SHIPROCKET_PICKUP_PINCODE') || '682024',
                     defaultLength: parseFloat(this.configService.get('SHIPROCKET_DEFAULT_LENGTH') || '20'),
                     defaultWidth: parseFloat(this.configService.get('SHIPROCKET_DEFAULT_WIDTH') || '20'),
                     defaultHeight: parseFloat(this.configService.get('SHIPROCKET_DEFAULT_HEIGHT') || '10'),
@@ -160,6 +161,7 @@ let ShippingService = ShippingService_1 = class ShippingService {
             shiprocketEmail: dbSettings.shiprocketEmail || this.configService.get('SHIPROCKET_EMAIL') || '',
             shiprocketPassword: dbSettings.shiprocketPassword || this.configService.get('SHIPROCKET_PASSWORD') || '',
             pickupLocation: dbSettings.pickupLocation || this.configService.get('SHIPROCKET_PICKUP_LOCATION') || 'Primary',
+            pickupPincode: dbSettings.pickupPincode || this.configService.get('SHIPROCKET_PICKUP_PINCODE') || '682024',
             defaultLength: dbSettings.defaultLength || 20,
             defaultWidth: dbSettings.defaultWidth || 20,
             defaultHeight: dbSettings.defaultHeight || 10,
@@ -498,6 +500,8 @@ let ShippingService = ShippingService_1 = class ShippingService {
         const data = {};
         if (dto.pickupLocation !== undefined)
             data.pickupLocation = dto.pickupLocation;
+        if (dto.pickupPincode !== undefined)
+            data.pickupPincode = dto.pickupPincode;
         if (dto.defaultLength !== undefined)
             data.defaultLength = dto.defaultLength;
         if (dto.defaultWidth !== undefined)

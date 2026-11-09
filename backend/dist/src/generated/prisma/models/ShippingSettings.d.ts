@@ -32,6 +32,7 @@ export type ShippingSettingsMinAggregateOutputType = {
     shiprocketEmail: string | null;
     shiprocketPassword: string | null;
     pickupLocation: string | null;
+    pickupPincode: string | null;
     defaultLength: number | null;
     defaultWidth: number | null;
     defaultHeight: number | null;
@@ -60,6 +61,7 @@ export type ShippingSettingsMaxAggregateOutputType = {
     shiprocketEmail: string | null;
     shiprocketPassword: string | null;
     pickupLocation: string | null;
+    pickupPincode: string | null;
     defaultLength: number | null;
     defaultWidth: number | null;
     defaultHeight: number | null;
@@ -88,6 +90,7 @@ export type ShippingSettingsCountAggregateOutputType = {
     shiprocketEmail: number;
     shiprocketPassword: number;
     pickupLocation: number;
+    pickupPincode: number;
     defaultLength: number;
     defaultWidth: number;
     defaultHeight: number;
@@ -135,6 +138,7 @@ export type ShippingSettingsMinAggregateInputType = {
     shiprocketEmail?: true;
     shiprocketPassword?: true;
     pickupLocation?: true;
+    pickupPincode?: true;
     defaultLength?: true;
     defaultWidth?: true;
     defaultHeight?: true;
@@ -163,6 +167,7 @@ export type ShippingSettingsMaxAggregateInputType = {
     shiprocketEmail?: true;
     shiprocketPassword?: true;
     pickupLocation?: true;
+    pickupPincode?: true;
     defaultLength?: true;
     defaultWidth?: true;
     defaultHeight?: true;
@@ -191,6 +196,7 @@ export type ShippingSettingsCountAggregateInputType = {
     shiprocketEmail?: true;
     shiprocketPassword?: true;
     pickupLocation?: true;
+    pickupPincode?: true;
     defaultLength?: true;
     defaultWidth?: true;
     defaultHeight?: true;
@@ -248,6 +254,7 @@ export type ShippingSettingsGroupByOutputType = {
     shiprocketEmail: string | null;
     shiprocketPassword: string | null;
     pickupLocation: string;
+    pickupPincode: string;
     defaultLength: number;
     defaultWidth: number;
     defaultHeight: number;
@@ -287,6 +294,7 @@ export type ShippingSettingsWhereInput = {
     shiprocketEmail?: Prisma.StringNullableFilter<"ShippingSettings"> | string | null;
     shiprocketPassword?: Prisma.StringNullableFilter<"ShippingSettings"> | string | null;
     pickupLocation?: Prisma.StringFilter<"ShippingSettings"> | string;
+    pickupPincode?: Prisma.StringFilter<"ShippingSettings"> | string;
     defaultLength?: Prisma.FloatFilter<"ShippingSettings"> | number;
     defaultWidth?: Prisma.FloatFilter<"ShippingSettings"> | number;
     defaultHeight?: Prisma.FloatFilter<"ShippingSettings"> | number;
@@ -315,6 +323,7 @@ export type ShippingSettingsOrderByWithRelationInput = {
     shiprocketEmail?: Prisma.SortOrderInput | Prisma.SortOrder;
     shiprocketPassword?: Prisma.SortOrderInput | Prisma.SortOrder;
     pickupLocation?: Prisma.SortOrder;
+    pickupPincode?: Prisma.SortOrder;
     defaultLength?: Prisma.SortOrder;
     defaultWidth?: Prisma.SortOrder;
     defaultHeight?: Prisma.SortOrder;
@@ -346,6 +355,7 @@ export type ShippingSettingsWhereUniqueInput = Prisma.AtLeast<{
     shiprocketEmail?: Prisma.StringNullableFilter<"ShippingSettings"> | string | null;
     shiprocketPassword?: Prisma.StringNullableFilter<"ShippingSettings"> | string | null;
     pickupLocation?: Prisma.StringFilter<"ShippingSettings"> | string;
+    pickupPincode?: Prisma.StringFilter<"ShippingSettings"> | string;
     defaultLength?: Prisma.FloatFilter<"ShippingSettings"> | number;
     defaultWidth?: Prisma.FloatFilter<"ShippingSettings"> | number;
     defaultHeight?: Prisma.FloatFilter<"ShippingSettings"> | number;
@@ -374,6 +384,7 @@ export type ShippingSettingsOrderByWithAggregationInput = {
     shiprocketEmail?: Prisma.SortOrderInput | Prisma.SortOrder;
     shiprocketPassword?: Prisma.SortOrderInput | Prisma.SortOrder;
     pickupLocation?: Prisma.SortOrder;
+    pickupPincode?: Prisma.SortOrder;
     defaultLength?: Prisma.SortOrder;
     defaultWidth?: Prisma.SortOrder;
     defaultHeight?: Prisma.SortOrder;
@@ -410,6 +421,7 @@ export type ShippingSettingsScalarWhereWithAggregatesInput = {
     shiprocketEmail?: Prisma.StringNullableWithAggregatesFilter<"ShippingSettings"> | string | null;
     shiprocketPassword?: Prisma.StringNullableWithAggregatesFilter<"ShippingSettings"> | string | null;
     pickupLocation?: Prisma.StringWithAggregatesFilter<"ShippingSettings"> | string;
+    pickupPincode?: Prisma.StringWithAggregatesFilter<"ShippingSettings"> | string;
     defaultLength?: Prisma.FloatWithAggregatesFilter<"ShippingSettings"> | number;
     defaultWidth?: Prisma.FloatWithAggregatesFilter<"ShippingSettings"> | number;
     defaultHeight?: Prisma.FloatWithAggregatesFilter<"ShippingSettings"> | number;
@@ -438,6 +450,7 @@ export type ShippingSettingsCreateInput = {
     shiprocketEmail?: string | null;
     shiprocketPassword?: string | null;
     pickupLocation?: string;
+    pickupPincode?: string;
     defaultLength?: number;
     defaultWidth?: number;
     defaultHeight?: number;
@@ -466,6 +479,7 @@ export type ShippingSettingsUncheckedCreateInput = {
     shiprocketEmail?: string | null;
     shiprocketPassword?: string | null;
     pickupLocation?: string;
+    pickupPincode?: string;
     defaultLength?: number;
     defaultWidth?: number;
     defaultHeight?: number;
@@ -494,6 +508,7 @@ export type ShippingSettingsUpdateInput = {
     shiprocketEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     shiprocketPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     pickupLocation?: Prisma.StringFieldUpdateOperationsInput | string;
+    pickupPincode?: Prisma.StringFieldUpdateOperationsInput | string;
     defaultLength?: Prisma.FloatFieldUpdateOperationsInput | number;
     defaultWidth?: Prisma.FloatFieldUpdateOperationsInput | number;
     defaultHeight?: Prisma.FloatFieldUpdateOperationsInput | number;
@@ -522,6 +537,7 @@ export type ShippingSettingsUncheckedUpdateInput = {
     shiprocketEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     shiprocketPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     pickupLocation?: Prisma.StringFieldUpdateOperationsInput | string;
+    pickupPincode?: Prisma.StringFieldUpdateOperationsInput | string;
     defaultLength?: Prisma.FloatFieldUpdateOperationsInput | number;
     defaultWidth?: Prisma.FloatFieldUpdateOperationsInput | number;
     defaultHeight?: Prisma.FloatFieldUpdateOperationsInput | number;
@@ -550,6 +566,7 @@ export type ShippingSettingsCreateManyInput = {
     shiprocketEmail?: string | null;
     shiprocketPassword?: string | null;
     pickupLocation?: string;
+    pickupPincode?: string;
     defaultLength?: number;
     defaultWidth?: number;
     defaultHeight?: number;
@@ -578,6 +595,7 @@ export type ShippingSettingsUpdateManyMutationInput = {
     shiprocketEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     shiprocketPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     pickupLocation?: Prisma.StringFieldUpdateOperationsInput | string;
+    pickupPincode?: Prisma.StringFieldUpdateOperationsInput | string;
     defaultLength?: Prisma.FloatFieldUpdateOperationsInput | number;
     defaultWidth?: Prisma.FloatFieldUpdateOperationsInput | number;
     defaultHeight?: Prisma.FloatFieldUpdateOperationsInput | number;
@@ -606,6 +624,7 @@ export type ShippingSettingsUncheckedUpdateManyInput = {
     shiprocketEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     shiprocketPassword?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     pickupLocation?: Prisma.StringFieldUpdateOperationsInput | string;
+    pickupPincode?: Prisma.StringFieldUpdateOperationsInput | string;
     defaultLength?: Prisma.FloatFieldUpdateOperationsInput | number;
     defaultWidth?: Prisma.FloatFieldUpdateOperationsInput | number;
     defaultHeight?: Prisma.FloatFieldUpdateOperationsInput | number;
@@ -634,6 +653,7 @@ export type ShippingSettingsCountOrderByAggregateInput = {
     shiprocketEmail?: Prisma.SortOrder;
     shiprocketPassword?: Prisma.SortOrder;
     pickupLocation?: Prisma.SortOrder;
+    pickupPincode?: Prisma.SortOrder;
     defaultLength?: Prisma.SortOrder;
     defaultWidth?: Prisma.SortOrder;
     defaultHeight?: Prisma.SortOrder;
@@ -671,6 +691,7 @@ export type ShippingSettingsMaxOrderByAggregateInput = {
     shiprocketEmail?: Prisma.SortOrder;
     shiprocketPassword?: Prisma.SortOrder;
     pickupLocation?: Prisma.SortOrder;
+    pickupPincode?: Prisma.SortOrder;
     defaultLength?: Prisma.SortOrder;
     defaultWidth?: Prisma.SortOrder;
     defaultHeight?: Prisma.SortOrder;
@@ -699,6 +720,7 @@ export type ShippingSettingsMinOrderByAggregateInput = {
     shiprocketEmail?: Prisma.SortOrder;
     shiprocketPassword?: Prisma.SortOrder;
     pickupLocation?: Prisma.SortOrder;
+    pickupPincode?: Prisma.SortOrder;
     defaultLength?: Prisma.SortOrder;
     defaultWidth?: Prisma.SortOrder;
     defaultHeight?: Prisma.SortOrder;
@@ -743,6 +765,7 @@ export type ShippingSettingsSelect<ExtArgs extends runtime.Types.Extensions.Inte
     shiprocketEmail?: boolean;
     shiprocketPassword?: boolean;
     pickupLocation?: boolean;
+    pickupPincode?: boolean;
     defaultLength?: boolean;
     defaultWidth?: boolean;
     defaultHeight?: boolean;
@@ -771,6 +794,7 @@ export type ShippingSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
     shiprocketEmail?: boolean;
     shiprocketPassword?: boolean;
     pickupLocation?: boolean;
+    pickupPincode?: boolean;
     defaultLength?: boolean;
     defaultWidth?: boolean;
     defaultHeight?: boolean;
@@ -799,6 +823,7 @@ export type ShippingSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
     shiprocketEmail?: boolean;
     shiprocketPassword?: boolean;
     pickupLocation?: boolean;
+    pickupPincode?: boolean;
     defaultLength?: boolean;
     defaultWidth?: boolean;
     defaultHeight?: boolean;
@@ -827,6 +852,7 @@ export type ShippingSettingsSelectScalar = {
     shiprocketEmail?: boolean;
     shiprocketPassword?: boolean;
     pickupLocation?: boolean;
+    pickupPincode?: boolean;
     defaultLength?: boolean;
     defaultWidth?: boolean;
     defaultHeight?: boolean;
@@ -849,7 +875,7 @@ export type ShippingSettingsSelectScalar = {
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type ShippingSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider" | "shiprocketEmail" | "shiprocketPassword" | "pickupLocation" | "defaultLength" | "defaultWidth" | "defaultHeight" | "defaultWeight" | "weightUnit" | "autoCreateShipment" | "autoAssignCourier" | "autoGenerateAwb" | "autoSchedulePickup" | "autoGenerateManifest" | "autoGenerateLabel" | "freeShippingThreshold" | "standardShippingCharge" | "expressShippingCharge" | "codEnabled" | "internationalShipping" | "returnShippingEnabled" | "rtoSettings" | "webhookSecret" | "createdAt" | "updatedAt", ExtArgs["result"]["shippingSettings"]>;
+export type ShippingSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "provider" | "shiprocketEmail" | "shiprocketPassword" | "pickupLocation" | "pickupPincode" | "defaultLength" | "defaultWidth" | "defaultHeight" | "defaultWeight" | "weightUnit" | "autoCreateShipment" | "autoAssignCourier" | "autoGenerateAwb" | "autoSchedulePickup" | "autoGenerateManifest" | "autoGenerateLabel" | "freeShippingThreshold" | "standardShippingCharge" | "expressShippingCharge" | "codEnabled" | "internationalShipping" | "returnShippingEnabled" | "rtoSettings" | "webhookSecret" | "createdAt" | "updatedAt", ExtArgs["result"]["shippingSettings"]>;
 export type $ShippingSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     name: "ShippingSettings";
     objects: {};
@@ -859,6 +885,7 @@ export type $ShippingSettingsPayload<ExtArgs extends runtime.Types.Extensions.In
         shiprocketEmail: string | null;
         shiprocketPassword: string | null;
         pickupLocation: string;
+        pickupPincode: string;
         defaultLength: number;
         defaultWidth: number;
         defaultHeight: number;
@@ -942,6 +969,7 @@ export interface ShippingSettingsFieldRefs {
     readonly shiprocketEmail: Prisma.FieldRef<"ShippingSettings", 'String'>;
     readonly shiprocketPassword: Prisma.FieldRef<"ShippingSettings", 'String'>;
     readonly pickupLocation: Prisma.FieldRef<"ShippingSettings", 'String'>;
+    readonly pickupPincode: Prisma.FieldRef<"ShippingSettings", 'String'>;
     readonly defaultLength: Prisma.FieldRef<"ShippingSettings", 'Float'>;
     readonly defaultWidth: Prisma.FieldRef<"ShippingSettings", 'Float'>;
     readonly defaultHeight: Prisma.FieldRef<"ShippingSettings", 'Float'>;

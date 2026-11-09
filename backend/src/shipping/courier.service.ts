@@ -46,9 +46,11 @@ export class CourierService {
     const width = dto.width || settings.defaultWidth;
     const height = dto.height || settings.defaultHeight;
 
+    const pickupPostcode = settings.pickupPincode || '682024';
+
     try {
       const response = await this.provider.getServiceability({
-        pickup_postcode: '110001',
+        pickup_postcode: pickupPostcode,
         delivery_postcode: dto.pincode,
         weight,
         length,
