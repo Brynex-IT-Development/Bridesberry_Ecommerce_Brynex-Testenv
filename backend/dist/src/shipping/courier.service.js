@@ -48,24 +48,49 @@ let CourierService = CourierService_1 = class CourierService {
             if (rawCouriers.length === 0) {
                 return this.getFallbackEstimate(dto.pincode, isFree, settings);
             }
-            const couriers = rawCouriers.map((c) => ({
-                code: `COURIER_${c.courier_company_id}`,
-                name: c.courier_name,
-                courierCompanyId: c.courier_company_id,
-                rate: isFree ? 0 : Number(c.rate || settings.standardShippingCharge),
-                estimatedDays: `${c.estimated_delivery_days || '3-5'} days`,
-                estimatedDeliveryDate: c.etd || undefined,
-                rating: c.rating ? Number(c.rating) : 4.5,
-                isSurface: c.is_surface,
-            }));
-            couriers.sort((a, b) => a.rate - b.rate);
+            const surfaceCouriers = rawCouriers.filter((c) => c.is_surface);
+            const airCouriers = rawCouriers.filter((c) => !c.is_surface);
+            const bestStandard = (surfaceCouriers.length > 0 ? surfaceCouriers : rawCouriers).sort((a, b) => Number(a.rate) - Number(b.rate))[0];
+            const bestExpress = (airCouriers.length > 0 ? airCouriers : rawCouriers).sort((a, b) => {
+                const daysA = parseInt(a.estimated_delivery_days, 10) || 5;
+                const daysB = parseInt(b.estimated_delivery_days, 10) || 5;
+                return daysA - daysB || Number(a.rate) - Number(b.rate);
+            })[0];
+            const standardRate = isFree ? 0 : Number(bestStandard?.rate || settings.standardShippingCharge);
+            const standardDays = bestStandard?.estimated_delivery_days ? `${bestStandard.estimated_delivery_days} business days` : '3-5 business days';
+            const customerOptions = [
+                {
+                    code: 'STANDARD',
+                    name: 'Standard Delivery',
+                    courierCompanyId: bestStandard?.courier_company_id || 1,
+                    rate: standardRate,
+                    estimatedDays: standardDays,
+                    estimatedDeliveryDate: bestStandard?.etd || undefined,
+                    rating: 4.8,
+                    isSurface: true,
+                },
+            ];
+            if (bestExpress && bestExpress.courier_company_id !== bestStandard?.courier_company_id) {
+                const expressRate = isFree ? 75 : Number(bestExpress.rate || settings.expressShippingCharge);
+                const expressDays = bestExpress.estimated_delivery_days ? `${bestExpress.estimated_delivery_days} business days` : '1-2 business days';
+                customerOptions.push({
+                    code: 'EXPRESS',
+                    name: 'Express Air Delivery',
+                    courierCompanyId: bestExpress.courier_company_id,
+                    rate: expressRate,
+                    estimatedDays: expressDays,
+                    estimatedDeliveryDate: bestExpress.etd || undefined,
+                    rating: 4.9,
+                    isSurface: false,
+                });
+            }
             return {
                 pincode: dto.pincode,
                 isServiceable: true,
                 freeShippingEligible: isFree,
-                couriers,
-                options: couriers,
-                defaultOption: couriers[0],
+                couriers: customerOptions,
+                options: customerOptions,
+                defaultOption: customerOptions[0],
             };
         }
         catch (error) {
@@ -79,19 +104,21 @@ let CourierService = CourierService_1 = class CourierService {
         const fallbacks = [
             {
                 code: 'STANDARD',
-                name: 'Standard Express Courier',
+                name: 'Standard Delivery',
                 courierCompanyId: 1,
                 rate: stdRate,
                 estimatedDays: '3-5 business days',
-                rating: 4.5,
+                rating: 4.8,
+                isSurface: true,
             },
             {
                 code: 'EXPRESS',
-                name: 'Priority Air Express',
+                name: 'Express Air Delivery',
                 courierCompanyId: 2,
                 rate: expRate,
                 estimatedDays: '1-2 business days',
-                rating: 4.8,
+                rating: 4.9,
+                isSurface: false,
             },
         ];
         return {

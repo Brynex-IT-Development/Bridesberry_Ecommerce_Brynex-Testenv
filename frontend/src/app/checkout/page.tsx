@@ -516,7 +516,7 @@ export default function CheckoutPage() {
               {shippingOptions.length > 0 && (
                 <div className="border-t border-neutral-100 pt-4 space-y-2 font-sans text-xs">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
-                    Shipping Speed & Carrier
+                    Shipping Method
                   </span>
                   {estimatingShipping && (
                     <span className="text-[10px] text-neutral-400 animate-pulse block">Estimating live rates...</span>
@@ -526,27 +526,27 @@ export default function CheckoutPage() {
                       <label
                         key={opt.code}
                         onClick={() => setSelectedOptionCode(opt.code)}
-                        className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                        className={`flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer ${
                           selectedOptionCode === opt.code
-                            ? 'border-[#3762f9] bg-blue-50/40 text-neutral-900 font-bold'
-                            : 'border-neutral-200 hover:bg-neutral-50 text-neutral-700 font-medium'
+                            ? 'border-[#3762f9] bg-blue-50/30 text-neutral-900 font-bold shadow-xs'
+                            : 'border-neutral-200 hover:bg-neutral-50/60 text-neutral-700 font-medium'
                         }`}
                       >
-                        <div className="flex items-center space-x-2.5">
+                        <div className="flex items-center space-x-3">
                           <input
                             type="radio"
                             name="shippingOption"
                             checked={selectedOptionCode === opt.code}
                             onChange={() => setSelectedOptionCode(opt.code)}
-                            className="w-3.5 h-3.5 text-[#3762f9]"
+                            className="w-4 h-4 text-[#3762f9]"
                           />
                           <div>
-                            <p className="text-xs">{opt.name}</p>
-                            <p className="text-[10px] text-neutral-400 font-normal">Est: {opt.estimatedDays}</p>
+                            <p className="text-xs font-semibold text-neutral-900">{opt.name}</p>
+                            <p className="text-[10px] text-neutral-450 font-normal">Delivery in {opt.estimatedDays}</p>
                           </div>
                         </div>
-                        <span className="text-xs">
-                          {opt.rate === 0 ? <span className="text-emerald-600 font-bold">FREE</span> : `₹ ${opt.rate}`}
+                        <span className="text-xs font-bold font-sans">
+                          {opt.rate === 0 ? <span className="text-emerald-600">FREE</span> : `₹ ${opt.rate}`}
                         </span>
                       </label>
                     ))}
