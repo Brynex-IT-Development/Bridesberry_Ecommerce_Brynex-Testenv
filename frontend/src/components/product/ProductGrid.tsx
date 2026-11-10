@@ -1,6 +1,7 @@
 import React from 'react';
 import { Product } from '../../types/product';
 import ProductCard from './ProductCard';
+import { StaggerContainer, StaggerItem } from '../shared/ScrollReveal';
 
 interface ProductGridProps {
   products: Product[];
@@ -16,10 +17,15 @@ export default function ProductGrid({ products }: ProductGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3.5 gap-y-6 sm:gap-6">
+    <StaggerContainer
+      staggerDelay={0.06}
+      className="grid grid-cols-2 sm:grid-cols-3 gap-x-3.5 gap-y-6 sm:gap-6"
+    >
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <StaggerItem key={product.id}>
+          <ProductCard product={product} />
+        </StaggerItem>
       ))}
-    </div>
+    </StaggerContainer>
   );
 }

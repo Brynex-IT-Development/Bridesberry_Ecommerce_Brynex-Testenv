@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { getSystemSettings } from '@/services/system-settings.service';
+import ScrollReveal from '../shared/ScrollReveal';
 
 export default async function HeroSection() {
   const settings = await getSystemSettings();
@@ -38,32 +39,36 @@ export default async function HeroSection() {
         >
           {/* Left Headline Block */}
           <div className="md:col-span-6 md:pl-[12%] lg:pl-[16%]">
-            <h1
-              style={{
-                fontFamily: 'inherit',
-                fontWeight: 'inherit',
-                letterSpacing: 'inherit',
-              }}
-            >
-              MADE FOR
-              <br />
-              YOUR MOST
-            </h1>
+            <ScrollReveal direction="up" distance={24} duration={0.8} delay={0.1}>
+              <h1
+                style={{
+                  fontFamily: 'inherit',
+                  fontWeight: 'inherit',
+                  letterSpacing: 'inherit',
+                }}
+              >
+                MADE FOR
+                <br />
+                YOUR MOST
+              </h1>
+            </ScrollReveal>
           </div>
 
           {/* Right Headline Block: offset by 1em on desktop so "BEAUTIFUL" aligns on the exact same line as "YOUR MOST", right-aligned on mobile for editorial balance */}
           <div className="md:col-span-6 mt-3 md:mt-[1em] text-right md:text-left md:pl-[10%] lg:pl-[14%]">
-            <p
-              style={{
-                fontFamily: 'inherit',
-                fontWeight: 'inherit',
-                letterSpacing: 'inherit',
-              }}
-            >
-              BEAUTIFUL
-              <br />
-              MOMENTS
-            </p>
+            <ScrollReveal direction="up" distance={24} duration={0.8} delay={0.25}>
+              <p
+                style={{
+                  fontFamily: 'inherit',
+                  fontWeight: 'inherit',
+                  letterSpacing: 'inherit',
+                }}
+              >
+                BEAUTIFUL
+                <br />
+                MOMENTS
+              </p>
+            </ScrollReveal>
           </div>
         </div>
       </div>

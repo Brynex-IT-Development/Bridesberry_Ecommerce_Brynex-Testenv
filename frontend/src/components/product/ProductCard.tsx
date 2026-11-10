@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Product } from '../../types/product';
 import { useCart } from '../../context/CartContext';
 
@@ -15,6 +15,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, centered = true }: ProductCardProps) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   // Fallback to secondary gallery image if explicit hoverImage is not configured
   const primaryImg = product.primaryImage || product.images?.[0] || '/placeholder.png';
@@ -41,7 +42,11 @@ export default function ProductCard({ product, centered = true }: ProductCardPro
   };
 
   return (
-    <div className="group relative flex flex-col bg-white">
+    <motion.div
+      whileHover={shouldReduceMotion ? undefined : { y: -5 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative flex flex-col bg-white transition-shadow duration-300 hover:shadow-[0_16px_32px_-8px_rgba(49,12,19,0.08)]"
+    >
       {/* Product Image Frame */}
       <Link
         href={`/product/${product.slug}`}
@@ -53,8 +58,8 @@ export default function ProductCard({ product, centered = true }: ProductCardPro
           alt={product.title}
           fill
           sizes="(max-width: 640px) 50vw, 33vw"
-          className={`object-cover transition-opacity duration-500 ease-out ${
-            hoverImg ? 'group-hover:opacity-0' : 'group-hover:scale-105'
+          className={`object-cover transition-all duration-700 ease-out group-hover:scale-105 ${
+            hoverImg ? 'group-hover:opacity-0' : ''
           }`}
         />
 
@@ -65,7 +70,7 @@ export default function ProductCard({ product, centered = true }: ProductCardPro
             alt={`${product.title} – alternate view`}
             fill
             sizes="(max-width: 640px) 50vw, 33vw"
-            className="object-cover absolute inset-0 transition-opacity duration-500 ease-out opacity-0 group-hover:opacity-100"
+            className="object-cover absolute inset-0 transition-all duration-700 ease-out opacity-0 group-hover:opacity-100 group-hover:scale-105"
           />
         )}
 
@@ -159,6 +164,6 @@ export default function ProductCard({ product, centered = true }: ProductCardPro
           From <span className="font-semibold text-[#111111]">RS. {product.price.toLocaleString('en-IN')}</span>
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }

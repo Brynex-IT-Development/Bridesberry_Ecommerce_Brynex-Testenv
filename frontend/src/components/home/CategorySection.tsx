@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { getCategories } from '@/services/categories.service';
 import { getSystemSettings } from '@/services/system-settings.service';
 import CategoryCarousel from './CategoryCarousel';
+import ScrollReveal from '../shared/ScrollReveal';
 
 // ---------------------------------------------------------------------------
 // Types – matches what the backend /api/categories endpoint returns.
@@ -73,35 +74,37 @@ export default async function CategorySection() {
       <div className="relative bg-[#310C13] pt-16 sm:pt-32 md:pt-40 pb-48 sm:pb-72 text-white">
         <div className="w-full px-[6.5%] mx-auto max-w-[1440px]">
           {/* Centered Script Heading + Subtitle */}
-          <div className="flex flex-col items-center text-center">
-            <h2
-              style={{
-                fontFamily: "var(--font-windsong), 'WindSong', cursive",
-                fontWeight: 500,
-                fontStyle: 'normal',
-                fontSize: 'clamp(28px, 6vw, 64px)',
-                lineHeight: '110%',
-                letterSpacing: '0%',
-                textAlign: 'center',
-                color: '#F5F5F5',
-              }}
-              className="select-none px-4"
-            >
-              Our Categories
-            </h2>
-            <p
-              style={{
-                fontFamily: "'Stack Sans Text', sans-serif",
-                fontWeight: 300,
-                fontSize: '11px',
-                letterSpacing: '0.28em',
-                color: '#F5F5F5',
-              }}
-              className="uppercase mt-2.5"
-            >
-              Endless Options
-            </p>
-          </div>
+          <ScrollReveal direction="up" distance={20} duration={0.8}>
+            <div className="flex flex-col items-center text-center">
+              <h2
+                style={{
+                  fontFamily: "var(--font-windsong), 'WindSong', cursive",
+                  fontWeight: 500,
+                  fontStyle: 'normal',
+                  fontSize: 'clamp(28px, 6vw, 64px)',
+                  lineHeight: '110%',
+                  letterSpacing: '0%',
+                  textAlign: 'center',
+                  color: '#F5F5F5',
+                }}
+                className="select-none px-4"
+              >
+                Our Categories
+              </h2>
+              <p
+                style={{
+                  fontFamily: "'Stack Sans Text', sans-serif",
+                  fontWeight: 300,
+                  fontSize: '11px',
+                  letterSpacing: '0.28em',
+                  color: '#F5F5F5',
+                }}
+                className="uppercase mt-2.5"
+              >
+                Endless Options
+              </p>
+            </div>
+          </ScrollReveal>
         </div>
       </div>
 
@@ -121,63 +124,65 @@ export default async function CategorySection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
           {/* Left Column: Heading, Description, and Burgundy CTA Button */}
           <div className="lg:col-span-5 flex flex-col items-start justify-center">
-            <h2
-              style={{
-                fontFamily: "var(--font-stack-headline), 'Stack Sans Headline', sans-serif",
-                fontWeight: 200,
-                fontStyle: 'normal',
-                fontSize: 'clamp(28px, 3vw, 42px)',
-                lineHeight: '115%',
-                letterSpacing: '0%',
-              }}
-              className="text-[#310C13] mb-4 sm:mb-6"
-            >
-              Discover Our Modern
-              <br />
-              Jewelry Collection
-            </h2>
-
-            <p
-              style={{
-                fontFamily: "var(--font-stack-headline), 'Stack Sans Headline', sans-serif",
-                fontWeight: 200,
-                fontStyle: 'normal',
-                fontSize: '14px',
-                lineHeight: '115%',
-                letterSpacing: '0%',
-              }}
-              className="text-[#6E625E] max-w-[380px] mb-10 sm:mb-20 lg:mb-24"
-            >
-              Lorem ipsum dolor sit amet consectetur. At vitae risus gravida
-              lectus vel quisque. Tincidunt odio auctor magnis nec ut eu odio.
-              Hendrerit duis parturient lectus aenean.
-            </p>
-
-            <Link
-              href="/shop"
-              style={{
-                fontFamily: "var(--font-stack-text), 'Stack Sans Text', sans-serif",
-                fontWeight: 300,
-                fontSize: '10px',
-                letterSpacing: '0.16em',
-              }}
-              className="inline-flex items-center justify-center gap-3 bg-[#310C13] hover:bg-[#4a101a] text-white uppercase px-8 py-3.5 transition-colors duration-300"
-            >
-              <span>View Collection</span>
-              <svg
-                className="w-3 h-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <ScrollReveal direction="up" distance={20} duration={0.7}>
+              <h2
+                style={{
+                  fontFamily: "var(--font-stack-headline), 'Stack Sans Headline', sans-serif",
+                  fontWeight: 200,
+                  fontStyle: 'normal',
+                  fontSize: 'clamp(28px, 3vw, 42px)',
+                  lineHeight: '115%',
+                  letterSpacing: '0%',
+                }}
+                className="text-[#310C13] mb-4 sm:mb-6"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.5"
-                  d="M7 17L17 7M17 7H8M17 7V16"
-                />
-              </svg>
-            </Link>
+                Discover Our Modern
+                <br />
+                Jewelry Collection
+              </h2>
+
+              <p
+                style={{
+                  fontFamily: "var(--font-stack-headline), 'Stack Sans Headline', sans-serif",
+                  fontWeight: 200,
+                  fontStyle: 'normal',
+                  fontSize: '14px',
+                  lineHeight: '115%',
+                  letterSpacing: '0%',
+                }}
+                className="text-[#6E625E] max-w-[380px] mb-10 sm:mb-20 lg:mb-24"
+              >
+                Lorem ipsum dolor sit amet consectetur. At vitae risus gravida
+                lectus vel quisque. Tincidunt odio auctor magnis nec ut eu odio.
+                Hendrerit duis parturient lectus aenean.
+              </p>
+
+              <Link
+                href="/shop"
+                style={{
+                  fontFamily: "var(--font-stack-text), 'Stack Sans Text', sans-serif",
+                  fontWeight: 300,
+                  fontSize: '10px',
+                  letterSpacing: '0.16em',
+                }}
+                className="inline-flex items-center justify-center gap-3 bg-[#310C13] hover:bg-[#4a101a] text-white uppercase px-8 py-3.5 transition-all duration-300 hover:shadow-lg active:scale-95"
+              >
+                <span>View Collection</span>
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M7 17L17 7M17 7H8M17 7V16"
+                  />
+                </svg>
+              </Link>
+            </ScrollReveal>
           </div>
 
           {/* Right Column: Editorial Shell & Pearl Necklace Image */}
