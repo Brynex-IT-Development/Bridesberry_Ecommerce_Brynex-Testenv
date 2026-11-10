@@ -6,14 +6,16 @@ import { MenuItem } from '../../types/menu';
 interface MegaMenuProps {
   item: MenuItem;
   onClose: () => void;
+  onMouseEnter?: () => void;
 }
 
-export default function MegaMenu({ item, onClose }: MegaMenuProps) {
+export default function MegaMenu({ item, onClose, onMouseEnter }: MegaMenuProps) {
   if (!item.megaMenuColumns?.length) return null;
 
   return (
     <div
-      className="fixed left-0 right-0 top-16 md:top-20 w-full bg-white border-b border-neutral-200 shadow-lg z-50"
+      className="fixed left-0 right-0 top-16 md:top-20 w-full bg-white border-b border-neutral-200 shadow-lg z-50 transition-all duration-150 ease-out"
+      onMouseEnter={onMouseEnter}
       onMouseLeave={onClose}
     >
       {/* Align inner content to px-[6.5%] grid margin */}

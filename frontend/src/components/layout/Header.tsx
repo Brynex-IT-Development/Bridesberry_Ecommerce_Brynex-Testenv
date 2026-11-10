@@ -24,6 +24,35 @@ export default function Header() {
   const [prevIsHomePage, setPrevIsHomePage] = useState(isHomePage);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<MenuItem | null>(null);
+  const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnterItem = (item: MenuItem) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    if (item.hasMegaMenu) {
+      setHoveredItem(item);
+    } else {
+      setHoveredItem(null);
+    }
+  };
+
+  const handleMouseLeaveNav = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    closeTimeoutRef.current = setTimeout(() => {
+      setHoveredItem(null);
+    }, 120);
+  };
+
+  const handleMouseEnterMegaMenu = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -176,13 +205,15 @@ export default function Header() {
             </div>
 
             {/* Desktop Navigation links */}
-            <nav className="hidden md:flex space-x-4 lg:space-x-8 items-center justify-end h-full flex-grow mr-4 lg:mr-8">
+            <nav
+              className="hidden md:flex space-x-4 lg:space-x-8 items-center justify-end h-full flex-grow mr-4 lg:mr-8"
+              onMouseLeave={handleMouseLeaveNav}
+            >
               {menuItems.map((item, idx) => (
                 <div
                   key={idx}
                   className="h-full flex items-center relative"
-                  onMouseEnter={() => item.hasMegaMenu && setHoveredItem(item)}
-                  onMouseLeave={() => setHoveredItem(null)}
+                  onMouseEnter={() => handleMouseEnterItem(item)}
                 >
                   <Link
                     href={item.href}
@@ -216,14 +247,18 @@ export default function Header() {
                       </svg>
                     )}
                   </Link>
-
-                  {/* Mega Menu Overlay */}
-                  {hoveredItem === item && item.hasMegaMenu && (
-                    <MegaMenu item={item} onClose={() => setHoveredItem(null)} />
-                  )}
                 </div>
               ))}
             </nav>
+
+            {/* Global Mega Menu Container for Active Item */}
+            {hoveredItem && hoveredItem.hasMegaMenu && (
+              <MegaMenu
+                item={hoveredItem}
+                onMouseEnter={handleMouseEnterMegaMenu}
+                onClose={() => setHoveredItem(null)}
+              />
+            )}
 
             {/* Right side Grid Area (Icons: Search, Cart, Profile) */}
             <div className="flex items-center h-full">
