@@ -28,7 +28,7 @@ export interface BackendProductResponse {
   bestSeller?: boolean;
   showOnHomepage?: boolean;
   images?: BackendProductImage[];
-  category?: { name: string };
+  category?: { name: string; slug?: string; id?: string };
   categoryId?: string;
   inventory?: {
     currentStock: number;

@@ -156,11 +156,38 @@ export function mapBackendProductToAdminProduct(p: BackendProductResponse): Admi
   const primaryImgObj = p.images?.find((img) => img.imageRole === "PRIMARY" || img.isPrimary);
   const image = primaryImgObj ? primaryImgObj.url : (p.images?.[0]?.url || undefined);
 
+  // Helper to determine parent category
+  const catName = (p.category?.name || "").toLowerCase();
+  const catSlug = (p.category?.slug || "").toLowerCase();
+  let parentCategory = "Jewellery";
+  if (
+    catName.includes("clutch") ||
+    catSlug.includes("clutch") ||
+    catName.includes("potli") ||
+    catSlug.includes("potli") ||
+    catName.includes("bag") ||
+    catSlug.includes("bag")
+  ) {
+    parentCategory = "Bridal Clutches";
+  } else if (
+    catName.includes("footwear") ||
+    catSlug.includes("footwear") ||
+    catName.includes("footware") ||
+    catSlug.includes("footware") ||
+    catName.includes("heel") ||
+    catSlug.includes("heel") ||
+    catName.includes("sandal") ||
+    catSlug.includes("sandal")
+  ) {
+    parentCategory = "Bridal Footwear";
+  }
+
   return {
     id: p.id,
     sku: p.sku,
     name: p.name,
     category: p.category?.name || "Uncategorized",
+    parentCategory,
     price: p.sellingPrice ? p.sellingPrice.toString() : "0",
     stock: currentStock,
     stockStatus,

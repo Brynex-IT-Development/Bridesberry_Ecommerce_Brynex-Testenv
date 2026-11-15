@@ -41,6 +41,7 @@ export interface AdminProduct {
   sku: string;
   name: string;
   category: string;
+  parentCategory?: string;
   price: string;
   stock: number;
   status?: StatusType; // Keep for fallback compatibility

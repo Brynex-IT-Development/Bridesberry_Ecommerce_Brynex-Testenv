@@ -51,7 +51,7 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F8F8F8]">
+    <div className="flex flex-col min-h-screen bg-[#F8F8F8] w-full min-w-0 max-w-full overflow-x-hidden">
       {/* Topbar */}
       <AdminTopbar
         breadcrumbItems={breadcrumbs}
@@ -97,7 +97,7 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Content Container (Tabs + Table) */}
-        <div className="bg-white border border-[#E5E5E5] rounded-[12px] shadow-sm overflow-hidden flex flex-col">
+        <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm overflow-hidden flex flex-col w-full">
           {/* Tabs Filter */}
           <div className="px-6 border-b border-neutral-100">
             <AdminTabs
@@ -108,18 +108,18 @@ export default function AdminProductsPage() {
           </div>
 
           {/* Table Area */}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto w-full">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#1E1D1B] text-white text-[10px] font-bold uppercase tracking-wider">
-                  <th className="py-4 px-6 font-semibold">SKU</th>
-                  <th className="py-4 px-6 font-semibold">PRODUCT</th>
-                  <th className="py-4 px-6 font-semibold">CATEGORY</th>
-                  <th className="py-4 px-6 font-semibold">SELLING PRICE</th>
-                  <th className="py-4 px-6 font-semibold">CURRENT STOCK</th>
-                  <th className="py-4 px-6 font-semibold">STOCK STATUS</th>
-                  <th className="py-4 px-6 font-semibold">PUBLICATION STATUS</th>
-                  <th className="py-4 px-6 font-semibold text-right">ACTION</th>
+                  <th className="py-4 px-6 font-semibold whitespace-nowrap">SKU</th>
+                  <th className="py-4 px-6 font-semibold whitespace-nowrap">PRODUCT</th>
+                  <th className="py-4 px-6 font-semibold whitespace-nowrap">CATEGORY</th>
+                  <th className="py-4 px-6 font-semibold whitespace-nowrap">SELLING PRICE</th>
+                  <th className="py-4 px-6 font-semibold whitespace-nowrap">CURRENT STOCK</th>
+                  <th className="py-4 px-6 font-semibold whitespace-nowrap">STOCK STATUS</th>
+                  <th className="py-4 px-6 font-semibold whitespace-nowrap">PUBLICATION STATUS</th>
+                  <th className="py-4 px-6 font-semibold whitespace-nowrap text-right">ACTION</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
@@ -150,9 +150,11 @@ export default function AdminProductsPage() {
                           </div>
                         </td>
 
-                        {/* Category */}
-                        <td className="py-4 px-6 text-xs text-neutral-450 font-semibold whitespace-nowrap">
-                          {product.category}
+                        {/* Category (Showing Main Category) */}
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <span className="inline-block bg-[#FAF8F5] border border-[#E8DBB4] text-[#8C6A16] px-3 py-1 rounded-full text-xs font-semibold">
+                            {product.parentCategory || "Jewellery"}
+                          </span>
                         </td>
 
                         {/* Selling Price */}
