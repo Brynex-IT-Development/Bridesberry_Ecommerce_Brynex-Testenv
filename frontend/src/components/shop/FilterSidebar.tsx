@@ -107,7 +107,7 @@ export default function FilterSidebar({
           className="w-full flex items-center justify-between py-3"
           onClick={() => setProductTypeOpen(o => !o)}
         >
-          <span style={sectionHeadingStyle}>Category</span>
+          <span style={sectionHeadingStyle}>Sub Category</span>
           <Chevron open={productTypeOpen} />
         </button>
         {productTypeOpen && (
@@ -115,26 +115,46 @@ export default function FilterSidebar({
             {metadata.categories.length === 0 ? (
               <p className="text-neutral-400 text-xs italic font-questrial">No types available</p>
             ) : (
-              metadata.categories.map((cat) => (
-                <label key={cat.slug} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategory.toLowerCase() === cat.slug.toLowerCase()}
-                    onChange={() => {
-                      if (selectedCategory.toLowerCase() === cat.slug.toLowerCase()) {
-                        setSelectedCategory('');
-                      } else {
-                        setSelectedCategory(cat.slug);
-                      }
-                    }}
-                    className="w-3.5 h-3.5 flex-shrink-0 border border-neutral-400 rounded-sm accent-neutral-800"
-                  />
-                  <span style={optionTextStyle}>
-                    {cat.name}
-                    <span style={{ color: '#6B6B6B' }}> ({cat.count})</span>
-                  </span>
-                </label>
-              ))
+              metadata.categories.map((cat) => {
+                const isChecked = (() => {
+                  const s = selectedCategory.toLowerCase().trim();
+                  const target = cat.slug.toLowerCase().trim();
+                  if (!s) return false;
+                  if (s === target) return true;
+                  // If s is a parent category (e.g. 'jewellery')
+                  if (s === 'jewellery') {
+                    return ['necklaces', 'bracelets', 'earrings', 'rings', 'pendants--chains', 'bangles'].includes(target);
+                  }
+                  if (s === 'clutches' || s === 'bridal-clutches') {
+                    return target.includes('clutch') || target.includes('potli') || target.includes('bag');
+                  }
+                  if (s === 'footwear' || s === 'bridal-footwear') {
+                    return target.includes('footware') || target.includes('footwear') || target.includes('heel') || target.includes('sandal');
+                  }
+                  return false;
+                })();
+
+                return (
+                  <label key={cat.slug} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => {
+                        if (isChecked) {
+                          setSelectedCategory('');
+                        } else {
+                          setSelectedCategory(cat.slug);
+                        }
+                      }}
+                      className="w-3.5 h-3.5 flex-shrink-0 border border-neutral-400 rounded-sm accent-neutral-800"
+                    />
+                    <span style={optionTextStyle}>
+                      {cat.name}
+                      <span style={{ color: '#6B6B6B' }}> ({cat.count})</span>
+                    </span>
+                  </label>
+                );
+              })
             )}
           </div>
         )}

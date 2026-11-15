@@ -105,7 +105,7 @@ export class CourierService {
 
         customerOptions.push({
           code: 'EXPRESS',
-          name: 'Express Air Delivery',
+          name: 'Express Delivery',
           courierCompanyId: bestExpress.courier_company_id,
           rate: expressRate,
           estimatedDays: expressDays,
@@ -149,7 +149,7 @@ export class CourierService {
       },
       {
         code: 'EXPRESS',
-        name: 'Express Air Delivery',
+        name: 'Express Delivery',
         courierCompanyId: 2,
         rate: expRate,
         estimatedDays: '1-2 business days',

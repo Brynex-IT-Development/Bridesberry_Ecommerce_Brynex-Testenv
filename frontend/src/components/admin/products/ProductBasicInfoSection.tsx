@@ -4,6 +4,7 @@ import { AdminProductFormData, CUSTOM_MATERIAL_VALUE } from "@/types/admin";
 interface CategoryOption {
   id: string;
   name: string;
+  parentCategory?: string;
 }
 
 interface ProductBasicInfoProps {
@@ -102,51 +103,88 @@ export default function ProductBasicInfoSection({
           {errors.slug && <span className="text-[10px] text-red-500">{errors.slug}</span>}
         </div>
 
-        {/* Category */}
+        {/* Category & Subcategory Cascading */}
         <div className="flex flex-col space-y-1.5">
           <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
             Category <span className="text-red-500">*</span>
           </label>
           <select
+            value={formData.mainCategory || "Jewellery"}
+            onChange={(e) => {
+              const nextMain = e.target.value;
+              onChange("mainCategory", nextMain);
+              // Filter subcategories matching this parent
+              const matching = categories.filter((c) => {
+                const parent =
+                  c.parentCategory ||
+                  (c.name.toLowerCase().includes("clutch")
+                    ? "Bridal Clutches"
+                    : c.name.toLowerCase().includes("footwear") || c.name.toLowerCase().includes("heel")
+                    ? "Bridal Footwear"
+                    : "Jewellery");
+                return parent === nextMain;
+              });
+              if (matching.length > 0) {
+                onChange("category", matching[0].id);
+                onChange("subcategory", matching[0].name);
+              }
+            }}
+            className="px-3 py-2 border border-neutral-200 rounded text-xs bg-white outline-none focus:border-[#C99213] transition-all text-neutral-850 font-semibold"
+          >
+            <option value="Jewellery">Jewellery</option>
+            <option value="Bridal Footwear">Bridal Footwear</option>
+            <option value="Bridal Clutches">Bridal Clutches</option>
+          </select>
+        </div>
+
+        {/* Sub Category Dropdown */}
+        <div className="flex flex-col space-y-1.5">
+          <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+            Sub Category <span className="text-red-500">*</span>
+          </label>
+          <select
             value={formData.category || ""}
-            onChange={(e) => onChange("category", e.target.value)}
+            onChange={(e) => {
+              const catId = e.target.value;
+              onChange("category", catId);
+              const found = categories.find((c) => c.id === catId);
+              if (found) {
+                onChange("subcategory", found.name);
+              }
+            }}
             disabled={categoriesLoading}
             className={`px-3 py-2 border rounded text-xs bg-white outline-none focus:border-[#C99213] transition-all text-neutral-850 disabled:opacity-60 ${
               errors.category ? "border-red-500" : "border-neutral-200"
             }`}
           >
             {categoriesLoading ? (
-              <option value="">Loading categories…</option>
+              <option value="">Loading subcategories…</option>
             ) : categories.length === 0 ? (
-              <>
-                <option value="">No categories available</option>
-              </>
+              <option value="">No subcategories available</option>
             ) : (
               <>
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
+                <option value="">Select Sub Category</option>
+                {categories
+                  .filter((c) => {
+                    const currentMain = formData.mainCategory || "Jewellery";
+                    const parent =
+                      c.parentCategory ||
+                      (c.name.toLowerCase().includes("clutch")
+                        ? "Bridal Clutches"
+                        : c.name.toLowerCase().includes("footwear") || c.name.toLowerCase().includes("heel")
+                        ? "Bridal Footwear"
+                        : "Jewellery");
+                    return parent === currentMain;
+                  })
+                  .map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
               </>
             )}
           </select>
           {errors.category && <span className="text-[10px] text-red-500">{errors.category}</span>}
-        </div>
-
-        {/* Subcategory */}
-        <div className="flex flex-col space-y-1.5">
-          <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
-            Subcategory
-          </label>
-          <input
-            type="text"
-            value={formData.subcategory || ""}
-            onChange={(e) => onChange("subcategory", e.target.value)}
-            placeholder="e.g. Bands, Studs"
-            className="px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] transition-all text-neutral-850 placeholder-neutral-400"
-          />
         </div>
 
         {/* Brand */}

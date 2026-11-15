@@ -151,6 +151,7 @@ export interface AdminProductFormData {
   slug: string;
   shortDescription: string;
   description: string;
+  mainCategory?: string;
   category: string;
   subcategory?: string;
   brand?: string;
@@ -214,6 +215,7 @@ export interface AdminCategory {
   productCount: number;
   displayOrder: number;
   image?: string;
+  parentCategory?: string; // 'Jewellery' | 'Bridal Footwear' | 'Bridal Clutches'
 }
 
 export interface InventoryDetails {

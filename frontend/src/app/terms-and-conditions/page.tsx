@@ -4,7 +4,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions | BridesBerry",
-  description: "Terms and conditions of sale and website use for BridesBerry, operated by Brynex Apparels Pvt Ltd.",
+  description: "Terms and conditions of sale and website use for BridesBerry.",
 };
 
 export default function TermsAndConditionsPage() {
@@ -49,9 +49,8 @@ export default function TermsAndConditionsPage() {
               Welcome to BridesBerry
             </h2>
             <p>
-              <strong className="text-neutral-900">BridesBerry</strong> is owned and operated by{" "}
-              <strong className="text-neutral-900">Brynex Apparels Pvt Ltd</strong>, having its registered office at{" "}
-              <strong className="text-neutral-900">37/3688A3, Harikeerthi Complex, Edapally, Ernakulam, Kerala - 682024, India</strong>. By accessing our website, browsing our collections, or placing an order, you agree to comply with and be bound by these Terms &amp; Conditions. If you do not agree with any part of these terms, please refrain from using our services.
+              <strong className="text-neutral-900">BridesBerry</strong> has its registered office at{" "}
+              <strong className="text-neutral-900">MG Road, Ernakulam, Kerala, India</strong>. By accessing our website, browsing our collections, or placing an order, you agree to comply with and be bound by these Terms &amp; Conditions. If you do not agree with any part of these terms, please refrain from using our services.
             </p>
           </section>
 
@@ -151,7 +150,7 @@ export default function TermsAndConditionsPage() {
               9. Intellectual Property
             </h2>
             <p>
-              All proprietary designs, catalog photography, brand logos, motifs, text, animations, and software on BridesBerry are the exclusive property of Brynex Apparels Pvt Ltd and are protected under Indian Copyright and Trademark Acts. Reproduction or commercial exploitation without written consent is strictly prohibited.
+              All proprietary designs, catalog photography, brand logos, motifs, text, animations, and software on BridesBerry are the exclusive property of BridesBerry and are protected under Indian Copyright and Trademark Acts. Reproduction or commercial exploitation without written consent is strictly prohibited.
             </p>
           </section>
 
@@ -184,7 +183,7 @@ export default function TermsAndConditionsPage() {
               12. Limitation of Liability
             </h2>
             <p>
-              To the fullest extent permitted by Indian jurisprudence, BridesBerry and Brynex Apparels Pvt Ltd shall not be liable for indirect, incidental, or consequential damages arising from delays caused by events beyond our reasonable control (force majeure). In all circumstances, our maximum aggregate liability shall not exceed the invoice amount paid by you for the specific item in dispute. Nothing herein restricts your rights under the Consumer Protection Act, 2019.
+              To the fullest extent permitted by Indian jurisprudence, BridesBerry shall not be liable for indirect, incidental, or consequential damages arising from delays caused by events beyond our reasonable control (force majeure). In all circumstances, our maximum aggregate liability shall not exceed the invoice amount paid by you for the specific item in dispute. Nothing herein restricts your rights under the Consumer Protection Act, 2019.
             </p>
           </section>
 
@@ -217,7 +216,7 @@ export default function TermsAndConditionsPage() {
               For grievances, service complaints, or inquiries regarding your order, please contact our designated Grievance Officer:
             </p>
             <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#E8DBB4]/60 space-y-2 text-sm text-neutral-800">
-              <p><strong className="text-neutral-900">Company:</strong> Brynex Apparels Pvt Ltd (BridesBerry)</p>
+              <p><strong className="text-neutral-900">Company:</strong> BridesBerry</p>
               <p><strong className="text-neutral-900">Desk:</strong> Grievance Officer &amp; Customer Relations</p>
               <p>
                 <strong className="text-neutral-900">Email:</strong>{" "}
@@ -226,7 +225,7 @@ export default function TermsAndConditionsPage() {
                 </a>
               </p>
               <p><strong className="text-neutral-900">Hours:</strong> Monday – Saturday (10:00 AM – 6:00 PM IST)</p>
-              <p><strong className="text-neutral-900">Office:</strong> 37/3688A3, Harikeerthi Complex, Edapally, Ernakulam, Kerala - 682024</p>
+              <p><strong className="text-neutral-900">Office:</strong> MG Road, Ernakulam, Kerala</p>
             </div>
             <p className="text-xs text-neutral-500">
               Complaints are acknowledged within 48 hours and resolved systematically within 30 days.

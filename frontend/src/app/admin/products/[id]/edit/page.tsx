@@ -3,7 +3,7 @@
 import React, { use } from "react";
 import Link from "next/link";
 import AdminTopbar from "@/components/admin/layout/AdminTopbar";
-import ProductForm from "@/components/admin/products/ProductForm";
+import NewProductForm from "@/components/admin/products/NewProductForm";
 import { getAdminProductBySku } from "@/services/products.service";
 import { AdminProductFormData } from "@/types/admin";
 
@@ -25,7 +25,7 @@ export default function EditProductPage({ params }: PageProps) {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-xs font-semibold text-neutral-500">
+      <div className="p-8 text-center text-xs font-semibold text-neutral-500 font-questrial">
         Loading product details...
       </div>
     );
@@ -33,7 +33,7 @@ export default function EditProductPage({ params }: PageProps) {
 
   if (!product) {
     return (
-      <div className="p-8 text-center text-xs font-semibold text-neutral-500">
+      <div className="p-8 text-center text-xs font-semibold text-neutral-500 font-questrial">
         Product SKU not found. <Link href="/admin/products" className="text-[#C99213] underline">Go back</Link>
       </div>
     );
@@ -46,7 +46,7 @@ export default function EditProductPage({ params }: PageProps) {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F8F8F8]">
+    <div className="flex flex-col min-h-screen bg-[#FBFBFA]">
       {/* Header bar */}
       <AdminTopbar
         breadcrumbItems={breadcrumbs}
@@ -54,21 +54,8 @@ export default function EditProductPage({ params }: PageProps) {
       />
 
       {/* Main Content */}
-      <div className="flex-1 p-4 sm:p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto min-w-0">
-        {/* Title */}
-        <div>
-          <h1 className="text-xl font-bold tracking-wider text-neutral-900 uppercase font-sans">
-            EDIT PRODUCT
-          </h1>
-          <p className="text-[11px] text-neutral-450 mt-1 font-medium">
-            Modify details, pricing, media, and variants for {product.name}
-          </p>
-        </div>
-
-        {/* Form Container */}
-        <div className="mt-6">
-          <ProductForm initialData={product} mode="edit" />
-        </div>
+      <div className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto min-w-0">
+        <NewProductForm initialData={product} mode="edit" />
       </div>
     </div>
   );

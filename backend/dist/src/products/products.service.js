@@ -54,9 +54,16 @@ let ProductsService = ProductsService_1 = class ProductsService {
             where.status = { not: client_js_1.ProductStatus.ARCHIVED };
         }
         if (query.category) {
-            where.category = {
-                slug: query.category,
-            };
+            if (query.category.includes(',')) {
+                const slugs = query.category.split(',').map((s) => s.trim()).filter(Boolean);
+                where.category = {
+                    slug: { in: slugs },
+                };
+            } else {
+                where.category = {
+                    slug: query.category,
+                };
+            }
         }
         if (query.collection) {
             where.collection = {

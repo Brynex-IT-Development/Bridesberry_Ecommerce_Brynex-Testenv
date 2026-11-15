@@ -17,8 +17,12 @@ export const menuItems: MenuItem[] = [
     megaMenuColumns: [],
   },
   {
+    name: 'About',
+    href: '/about',
+  },
+  {
     name: 'Contact',
-    href: '#footer',
+    href: '/contact',
   },
   {
     name: 'Blog',

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getProductsPaginated, getFilterMetadata, getProductCollections, FilterMetadata } from '../../services/products.service';
+import { getCategories } from '../../services/categories.service';
 import { Product } from '../../types/product';
 import ProductGrid from '../../components/product/ProductGrid';
 import FilterSidebar from '../../components/shop/FilterSidebar';
@@ -55,8 +56,22 @@ function ShopContent() {
 
   // Load filter metadata once on mount
   useEffect(() => {
-    getFilterMetadata().then(async (meta) => {
+    Promise.all([getFilterMetadata(), getCategories()]).then(async ([meta, liveCats]) => {
       let finalMeta = meta;
+
+      // Merge real categories from DB into filter metadata if available
+      if (liveCats && liveCats.length > 0) {
+        finalMeta = {
+          ...finalMeta,
+          categories: liveCats.map((c) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            count: c.count ?? 0,
+          })),
+        };
+      }
+
       if (!finalMeta.collections || finalMeta.collections.length === 0) {
         try {
           const colNames = await getProductCollections();
@@ -134,7 +149,18 @@ function ShopContent() {
       page: currentPage,
       limit: 12,
     };
-    if (selectedCategory) queryParams.category = selectedCategory;
+    if (selectedCategory) {
+      // Map category aliases (e.g. bridal-clutches -> clutches, jewellery -> include all jewellery subcategories)
+      const mappedCat =
+        selectedCategory === 'bridal-clutches'
+          ? 'clutches'
+          : selectedCategory === 'bridal-footwear'
+          ? 'footwear'
+          : selectedCategory === 'jewellery'
+          ? 'necklaces,bracelets,earrings,rings'
+          : selectedCategory;
+      queryParams.category = mappedCat;
+    }
     if (selectedCollection) queryParams.collection = selectedCollection;
     if (selectedOccasion) queryParams.occasion = selectedOccasion;
     if (selectedGender) queryParams.gender = selectedGender;
@@ -148,6 +174,42 @@ function ShopContent() {
     }
     if (sortBy) queryParams.sort = sortBy;
     if (urlSearch) queryParams.search = urlSearch;
+
+    // If parent category is passed (e.g. jewellery), fetch all subcategories under it in parallel
+    if (selectedCategory === 'jewellery') {
+      const jewellerySubs = ['necklaces', 'bracelets', 'earrings', 'rings'];
+      Promise.all(
+        jewellerySubs.map((sub) =>
+          getProductsPaginated({ ...queryParams, category: sub, limit: 20 })
+        )
+      )
+        .then((responses) => {
+          if (!active) return;
+          const merged: Product[] = [];
+          const seen = new Set<string>();
+          responses.forEach((res) => {
+            (res.products || []).forEach((prod) => {
+              if (!seen.has(prod.id)) {
+                seen.add(prod.id);
+                merged.push(prod);
+              }
+            });
+          });
+          setProductsList(merged);
+          setTotalPages(Math.max(1, Math.ceil(merged.length / 12)));
+          setError(false);
+        })
+        .catch(() => {
+          if (active) setError(true);
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+
+      return () => {
+        active = false;
+      };
+    }
 
     getProductsPaginated(queryParams)
       .then((res) => {
@@ -251,7 +313,9 @@ function ShopContent() {
           {/* SHOP NOW heading row */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-4 sm:pt-6 pb-4 sm:pb-5">
             <h1 className="font-raleway font-medium text-[24px] sm:text-[32px] leading-[100%] tracking-normal text-neutral-900 uppercase">
-              Shop Now
+              {selectedCategory
+                ? selectedCategory.replace('-', ' ')
+                : 'Shop Now'}
             </h1>
             <div className="flex items-center gap-3 sm:gap-4">
               {urlSearch && (
@@ -272,14 +336,25 @@ function ShopContent() {
             </div>
           </div>
 
-          {/* Active collection filter chip */}
-          {selectedCollection && (
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xs font-questrial text-neutral-500 uppercase tracking-wider">
-                Collection:
-              </span>
+          {/* Active category / collection filter chips */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {selectedCategory && (
               <span className="inline-flex items-center gap-2 bg-[#fbf7ed] border border-[#e8dbb4] text-[#8c6a16] text-xs font-semibold pl-3 pr-2 py-1 rounded-full shadow-2xs">
-                <span>{selectedCollection}</span>
+                <span>Category: {selectedCategory.replace('-', ' ')}</span>
+                <button
+                  type="button"
+                  onClick={() => updateUrlFilters({ category: null, page: null })}
+                  className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-[#8c6a16]/15 hover:text-black font-bold text-sm leading-none cursor-pointer transition-colors"
+                  title="Remove category filter"
+                  aria-label="Remove category filter"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {selectedCollection && (
+              <span className="inline-flex items-center gap-2 bg-[#fbf7ed] border border-[#e8dbb4] text-[#8c6a16] text-xs font-semibold pl-3 pr-2 py-1 rounded-full shadow-2xs">
+                <span>Collection: {selectedCollection}</span>
                 <button
                   type="button"
                   onClick={handleRemoveCollection}
@@ -290,8 +365,8 @@ function ShopContent() {
                   ×
                 </button>
               </span>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Search bar inside content on mobile / desktop */}
           <div className="mb-4">

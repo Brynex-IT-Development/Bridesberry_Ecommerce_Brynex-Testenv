@@ -24,10 +24,20 @@ export default async function Home() {
       ? bestSellersResponse.slice(0, 8)
       : newArrivalsResponse.slice(0, 8);
 
+  const initialPromoSettings = settings.promo_popup_enabled === "true" ? {
+    enabled: true,
+    title: settings.promo_popup_title || "Announcement",
+    description: settings.promo_popup_description || "",
+    image: settings.promo_popup_image || "",
+    link: settings.promo_popup_link || "",
+    position: settings.promo_popup_image_position || "center",
+    fit: (settings.promo_popup_image_fit as 'cover' | 'contain') || "cover",
+  } : undefined;
+
   return (
     <div className="flex flex-col w-full relative">
       {/* Promo announcement modal */}
-      <PromoPopup />
+      <PromoPopup initialSettings={initialPromoSettings} />
 
       {/* Immersive Hero Section */}
       <HeroSection />

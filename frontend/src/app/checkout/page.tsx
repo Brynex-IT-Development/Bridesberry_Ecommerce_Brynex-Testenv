@@ -98,8 +98,15 @@ export default function CheckoutPage() {
   // Financial splits
   const selectedOption = shippingOptions.find((o) => o.code === selectedOptionCode);
   const shippingCharge = selectedOption ? selectedOption.rate : 0;
-  const taxTotal = Math.round(cartSubtotal * 0.03 * 100) / 100;
-  const total = cartSubtotal + taxTotal + shippingCharge;
+  const taxTotal = 0; // Tax is inclusive in product price
+  const total = cartSubtotal + shippingCharge;
+
+  // MRP & Discount breakdown
+  const totalMrp = cartItems.reduce(
+    (acc, item) => acc + (item.product.mrp && item.product.mrp > item.product.price ? item.product.mrp : item.product.price) * item.quantity,
+    0
+  );
+  const totalDiscount = Math.max(0, totalMrp - cartSubtotal);
 
 
   const handleInputChange = (
@@ -556,6 +563,16 @@ export default function CheckoutPage() {
 
               <div className="border-t border-neutral-100 pt-4 space-y-3 font-sans text-xs font-semibold text-neutral-500">
                 <div className="flex justify-between">
+                  <span className="uppercase tracking-wider">Total MRP</span>
+                  <span className="text-neutral-800">₹ {totalMrp.toLocaleString('en-IN')}.00</span>
+                </div>
+                {totalDiscount > 0 && (
+                  <div className="flex justify-between text-emerald-600">
+                    <span className="uppercase tracking-wider">Discount on MRP</span>
+                    <span>- ₹ {totalDiscount.toLocaleString('en-IN')}.00</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
                   <span className="uppercase tracking-wider">Subtotal</span>
                   <span className="text-neutral-800">₹ {cartSubtotal.toLocaleString('en-IN')}.00</span>
                 </div>
@@ -565,13 +582,14 @@ export default function CheckoutPage() {
                     {shippingCharge === 0 ? "FREE" : `₹ ${shippingCharge.toLocaleString('en-IN')}.00`}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="uppercase tracking-wider">Estimated GST (3%)</span>
-                  <span className="text-neutral-800">₹ {taxTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                </div>
                 
                 <div className="border-t border-neutral-200 pt-4 flex justify-between items-baseline">
-                  <span className="text-sm font-bold text-neutral-900 uppercase tracking-wide">Total</span>
+                  <div>
+                    <span className="text-sm font-bold text-neutral-900 uppercase tracking-wide block">Total</span>
+                    <span className="text-[10px] text-neutral-400 font-normal block font-sans lowercase">
+                      (inclusive of all taxes)
+                    </span>
+                  </div>
                   <span className="text-base font-black text-[#3762f9]">
                     ₹ {total.toLocaleString('en-IN')}.00
                   </span>

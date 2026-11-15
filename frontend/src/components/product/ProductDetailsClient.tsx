@@ -17,32 +17,42 @@ export default function ProductDetailsClient({
   relatedProducts,
 }: ProductDetailsClientProps) {
   const router = useRouter();
-  const { addToCart } = useCart();
-  const [quantity, setQuantity] = useState(product.stock > 0 ? 1 : 0);
+  const { cartItems, setCartItemQuantity } = useCart();
+
+  // Find existing quantity in cart for this product
+  const existingCartItem = cartItems.find((item) => item.product.id === product.id);
+  const initialQty = existingCartItem ? existingCartItem.quantity : (product.stock > 0 ? 1 : 0);
+
+  const [quantity, setQuantity] = useState(initialQty);
   const [addedToCart, setAddedToCart] = useState(false);
 
-  const handleAddToCart = () => {
-    if (product.stock <= 0 || quantity <= 0) return;
+  // Sync state if cartItems changes (e.g. user updated quantity in cart page or another tab)
+  React.useEffect(() => {
+    if (existingCartItem) {
+      setQuantity(existingCartItem.quantity);
+    }
+  }, [existingCartItem]);
+
+  const getAttributes = () => {
     const attributes = [];
     if (product.category === 'Rings') {
       attributes.push({ name: 'Ring Size', value: '7' });
     } else if (product.category === 'Necklaces') {
       attributes.push({ name: 'Length', value: '18 inches' });
     }
-    addToCart(product, quantity, attributes);
+    return attributes;
+  };
+
+  const handleAddToCart = () => {
+    if (product.stock <= 0 || quantity <= 0) return;
+    setCartItemQuantity(product, quantity, getAttributes());
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
   const handleBuyNow = () => {
     if (product.stock <= 0 || quantity <= 0) return;
-    const attributes = [];
-    if (product.category === 'Rings') {
-      attributes.push({ name: 'Ring Size', value: '7' });
-    } else if (product.category === 'Necklaces') {
-      attributes.push({ name: 'Length', value: '18 inches' });
-    }
-    addToCart(product, quantity, attributes);
+    setCartItemQuantity(product, quantity, getAttributes());
     router.push('/cart');
   };
 

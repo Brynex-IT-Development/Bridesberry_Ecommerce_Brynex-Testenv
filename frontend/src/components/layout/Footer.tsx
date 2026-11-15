@@ -7,11 +7,13 @@ export default function Footer() {
   const shopLinks = [
     { name: 'New Arrivals', href: '/shop?sort=newest' },
     { name: 'Best Sellers', href: '/shop?filter=bestseller' },
-    { name: 'Collections', href: '/shop' },
+    { name: 'About Brides Berry', href: '/about' },
+    { name: 'Contact Concierge', href: '/contact' },
     { name: 'Bridal Journal', href: '/blog' },
   ];
 
   const policyLinks = [
+    { name: 'FAQs', href: '/faqs' },
     { name: 'Privacy Policy', href: '/privacy-policy' },
     { name: 'Shipping Policy', href: '/shipping-policy' },
     { name: 'Return Policy', href: '/return-policy' },
@@ -48,14 +50,6 @@ export default function Footer() {
                   BridesBerry
                 </span>
               </div>
-              <p
-                style={{
-                  fontFamily: "var(--font-stack-text), 'Questrial', sans-serif",
-                }}
-                className="text-xs text-[#8C6A16] font-medium"
-              >
-                A Unit of Brynex Apparels Pvt Ltd
-              </p>
             </div>
 
             <div className="space-y-3.5 max-w-[480px]">
@@ -101,7 +95,7 @@ export default function Footer() {
               className="text-xs text-neutral-500 space-y-1 pt-2"
             >
               <p className="font-semibold text-neutral-700">Registered Office:</p>
-              <p>37/3688A3, Harikeerthi Complex, Edapally, Ernakulam, Kerala - 682024</p>
+              <p>MG Road, Ernakulam, Kerala</p>
               <p>Support: <a href="mailto:rootmentsit@gmail.com" className="text-[#8C6A16] hover:underline">rootmentsit@gmail.com</a></p>
             </div>
           </div>
@@ -227,7 +221,7 @@ export default function Footer() {
             </Link>
           </div>
           <span className="text-xs text-neutral-400">
-            Brynex Apparels Private Ltd
+            BridesBerry
           </span>
         </div>
       </div>

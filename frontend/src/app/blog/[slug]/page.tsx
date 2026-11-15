@@ -14,13 +14,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const post = BLOG_POSTS.find((p) => p.slug === slug);
   if (!post) return { title: "Article Not Found | Brides Berry" };
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.bridesberry.com";
+  const articleUrl = `${baseUrl}/blog/${slug}`;
+
   return {
     title: `${post.title} | Brides Berry Journal`,
     description: post.excerpt,
+    alternates: {
+      canonical: articleUrl,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,
+      url: articleUrl,
+      type: "article",
+      publishedTime: post.publishedAt,
+      authors: [post.author.name],
       images: [{ url: post.coverImage }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [post.coverImage],
     },
   };
 }
@@ -36,8 +52,72 @@ export default async function BlogPostPage({ params }: PageProps) {
   // Related posts from the same category or others
   const relatedPosts = BLOG_POSTS.filter((p) => p.slug !== post.slug).slice(0, 3);
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.bridesberry.com";
+  const articleUrl = `${baseUrl}/blog/${slug}`;
+
+  // Article Schema (JSON-LD) for rich Google snippets & E-E-A-T
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    image: [post.coverImage],
+    datePublished: new Date(post.publishedAt).toISOString(),
+    author: {
+      "@type": "Person",
+      name: post.author.name,
+      jobTitle: post.author.role,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Brides Berry",
+      url: baseUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${baseUrl}/images/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": articleUrl,
+    },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: baseUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Bridal Journal",
+        item: `${baseUrl}/blog`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: post.title,
+        item: articleUrl,
+      },
+    ],
+  };
+
   return (
     <article className="min-h-screen bg-[#FDFCFB] text-[#1E1E1E] pt-24 sm:pt-28 pb-20 font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       
       {/* ─── Top Navigation & Header ─── */}
       <div className="w-full px-[6.5%] mx-auto max-w-[1000px]">

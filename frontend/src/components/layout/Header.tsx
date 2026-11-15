@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { menuItems as initialMenuItems } from '../../data/menu';
+import { MAIN_CATEGORIES } from '@/data/categories';
 import { useCart } from '../../context/CartContext';
 import MegaMenu from './MegaMenu';
 import { MenuItem } from '../../types/menu';
@@ -68,19 +69,64 @@ export default function Header() {
         setMenuItems((items) =>
           items.map((item) => {
             if (item.name === 'Category') {
+              // Group real active categories from DB under the 3 Main Categories
+              const liveCategories = categories || [];
+
+              const clutchSubs: { name: string; href: string }[] = [];
+              const footwearSubs: { name: string; href: string }[] = [];
+              const jewellerySubs: { name: string; href: string }[] = [];
+
+              liveCategories.forEach((cat) => {
+                const sName = cat.name.toLowerCase();
+                const sSlug = cat.slug.toLowerCase();
+                const itemEntry = {
+                  name: cat.name,
+                  href: `/shop?category=${encodeURIComponent(cat.slug)}`,
+                };
+
+                if (sSlug.includes('clutch') || sSlug.includes('bag') || sSlug.includes('potli') || sName.includes('clutch')) {
+                  clutchSubs.push(itemEntry);
+                } else if (sSlug.includes('footwear') || sSlug.includes('heel') || sSlug.includes('sandal') || sName.includes('footwear')) {
+                  footwearSubs.push(itemEntry);
+                } else {
+                  jewellerySubs.push(itemEntry);
+                }
+              });
+
+              // Fallback to presets if database has no subcategories in any category yet
+              const finalClutchItems = clutchSubs.length > 0
+                ? clutchSubs
+                : [{ name: 'All Bridal Clutches', href: '/shop?category=clutches' }];
+
+              const finalFootwearItems = footwearSubs.length > 0
+                ? footwearSubs
+                : [{ name: 'All Bridal Footwear', href: '/shop?category=footwear' }];
+
+              const finalJewelleryItems = jewellerySubs.length > 0
+                ? jewellerySubs
+                : [
+                    { name: 'Necklaces & Sets', href: '/shop?category=necklaces' },
+                    { name: 'Bracelets & Bangles', href: '/shop?category=bracelets' },
+                    { name: 'Earrings', href: '/shop?category=earrings' },
+                    { name: 'Rings', href: '/shop?category=rings' },
+                  ];
+
               return {
                 ...item,
-                megaMenuColumns: categories.length
-                  ? [
-                      {
-                        title: 'CATEGORIES',
-                        items: categories.map((category) => ({
-                          name: category.name,
-                          href: `/shop?category=${encodeURIComponent(category.slug)}`,
-                        })),
-                      },
-                    ]
-                  : [],
+                megaMenuColumns: [
+                  {
+                    title: 'BRIDAL CLUTCHES',
+                    items: finalClutchItems,
+                  },
+                  {
+                    title: 'BRIDAL FOOTWEAR',
+                    items: finalFootwearItems,
+                  },
+                  {
+                    title: 'JEWELLERY',
+                    items: finalJewelleryItems,
+                  },
+                ],
               };
             }
 

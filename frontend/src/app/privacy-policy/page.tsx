@@ -4,7 +4,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | BridesBerry",
-  description: "Privacy policy for BridesBerry, operated by Brynex Apparels Pvt Ltd.",
+  description: "Privacy policy for BridesBerry.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
               Introduction
             </h2>
             <p>
-              <strong className="text-neutral-900">BridesBerry</strong>, operated by <strong className="text-neutral-900">Brynex Apparels Pvt Ltd</strong>, registered at <strong className="text-neutral-900">37/3688A3, Harikeerthi Complex, Edapally, Ernakulam, Kerala - 682024</strong>, respects your privacy. This policy explains what personal information we collect, why we collect it, and how we protect it. By using our website or placing an order, you agree to this policy.
+              <strong className="text-neutral-900">BridesBerry</strong>, registered at <strong className="text-neutral-900">MG Road, Ernakulam, Kerala</strong>, respects your privacy. This policy explains what personal information we collect, why we collect it, and how we protect it. By using our website or placing an order, you agree to this policy.
             </p>
           </section>
 
@@ -124,7 +124,7 @@ export default function PrivacyPolicyPage() {
                 <strong className="text-neutral-800">Statutory and legal authorities:</strong> When mandated by court order, Indian taxation authorities, or lawful enforcement requests.
               </li>
               <li>
-                <strong className="text-neutral-800">Business transfers:</strong> In the event of a merger, acquisition, or restructuring of Brynex Apparels Pvt Ltd, with prior notification to you.
+                <strong className="text-neutral-800">Business transfers:</strong> In the event of a merger, acquisition, or restructuring of BridesBerry, with prior notification to you.
               </li>
             </ul>
           </section>
@@ -206,7 +206,7 @@ export default function PrivacyPolicyPage() {
               In accordance with the Information Technology Act, 2000 and rules made thereunder, for privacy questions, requests, or complaints, please contact our designated Grievance Officer:
             </p>
             <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#E8DBB4]/60 space-y-2 text-sm text-neutral-800">
-              <p><strong className="text-neutral-900">Entity:</strong> Brynex Apparels Pvt Ltd (BridesBerry)</p>
+              <p><strong className="text-neutral-900">Entity:</strong> BridesBerry</p>
               <p><strong className="text-neutral-900">Designation:</strong> Grievance Officer / Customer Privacy Desk</p>
               <p>
                 <strong className="text-neutral-900">Email:</strong>{" "}
@@ -215,7 +215,7 @@ export default function PrivacyPolicyPage() {
                 </a>
               </p>
               <p><strong className="text-neutral-900">Operating Hours:</strong> Monday – Saturday (10:00 AM – 6:00 PM IST)</p>
-              <p><strong className="text-neutral-900">Registered Office:</strong> 37/3688A3, Harikeerthi Complex, Edapally, Ernakulam, Kerala - 682024, India</p>
+              <p><strong className="text-neutral-900">Registered Office:</strong> MG Road, Ernakulam, Kerala, India</p>
             </div>
             <p className="text-xs text-neutral-500">
               We acknowledge grievances within 48 hours and strive to resolve inquiries within one month.

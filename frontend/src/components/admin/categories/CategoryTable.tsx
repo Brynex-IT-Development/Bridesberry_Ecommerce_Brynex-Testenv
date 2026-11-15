@@ -15,7 +15,8 @@ export default function CategoryTable({ categories, onEdit, onToggleStatus, onDe
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-[#1E1D1B] text-white text-[10px] font-bold uppercase tracking-wider">
-            <th className="py-4 px-6 font-semibold">Category</th>
+            <th className="py-4 px-6 font-semibold">Sub Category</th>
+            <th className="py-4 px-6 font-semibold">Parent Category</th>
             <th className="py-4 px-6 font-semibold">Slug</th>
             <th className="py-4 px-6 font-semibold text-center">Product Count</th>
             <th className="py-4 px-6 font-semibold">Status</th>
@@ -33,6 +34,18 @@ export default function CategoryTable({ categories, onEdit, onToggleStatus, onDe
                     <span className="font-semibold text-neutral-800">{cat.name}</span>
                     <span className="text-[10px] text-neutral-400 font-normal line-clamp-1">{cat.description}</span>
                   </div>
+                </td>
+
+                {/* Parent Category */}
+                <td className="py-4 px-6">
+                  <span className="inline-block bg-neutral-100 text-neutral-700 px-2.5 py-1 rounded-full text-[10px] font-medium">
+                    {cat.parentCategory ||
+                      (cat.name.toLowerCase().includes('clutch')
+                        ? 'Bridal Clutches'
+                        : cat.name.toLowerCase().includes('footwear') || cat.name.toLowerCase().includes('heel')
+                        ? 'Bridal Footwear'
+                        : 'Jewellery')}
+                  </span>
                 </td>
 
                 {/* Slug */}

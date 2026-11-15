@@ -49,7 +49,7 @@ export default function RefundPolicyPage() {
               Fair &amp; Prompt Refunds
             </h2>
             <p>
-              This Refund Policy explains when and how <strong className="text-neutral-900">BridesBerry</strong> (operated by Brynex Apparels Pvt Ltd) processes refunds for orders and returns. Please review this document in conjunction with our{" "}
+              This Refund Policy explains when and how <strong className="text-neutral-900">BridesBerry</strong> processes refunds for orders and returns. Please review this document in conjunction with our{" "}
               <Link href="/return-policy" className="text-[#8C6A16] underline font-medium">
                 Return &amp; Exchange Policy
               </Link>.

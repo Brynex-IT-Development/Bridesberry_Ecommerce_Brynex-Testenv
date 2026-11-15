@@ -49,7 +49,7 @@ export default function ShippingPolicyPage() {
               Insured &amp; Tamper-Evident Delivery
             </h2>
             <p>
-              At <strong className="text-neutral-900">BridesBerry</strong> (operated by Brynex Apparels Pvt Ltd), we understand that your bridal jewelry represents both financial investment and deep emotional significance. We pack every single piece securely in tamper-evident, discreet protective packaging and ship it <strong className="text-neutral-900">100% fully insured</strong> until it reaches your hands.
+              At <strong className="text-neutral-900">BridesBerry</strong>, we understand that your bridal jewelry represents both financial investment and deep emotional significance. We pack every single piece securely in tamper-evident, discreet protective packaging and ship it <strong className="text-neutral-900">100% fully insured</strong> until it reaches your hands.
             </p>
           </section>
 

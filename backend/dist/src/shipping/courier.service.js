@@ -76,7 +76,7 @@ let CourierService = CourierService_1 = class CourierService {
                 const expressDays = bestExpress.estimated_delivery_days ? `${bestExpress.estimated_delivery_days} business days` : '1-2 business days';
                 customerOptions.push({
                     code: 'EXPRESS',
-                    name: 'Express Air Delivery',
+                    name: 'Express Delivery',
                     courierCompanyId: bestExpress.courier_company_id,
                     rate: expressRate,
                     estimatedDays: expressDays,
@@ -114,7 +114,7 @@ let CourierService = CourierService_1 = class CourierService {
             },
             {
                 code: 'EXPRESS',
-                name: 'Express Air Delivery',
+                name: 'Express Delivery',
                 courierCompanyId: 2,
                 rate: expRate,
                 estimatedDays: '1-2 business days',

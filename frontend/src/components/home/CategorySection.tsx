@@ -5,6 +5,7 @@ import { getCategories } from '@/services/categories.service';
 import { getSystemSettings } from '@/services/system-settings.service';
 import CategoryCarousel from './CategoryCarousel';
 import ScrollReveal from '../shared/ScrollReveal';
+import { MAIN_CATEGORIES } from '@/data/categories';
 
 // ---------------------------------------------------------------------------
 // Types – matches what the backend /api/categories endpoint returns.
@@ -68,6 +69,30 @@ export default async function CategorySection() {
   const backendCategories = (raw as unknown as BackendCategory[]) || [];
   const categories = backendCategories.filter((c) => c.isActive !== false);
 
+  // Parse any main category customizations saved via the admin categories panel
+  let customMainCats: Record<string, { name?: string; description?: string; image?: string }> = {};
+  if (settings?.main_category_customizations) {
+    try {
+      customMainCats = JSON.parse(settings.main_category_customizations);
+    } catch (e) {
+      console.error("Failed to parse main_category_customizations on homepage:", e);
+    }
+  }
+
+  // Merge customizations into the 3 Main Categories
+  const displayMainCategories = MAIN_CATEGORIES.map((cat) => {
+    const custom = customMainCats[cat.id];
+    if (custom) {
+      return {
+        ...cat,
+        name: custom.name || cat.name,
+        description: custom.description || cat.description,
+        image: custom.image || cat.image,
+      };
+    }
+    return cat;
+  });
+
   return (
     <section className="relative bg-[#FCF6F4] overflow-hidden -mt-px">
       {/* Top Burgundy Background Band (stops 25% before bottom of category cards) */}
@@ -108,16 +133,8 @@ export default async function CategorySection() {
         </div>
       </div>
 
-      {/* Centered Scrollable Category Cards Row or Admin Configuration placeholder */}
-      {categories.length > 0 ? (
-        <CategoryCarousel categories={categories} />
-      ) : (
-        <div className="relative z-10 -mt-24 sm:-mt-36 w-full px-[6.5%] mx-auto max-w-[1440px] text-center py-10">
-          <p className="text-white/60 font-questrial text-xs uppercase tracking-widest">
-            Categories will appear here once added in Admin Panel
-          </p>
-        </div>
-      )}
+      {/* Exactly 3 Category Cards in 3:4 Aspect Ratio (Bridal Clutches, Bridal Footwear, Jewellery) */}
+      <CategoryCarousel categories={displayMainCategories} />
 
       {/* Editorial Feature Section: "Discover Our Modern Jewelry Collection" */}
       <div className="w-full px-[6.5%] mx-auto max-w-[1440px] pt-12 sm:pt-24 pb-16 sm:pb-28">

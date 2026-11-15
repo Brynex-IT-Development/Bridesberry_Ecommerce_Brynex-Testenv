@@ -1,6 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { AdminCategory } from "@/types/admin";
 import { uploadFile } from "@/services/media.service";
+import { MAIN_CATEGORIES } from "@/data/categories";
 
 interface CategoryFormProps {
   initialData?: AdminCategory | null;
@@ -9,6 +10,11 @@ interface CategoryFormProps {
 }
 
 export default function CategoryForm({ initialData, onSubmit, onCancel }: CategoryFormProps) {
+  const [parentCategory, setParentCategory] = useState(
+    initialData?.parentCategory || "Jewellery"
+  );
+  const [selectedPresetSub, setSelectedPresetSub] = useState<string>("");
+  const [isCustom, setIsCustom] = useState(false);
   const [name, setName] = useState(initialData?.name || "");
   const [slug, setSlug] = useState(initialData?.slug || "");
   const [description, setDescription] = useState(initialData?.description || "");
@@ -19,6 +25,69 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
   const [error, setError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Available subcategory presets for the selected parent category
+  const currentParentObj = MAIN_CATEGORIES.find(
+    (c) =>
+      c.name.toLowerCase() === parentCategory.toLowerCase() ||
+      c.id.toLowerCase() === parentCategory.toLowerCase()
+  );
+  const availablePresets = currentParentObj ? currentParentObj.subCategories : [];
+
+  // When editing or when parent changes:
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name || "");
+      setSlug(initialData.slug || "");
+      setDescription(initialData.description || "");
+      setStatus(initialData.status || "Active");
+      setDisplayOrder(initialData.displayOrder ?? 1);
+      setImageUrl(initialData.image || "");
+      
+      const parent = initialData.parentCategory || "Jewellery";
+      setParentCategory(parent);
+      
+      const matched = availablePresets.find(
+        (p) => p.name.toLowerCase() === initialData.name.toLowerCase() || p.slug === initialData.slug
+      );
+      if (matched) {
+        setSelectedPresetSub(matched.name);
+        setIsCustom(false);
+      } else {
+        setSelectedPresetSub("__custom__");
+        setIsCustom(true);
+      }
+    } else {
+      if (availablePresets.length > 0) {
+        setSelectedPresetSub(availablePresets[0].name);
+        setName(availablePresets[0].name);
+        setSlug(availablePresets[0].slug);
+        setIsCustom(false);
+      } else {
+        setSelectedPresetSub("__custom__");
+        setIsCustom(true);
+      }
+    }
+  }, [initialData, parentCategory]);
+
+  const handleSubSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setSelectedPresetSub(val);
+    if (val === "__custom__") {
+      setIsCustom(true);
+      setName("");
+      setSlug("");
+    } else {
+      setIsCustom(false);
+      setName(val);
+      const matched = availablePresets.find((p) => p.name === val);
+      if (matched) {
+        setSlug(matched.slug);
+      } else {
+        setSlug(val.toLowerCase().replace(/\s+/g, "-").replace(/[^\w\-]+/g, ""));
+      }
+    }
+  };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -58,6 +127,7 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
       id: initialData?.id,
       name,
       slug,
+      parentCategory,
       description,
       status,
       displayOrder: Number(displayOrder),
@@ -78,19 +148,60 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
 
       {error && <p className="text-[10px] text-red-500 font-medium">{error}</p>}
 
-      {/* Name */}
+      {/* Category (Parent Main Category) */}
       <div className="flex flex-col space-y-1">
         <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-          Category Name *
+          Category *
         </label>
-        <input
-          type="text"
-          value={name}
-          onChange={handleNameChange}
-          placeholder="e.g. Earrings, Pendant"
-          className="px-3 py-2 border border-neutral-200 rounded text-xs outline-none focus:border-[#C99213] text-neutral-850"
-        />
+        <select
+          value={parentCategory}
+          onChange={(e) => setParentCategory(e.target.value)}
+          className="px-3 py-2 border border-neutral-200 rounded text-xs bg-white outline-none focus:border-[#C99213] text-neutral-850 font-semibold"
+        >
+          <option value="Jewellery">Jewellery</option>
+          <option value="Bridal Footwear">Bridal Footwear</option>
+          <option value="Bridal Clutches">Bridal Clutches</option>
+        </select>
+        <span className="text-[10px] text-neutral-400">
+          Select the main store category.
+        </span>
       </div>
+
+      {/* Sub Category Dropdown */}
+      <div className="flex flex-col space-y-1">
+        <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+          Sub Category *
+        </label>
+        <select
+          value={selectedPresetSub}
+          onChange={handleSubSelectChange}
+          className="px-3 py-2 border border-neutral-200 rounded text-xs bg-white outline-none focus:border-[#C99213] text-neutral-850"
+        >
+          {availablePresets.map((sub) => (
+            <option key={sub.id} value={sub.name}>
+              {sub.name}
+            </option>
+          ))}
+          <option value="__custom__">+ Create Custom Sub Category...</option>
+        </select>
+      </div>
+
+      {/* If Custom is selected, show custom name input */}
+      {isCustom && (
+        <div className="flex flex-col space-y-1">
+          <label className="text-[10px] font-bold text-[#C99213] uppercase tracking-wider">
+            Custom Sub Category Name *
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={handleNameChange}
+            placeholder="e.g. Bangles, Maang Tikka, Kolhapuris..."
+            autoFocus
+            className="px-3 py-2 border border-[#C99213] rounded text-xs outline-none focus:ring-1 focus:ring-[#C99213] text-neutral-850"
+          />
+        </div>
+      )}
 
       {/* Slug */}
       <div className="flex flex-col space-y-1">

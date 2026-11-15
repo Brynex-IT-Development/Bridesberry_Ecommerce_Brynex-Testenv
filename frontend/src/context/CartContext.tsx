@@ -7,6 +7,7 @@ import { Product } from '../types/product';
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Product, quantity: number, selectedAttributes: SelectedAttribute[]) => void;
+  setCartItemQuantity: (product: Product, quantity: number, selectedAttributes?: SelectedAttribute[]) => void;
   removeFromCart: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -91,6 +92,50 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const setCartItemQuantity = (
+    product: Product,
+    quantity: number,
+    selectedAttributes: SelectedAttribute[] = []
+  ) => {
+    if (quantity <= 0) {
+      setCartItems((prevItems) => prevItems.filter((item) => item.product.id !== product.id));
+      return;
+    }
+
+    setCartItems((prevItems) => {
+      const attributesString = selectedAttributes
+        .map((attr) => `${attr.name}:${attr.value}`)
+        .sort()
+        .join('|');
+      const itemId = `${product.id}-${attributesString}`;
+
+      const existingItemIndex = prevItems.findIndex(
+        (item) => item.id === itemId || item.product.id === product.id
+      );
+
+      const targetQty = Math.min(quantity, product.stock);
+
+      if (existingItemIndex > -1) {
+        const newItems = [...prevItems];
+        newItems[existingItemIndex] = {
+          ...newItems[existingItemIndex],
+          quantity: targetQty,
+        };
+        return newItems;
+      } else {
+        return [
+          ...prevItems,
+          {
+            id: itemId,
+            product,
+            quantity: targetQty,
+            selectedAttributes,
+          },
+        ];
+      }
+    });
+  };
+
   const removeFromCart = (itemId: string) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
   };
@@ -130,6 +175,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       value={{
         cartItems,
         addToCart,
+        setCartItemQuantity,
         removeFromCart,
         updateQuantity,
         clearCart,

@@ -34,9 +34,13 @@ export default function CartPage() {
     });
   }, [cartItems]);
 
-  // Summary figures
-  const tax = Math.round(cartSubtotal * 0.03 * 100) / 100;
-  const total = cartSubtotal + tax;
+  // Summary figures: calculate total MRP, total discount, and grand total (inclusive of taxes)
+  const totalMrp = cartItems.reduce(
+    (acc, item) => acc + (item.product.mrp && item.product.mrp > item.product.price ? item.product.mrp : item.product.price) * item.quantity,
+    0
+  );
+  const totalDiscount = Math.max(0, totalMrp - cartSubtotal);
+  const total = cartSubtotal;
 
   return (
     <div className="bg-white min-h-screen pt-24 sm:pt-32 pb-8 sm:pb-16 text-left">
@@ -206,6 +210,20 @@ export default function CartPage() {
 
               <div className="space-y-4 text-sm font-questrial text-neutral-600">
                 
+                {/* Total MRP */}
+                <div className="flex justify-between">
+                  <span>Total MRP</span>
+                  <span className="text-neutral-900">₹ {totalMrp.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                </div>
+
+                {/* Discount on MRP (if any) */}
+                {totalDiscount > 0 && (
+                  <div className="flex justify-between text-emerald-700">
+                    <span>Discount on MRP</span>
+                    <span className="font-medium">- ₹ {totalDiscount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                )}
+
                 {/* Subtotal */}
                 <div className="flex justify-between">
                   <span>Subtotal</span>
@@ -215,19 +233,18 @@ export default function CartPage() {
                 {/* Estimated Shipping */}
                 <div className="flex justify-between">
                   <span>Estimated Shipping</span>
-                  <span className="text-neutral-900">Free</span>
-                </div>
-
-                {/* Tax */}
-                <div className="flex justify-between">
-                  <span>Estimated GST (3%)</span>
-                  <span className="text-neutral-900">₹ {tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <span className="text-emerald-700 font-medium">Free</span>
                 </div>
 
                 <div className="border-t border-neutral-200 pt-4 flex justify-between items-baseline">
-                  <span className="text-base font-semibold text-neutral-900" style={{ fontFamily: 'Raleway, sans-serif' }}>
-                    Total
-                  </span>
+                  <div>
+                    <span className="text-base font-semibold text-neutral-900 block" style={{ fontFamily: 'Raleway, sans-serif' }}>
+                      Total
+                    </span>
+                    <span className="text-[11px] text-neutral-400 font-light block">
+                      (Inclusive of all taxes)
+                    </span>
+                  </div>
                   <span
                     className="text-2xl font-semibold text-neutral-900"
                     style={{ fontFamily: "'Google Sans Flex', 'Google Sans', sans-serif" }}
