@@ -164,14 +164,12 @@ export default async function CategorySection() {
                   fontWeight: 200,
                   fontStyle: 'normal',
                   fontSize: '14px',
-                  lineHeight: '115%',
+                  lineHeight: '140%',
                   letterSpacing: '0%',
                 }}
-                className="text-[#6E625E] max-w-[380px] mb-10 sm:mb-20 lg:mb-24"
+                className="text-[#6E625E] max-w-[420px] mb-8 sm:mb-12 font-questrial"
               >
-                Lorem ipsum dolor sit amet consectetur. At vitae risus gravida
-                lectus vel quisque. Tincidunt odio auctor magnis nec ut eu odio.
-                Hendrerit duis parturient lectus aenean.
+                Every piece in our atelier is thoughtfully designed to blend royal heritage with contemporary lightness. Handcrafted for unforgettable bridal celebrations and treasured heirloom moments.
               </p>
 
               <Link

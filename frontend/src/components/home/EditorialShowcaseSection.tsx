@@ -52,9 +52,9 @@ export default function EditorialShowcaseSection({
               }}
               className="text-white mb-4 sm:mb-6"
             >
-              Discover Our Modern
+              Handcrafted Bridal
               <br />
-              Jewelry Collection
+              Clutches &amp; Potlis
             </h2>
 
             <p
@@ -63,18 +63,16 @@ export default function EditorialShowcaseSection({
                 fontWeight: 200,
                 fontStyle: 'normal',
                 fontSize: '14px',
-                lineHeight: '115%',
+                lineHeight: '140%',
                 letterSpacing: '0%',
               }}
-              className="text-white/75 max-w-[420px] mb-10 sm:mb-20 lg:mb-24"
+              className="text-white/80 max-w-[420px] mb-8 sm:mb-12 font-questrial"
             >
-              Lorem ipsum dolor sit amet consectetur. At vitae risus gravida lectus vel
-              quisque. Tincidunt odio auctor magnis nec ut eu odio. Hendrerit duis parturient
-              lectus aenean.
+              Complete your bridal ensemble with richly embroidered clutches, handcrafted potlis, and royal evening minaudières adorned with zari, pearls, and heirloom stonework.
             </p>
 
             <Link
-              href="/shop"
+              href="/shop?category=clutches"
               style={{
                 fontFamily: "var(--font-stack-text), 'Stack Sans Text', sans-serif",
                 fontWeight: 300,
@@ -83,7 +81,7 @@ export default function EditorialShowcaseSection({
               }}
               className="inline-flex items-center justify-center gap-3 border border-white/75 hover:bg-white hover:text-[#310C13] text-white uppercase px-8 py-3.5 transition-all duration-300 hover:shadow-lg active:scale-95"
             >
-              <span>View Collection</span>
+              <span>Explore Clutches</span>
               <svg
                 className="w-3 h-3"
                 fill="none"
@@ -120,9 +118,9 @@ export default function EditorialShowcaseSection({
                   }}
                   className="text-[#310C13] mb-4 sm:mb-6"
                 >
-                  Discover Our Modern
+                  Orthopedic Comfort,
                   <br />
-                  Jewelry Collection
+                  Bridal Elegance
                 </h2>
 
                 <p
@@ -131,18 +129,16 @@ export default function EditorialShowcaseSection({
                     fontWeight: 200,
                     fontStyle: 'normal',
                     fontSize: '14px',
-                    lineHeight: '115%',
+                    lineHeight: '140%',
                     letterSpacing: '0%',
                   }}
-                  className="text-[#6E625E] max-w-[380px] mb-10 sm:mb-20 lg:mb-24"
+                  className="text-[#6E625E] max-w-[420px] mb-8 sm:mb-12 font-questrial"
                 >
-                  Lorem ipsum dolor sit amet consectetur. At vitae risus gravida
-                  lectus vel quisque. Tincidunt odio auctor magnis nec ut eu odio.
-                  Hendrerit duis parturient lectus aenean.
+                  Step into your big day with bespoke wedding footwear. Designed with double-cushioned soles and handcrafted crystal embellishments for lasting comfort from mandap rituals to the reception dance floor.
                 </p>
 
                 <Link
-                  href="/shop"
+                  href="/shop?category=footwear"
                   style={{
                     fontFamily: "var(--font-stack-text), 'Stack Sans Text', sans-serif",
                     fontWeight: 300,
@@ -151,7 +147,7 @@ export default function EditorialShowcaseSection({
                   }}
                   className="inline-flex items-center justify-center gap-3 bg-[#310C13] hover:bg-[#4a101a] text-white uppercase px-8 py-3.5 transition-all duration-300 hover:shadow-lg active:scale-95"
                 >
-                  <span>View Collection</span>
+                  <span>Explore Footwear</span>
                   <svg
                     className="w-3 h-3"
                     fill="none"
