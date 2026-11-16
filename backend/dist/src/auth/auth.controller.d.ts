@@ -37,6 +37,59 @@ export declare class AuthController {
             createdAt: Date;
         };
     }>;
+    updateProfile(user: any, dto: {
+        firstName?: string;
+        lastName?: string;
+    }): Promise<{
+        message: string;
+        user: {
+            id: string;
+            email: string;
+            firstName: string | null;
+            lastName: string | null;
+            role: import("../generated/prisma/enums").UserRole;
+            status: import("../generated/prisma/enums").UserStatus;
+            createdAt: Date;
+        };
+    }>;
+    getAddresses(user: any): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        type: string;
+        street1: string;
+        street2: string | null;
+        city: string;
+        state: string;
+        zipCode: string;
+        country: string;
+        phone: string | null;
+    }[]>;
+    addAddress(user: any, dto: {
+        type?: string;
+        street1: string;
+        street2?: string;
+        city: string;
+        state: string;
+        zipCode: string;
+        country?: string;
+        phone?: string;
+    }): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        type: string;
+        street1: string;
+        street2: string | null;
+        city: string;
+        state: string;
+        zipCode: string;
+        country: string;
+        phone: string | null;
+    }>;
+    deleteAddress(user: any, addressId: string): Promise<{
+        success: boolean;
+    }>;
     forgotPassword(dto: ForgotPasswordDto): Promise<{
         message: string;
     }>;

@@ -150,11 +150,9 @@ export default function AdminProductsPage() {
                           </div>
                         </td>
 
-                        {/* Category (Showing Main Category) */}
-                        <td className="py-4 px-6 whitespace-nowrap">
-                          <span className="inline-block bg-[#FAF8F5] border border-[#E8DBB4] text-[#8C6A16] px-3 py-1 rounded-full text-xs font-semibold">
-                            {product.parentCategory || "Jewellery"}
-                          </span>
+                        {/* Category */}
+                        <td className="py-4 px-6 text-xs font-semibold text-neutral-800 whitespace-nowrap">
+                          {product.category}
                         </td>
 
                         {/* Selling Price */}

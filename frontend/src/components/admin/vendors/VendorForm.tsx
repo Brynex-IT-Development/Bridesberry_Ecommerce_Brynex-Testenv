@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Plus, AlertTriangle, ArrowRight, HelpCircle, ChevronDown } from "lucide-react";
 import { VendorAddress, ContactPerson, BankAccount } from "@/types/vendor";
-import { INDIAN_STATES } from "@/services/localStorage.service";
+import { INDIAN_STATES } from "@/data/indian-states";
 import { getVendorById, createVendor, updateVendor } from "@/services/vendors.service";
 import { uploadFile } from "@/services/media.service";
 import PortalDropdown from "@/components/admin/shared/PortalDropdown";
@@ -43,6 +43,141 @@ const DEFAULT_ADDRESS: VendorAddress = {
   phone: "",
   fax: "",
 };
+
+interface AddressFieldsProps {
+  title: string;
+  address: VendorAddress;
+  onChange: (updated: VendorAddress) => void;
+  headerAction?: React.ReactNode;
+  className?: string;
+}
+
+function AddressFields({ title, address, onChange, headerAction, className = "" }: AddressFieldsProps) {
+  return (
+    <div className={`space-y-4 ${className}`}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-[#C99213]">
+          {title}
+        </h3>
+        {headerAction}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="col-span-2">
+          <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Attention</label>
+          <input
+            type="text"
+            placeholder="e.g. Accounts Dept"
+            value={address.attention}
+            onChange={(e) => onChange({ ...address, attention: e.target.value })}
+            className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
+          />
+        </div>
+
+        <div className="col-span-2">
+          <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Country / Region</label>
+          <input
+            type="text"
+            value={address.countryRegion}
+            onChange={(e) => onChange({ ...address, countryRegion: e.target.value })}
+            className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
+          />
+        </div>
+
+        <div className="col-span-2">
+          <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Street Address Line 1</label>
+          <input
+            type="text"
+            placeholder="Line 1"
+            value={address.street1}
+            onChange={(e) => onChange({ ...address, street1: e.target.value })}
+            className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
+          />
+        </div>
+
+        <div className="col-span-2">
+          <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Street Address Line 2</label>
+          <input
+            type="text"
+            placeholder="Line 2"
+            value={address.street2}
+            onChange={(e) => onChange({ ...address, street2: e.target.value })}
+            className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">City</label>
+          <input
+            type="text"
+            placeholder="City"
+            value={address.city}
+            onChange={(e) => onChange({ ...address, city: e.target.value })}
+            className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">State</label>
+          <PortalDropdown
+            align="left"
+            trigger={(isOpen, toggle) => (
+              <button
+                type="button"
+                onClick={toggle}
+                className="w-full flex items-center justify-between px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213] text-neutral-800 text-left cursor-pointer"
+              >
+                <span>{address.state || "Select State"}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+              </button>
+            )}
+            renderContent={(close) => (
+              <div className="py-1 max-h-60 overflow-y-auto">
+                {INDIAN_STATES.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => {
+                      onChange({ ...address, state: s });
+                      close();
+                    }}
+                    className={`w-full text-left px-4 py-2 hover:bg-neutral-50 text-xs transition-colors ${
+                      address.state === s ? "font-bold text-[#C99213] bg-[#C99213]/10" : "text-neutral-700"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+          />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">ZIP / Pin Code</label>
+          <input
+            type="text"
+            placeholder="Pin Code"
+            value={address.zipCode}
+            onChange={(e) => onChange({ ...address, zipCode: e.target.value })}
+            className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Phone</label>
+          <input
+            type="text"
+            placeholder="Phone"
+            value={address.phone}
+            onChange={(e) => onChange({ ...address, phone: e.target.value })}
+            className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function VendorForm({ initialVendorId }: VendorFormProps) {
   const router = useRouter();
@@ -773,132 +908,20 @@ export default function VendorForm({ initialVendorId }: VendorFormProps) {
               )}
               
               {/* Billing Address */}
-              <div className="space-y-4 pr-0 lg:pr-8">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#C99213] mb-4">
-                  Billing Address
-                </h3>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Attention</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Accounts Dept"
-                      value={billingAddress.attention}
-                      onChange={(e) => setBillingAddress({ ...billingAddress, attention: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-                  
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Country / Region</label>
-                    <input
-                      type="text"
-                      value={billingAddress.countryRegion}
-                      onChange={(e) => setBillingAddress({ ...billingAddress, countryRegion: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Street Address Line 1</label>
-                    <input
-                      type="text"
-                      placeholder="Line 1"
-                      value={billingAddress.street1}
-                      onChange={(e) => setBillingAddress({ ...billingAddress, street1: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Street Address Line 2</label>
-                    <input
-                      type="text"
-                      placeholder="Line 2"
-                      value={billingAddress.street2}
-                      onChange={(e) => setBillingAddress({ ...billingAddress, street2: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">City</label>
-                    <input
-                      type="text"
-                      placeholder="City"
-                      value={billingAddress.city}
-                      onChange={(e) => setBillingAddress({ ...billingAddress, city: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">State</label>
-                    <PortalDropdown
-                      align="left"
-                      trigger={(isOpen, toggle) => (
-                        <button
-                          type="button"
-                          onClick={toggle}
-                          className="w-full flex items-center justify-between px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213] text-neutral-800 text-left cursor-pointer"
-                        >
-                          <span>{billingAddress.state || "Select State"}</span>
-                          <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
-                        </button>
-                      )}
-                      renderContent={(close) => (
-                        <div className="py-1 max-h-60 overflow-y-auto">
-                          {INDIAN_STATES.map((s) => (
-                            <button
-                              key={s}
-                              type="button"
-                              onClick={() => {
-                                setBillingAddress({ ...billingAddress, state: s });
-                                close();
-                              }}
-                              className={`w-full text-left px-4 py-2 hover:bg-neutral-50 text-xs transition-colors ${
-                                billingAddress.state === s ? "font-bold text-[#C99213] bg-[#C99213]/10" : "text-neutral-700"
-                              }`}
-                            >
-                              {s}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">ZIP / Pin Code</label>
-                    <input
-                      type="text"
-                      placeholder="Pin Code"
-                      value={billingAddress.zipCode}
-                      onChange={(e) => setBillingAddress({ ...billingAddress, zipCode: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Phone</label>
-                    <input
-                      type="text"
-                      placeholder="Phone"
-                      value={billingAddress.phone}
-                      onChange={(e) => setBillingAddress({ ...billingAddress, phone: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-                </div>
-              </div>
+              <AddressFields
+                title="Billing Address"
+                address={billingAddress}
+                onChange={setBillingAddress}
+                className="pr-0 lg:pr-8"
+              />
 
               {/* Shipping Address */}
-              <div className="space-y-4 pt-6 lg:pt-0 pl-0 lg:pl-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#C99213]">
-                    Shipping Address
-                  </h3>
+              <AddressFields
+                title="Shipping Address"
+                address={shippingAddress}
+                onChange={setShippingAddress}
+                className="pt-6 lg:pt-0 pl-0 lg:pl-8"
+                headerAction={
                   <button
                     type="button"
                     onClick={copyBillingToShipping}
@@ -906,122 +929,8 @@ export default function VendorForm({ initialVendorId }: VendorFormProps) {
                   >
                     Copy Billing Address
                   </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Attention</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Receiving Bay"
-                      value={shippingAddress.attention}
-                      onChange={(e) => setShippingAddress({ ...shippingAddress, attention: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-                  
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Country / Region</label>
-                    <input
-                      type="text"
-                      value={shippingAddress.countryRegion}
-                      onChange={(e) => setShippingAddress({ ...shippingAddress, countryRegion: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Street Address Line 1</label>
-                    <input
-                      type="text"
-                      placeholder="Line 1"
-                      value={shippingAddress.street1}
-                      onChange={(e) => setShippingAddress({ ...shippingAddress, street1: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Street Address Line 2</label>
-                    <input
-                      type="text"
-                      placeholder="Line 2"
-                      value={shippingAddress.street2}
-                      onChange={(e) => setShippingAddress({ ...shippingAddress, street2: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">City</label>
-                    <input
-                      type="text"
-                      placeholder="City"
-                      value={shippingAddress.city}
-                      onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">State</label>
-                    <PortalDropdown
-                      align="left"
-                      trigger={(isOpen, toggle) => (
-                        <button
-                          type="button"
-                          onClick={toggle}
-                          className="w-full flex items-center justify-between px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213] text-neutral-800 text-left cursor-pointer"
-                        >
-                          <span>{shippingAddress.state || "Select State"}</span>
-                          <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
-                        </button>
-                      )}
-                      renderContent={(close) => (
-                        <div className="py-1 max-h-60 overflow-y-auto">
-                          {INDIAN_STATES.map((s) => (
-                            <button
-                              key={s}
-                              type="button"
-                              onClick={() => {
-                                setShippingAddress({ ...shippingAddress, state: s });
-                                close();
-                              }}
-                              className={`w-full text-left px-4 py-2 hover:bg-neutral-50 text-xs transition-colors ${
-                                shippingAddress.state === s ? "font-bold text-[#C99213] bg-[#C99213]/10" : "text-neutral-700"
-                              }`}
-                            >
-                              {s}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">ZIP / Pin Code</label>
-                    <input
-                      type="text"
-                      placeholder="Pin Code"
-                      value={shippingAddress.zipCode}
-                      onChange={(e) => setShippingAddress({ ...shippingAddress, zipCode: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold text-neutral-450 uppercase mb-1">Phone</label>
-                    <input
-                      type="text"
-                      placeholder="Phone"
-                      value={shippingAddress.phone}
-                      onChange={(e) => setShippingAddress({ ...shippingAddress, phone: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-[#FAF9F6] border border-[#E5E5E5] rounded-lg text-xs outline-none focus:border-[#C99213]"
-                    />
-                  </div>
-                </div>
-              </div>
+                }
+              />
             </div>
           )}
 

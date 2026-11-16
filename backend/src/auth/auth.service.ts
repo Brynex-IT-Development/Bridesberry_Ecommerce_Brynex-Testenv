@@ -4,6 +4,7 @@ import {
   BadRequestException,
   ConflictException,
   UnauthorizedException,
+  NotFoundException,
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -415,5 +416,66 @@ export class AuthService {
       status: user.status,
       createdAt: user.createdAt,
     };
+  }
+
+  async updateProfile(
+    userId: string,
+    data: { firstName?: string; lastName?: string },
+  ): Promise<User> {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.firstName !== undefined ? { firstName: data.firstName.trim() } : {}),
+        ...(data.lastName !== undefined ? { lastName: data.lastName.trim() } : {}),
+      },
+    });
+  }
+
+  async getAddresses(userId: string) {
+    return this.prisma.customerAddress.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async addAddress(
+    userId: string,
+    data: {
+      type?: string;
+      street1: string;
+      street2?: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country?: string;
+      phone?: string;
+    },
+  ) {
+    return this.prisma.customerAddress.create({
+      data: {
+        userId,
+        type: data.type || 'SHIPPING',
+        street1: data.street1,
+        street2: data.street2 || null,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode,
+        country: data.country || 'India',
+        phone: data.phone || null,
+      },
+    });
+  }
+
+  async deleteAddress(userId: string, addressId: string) {
+    const existing = await this.prisma.customerAddress.findFirst({
+      where: { id: addressId, userId },
+    });
+    if (!existing) {
+      throw new NotFoundException('Address not found');
+    }
+    await this.prisma.customerAddress.delete({
+      where: { id: addressId },
+    });
+    return { success: true };
   }
 }

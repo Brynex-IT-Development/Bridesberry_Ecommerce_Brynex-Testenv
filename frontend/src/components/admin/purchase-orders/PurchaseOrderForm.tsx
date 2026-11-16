@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import { Plus, ArrowRight, X, ChevronDown } from "lucide-react";
 import { PurchaseOrder, POItem } from "@/types/purchase-order";
 import { Vendor } from "@/types/vendor";
-import { INDIAN_STATES } from "@/services/localStorage.service";
+import { INDIAN_STATES } from "@/data/indian-states";
 import { getVendors, createVendor } from "@/services/vendors.service";
 import { createPurchaseOrder, updatePurchaseOrder, getPurchaseOrderById } from "@/services/purchase-orders.service";
 import { getAdminProducts } from "@/services/products.service";

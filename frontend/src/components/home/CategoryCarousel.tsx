@@ -21,21 +21,21 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
   const displayCategories = categories.slice(0, 3);
 
   return (
-    <div className="relative z-10 -mt-36 sm:-mt-48 w-full px-[6.5%] mx-auto max-w-[1440px]">
+    <div className="relative z-10 -mt-28 sm:-mt-48 w-full px-[6.5%] mx-auto max-w-[1440px]">
       {/* Exactly 3 Static Cards in 3:4 Aspect Ratio, no horizontal scrolling, no arrows */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 lg:gap-8 justify-center">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 justify-center">
         {displayCategories.map((cat) => (
           <Link
             key={cat.id}
             href={cat.href || `/shop?category=${encodeURIComponent(cat.slug)}`}
-            className="group relative w-full aspect-[3/4] bg-[#DEDEDE] overflow-hidden block shadow-sm hover:shadow-2xl transition-all duration-500 rounded-xs"
+            className="group relative w-full max-w-[270px] sm:max-w-none mx-auto aspect-[3/3.8] sm:aspect-[3/4] bg-[#DEDEDE] overflow-hidden block shadow-sm hover:shadow-2xl transition-all duration-500 rounded-xs"
           >
             {cat.image ? (
               <Image
                 src={cat.image}
                 alt={cat.name}
                 fill
-                sizes="(max-width: 640px) 100vw, 33vw"
+                sizes="(max-width: 640px) 280px, 33vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               />
             ) : (
@@ -45,13 +45,13 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
             )}
 
             {/* Permanent bottom title on mobile */}
-            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/35 to-transparent sm:hidden flex flex-col items-start z-10 pointer-events-none">
+            <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-4 bg-gradient-to-t from-black/80 via-black/35 to-transparent sm:hidden flex flex-col items-start z-10 pointer-events-none">
               <h3
                 style={{
                   fontFamily: "var(--font-stack-headline), 'Raleway', sans-serif",
                   fontWeight: 400,
                 }}
-                className="text-white text-base tracking-normal drop-shadow-sm uppercase"
+                className="text-white text-sm sm:text-base tracking-normal drop-shadow-sm uppercase"
               >
                 {cat.name}
               </h3>

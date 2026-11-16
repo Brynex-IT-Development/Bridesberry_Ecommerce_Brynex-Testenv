@@ -27,6 +27,7 @@ interface AuthContextType {
   resetPassword: (email: string, otp: string, password: string) => Promise<void>;
   adminLogin: (email: string, password: string) => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateUserProfile: (firstName: string, lastName: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -152,6 +153,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const updateUserProfile = async (firstName: string, lastName: string) => {
+    try {
+      const res = await apiFetch<{ message: string; user: User }>('/api/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify({ firstName, lastName }),
+      });
+      if (res && res.user) {
+        setUser(res.user);
+      }
+    } catch (err) {
+      console.error('Failed to update profile on backend:', err);
+      throw err;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -168,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resetPassword,
         adminLogin,
         refreshUser,
+        updateUserProfile,
       }}
     >
       {children}

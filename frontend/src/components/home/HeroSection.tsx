@@ -3,8 +3,12 @@ import Image from 'next/image';
 import { getSystemSettings } from '@/services/system-settings.service';
 import ScrollReveal from '../shared/ScrollReveal';
 
-export default async function HeroSection() {
-  const settings = await getSystemSettings();
+interface HeroSectionProps {
+  settings?: Record<string, string>;
+}
+
+export default async function HeroSection({ settings: propSettings }: HeroSectionProps = {}) {
+  const settings = propSettings || (await getSystemSettings());
   const heroImage = settings.hero_image || '/hero-bg-v2.jpg';
   const heroPosition = settings.hero_image_position || '50% 46%';
   const heroFit = (settings.hero_image_fit as 'cover' | 'contain') || 'cover';
@@ -18,7 +22,8 @@ export default async function HeroSection() {
           alt="Brides Berry Bridal Jewelry"
           fill
           priority
-          quality={100}
+          fetchPriority="high"
+          quality={85}
           sizes="100vw"
           style={{ objectPosition: heroPosition, objectFit: heroFit }}
         />

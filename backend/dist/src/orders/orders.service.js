@@ -77,7 +77,15 @@ let OrdersService = class OrdersService {
         return this.prisma.order.findMany({
             where: { customerId },
             include: {
-                items: true,
+                items: {
+                    include: {
+                        product: {
+                            include: {
+                                images: { where: { isPrimary: true } },
+                            },
+                        },
+                    },
+                },
             },
             orderBy: {
                 createdAt: 'desc',

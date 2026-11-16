@@ -133,6 +133,22 @@ let AuthController = class AuthController {
         }
         return { user: this.authService.sanitizeUser(user) };
     }
+    async updateProfile(user, dto) {
+        const updated = await this.authService.updateProfile(user.id, dto);
+        return {
+            message: 'Profile updated successfully',
+            user: this.authService.sanitizeUser(updated),
+        };
+    }
+    async getAddresses(user) {
+        return this.authService.getAddresses(user.id);
+    }
+    async addAddress(user, dto) {
+        return this.authService.addAddress(user.id, dto);
+    }
+    async deleteAddress(user, addressId) {
+        return this.authService.deleteAddress(user.id, addressId);
+    }
     async forgotPassword(dto) {
         await this.authService.forgotPassword(dto.email);
         return {
@@ -214,6 +230,41 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object, String]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "me", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Put)('profile'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('addresses'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getAddresses", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('addresses'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "addAddress", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Delete)('addresses/:id'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "deleteAddress", null);
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Post)('forgot-password'),

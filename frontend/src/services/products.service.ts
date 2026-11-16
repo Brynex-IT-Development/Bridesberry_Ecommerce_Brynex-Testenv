@@ -217,7 +217,7 @@ export interface GetProductsParams {
 export async function getProductCollections(includeAll = false): Promise<string[]> {
   try {
     const data = await apiFetch<string[]>(`/api/products/collections${includeAll ? "?all=true" : ""}`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     return data ?? [];
   } catch {
@@ -237,7 +237,7 @@ export async function getProducts(params?: GetProductsParams): Promise<Product[]
 
   try {
     const data = await apiFetch<Record<string, unknown> | BackendProductResponse[]>(`/api/products?${query.toString()}`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     if (data && typeof data === "object" && "products" in data) {
       return (data.products as BackendProductResponse[]).map(mapBackendProduct);
@@ -271,7 +271,7 @@ export async function getProductsPaginated(params?: GetProductsParams): Promise<
 
   try {
     const data = await apiFetch<Record<string, unknown> | BackendProductResponse[]>(`/api/products?${query.toString()}`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     if (data && typeof data === "object" && "products" in data) {
       return {
@@ -330,7 +330,7 @@ export interface FilterMetadata {
 export async function getFilterMetadata(): Promise<FilterMetadata> {
   try {
     const data = await apiFetch<FilterMetadata>("/api/products/filters", {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     return data ?? {
       categories: [],
@@ -359,7 +359,7 @@ export async function getFilterMetadata(): Promise<FilterMetadata> {
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
   try {
     const data = await apiFetch<BackendProductResponse>(`/api/products/${slug}`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     return data ? mapBackendProduct(data) : undefined;
   } catch {

@@ -344,6 +344,48 @@ let AuthService = AuthService_1 = class AuthService {
             createdAt: user.createdAt,
         };
     }
+    async updateProfile(userId, data) {
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                ...(data.firstName !== undefined ? { firstName: data.firstName.trim() } : {}),
+                ...(data.lastName !== undefined ? { lastName: data.lastName.trim() } : {}),
+            },
+        });
+    }
+    async getAddresses(userId) {
+        return this.prisma.customerAddress.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+    async addAddress(userId, data) {
+        return this.prisma.customerAddress.create({
+            data: {
+                userId,
+                type: data.type || 'SHIPPING',
+                street1: data.street1,
+                street2: data.street2 || null,
+                city: data.city,
+                state: data.state,
+                zipCode: data.zipCode,
+                country: data.country || 'India',
+                phone: data.phone || null,
+            },
+        });
+    }
+    async deleteAddress(userId, addressId) {
+        const existing = await this.prisma.customerAddress.findFirst({
+            where: { id: addressId, userId },
+        });
+        if (!existing) {
+            throw new common_1.NotFoundException('Address not found');
+        }
+        await this.prisma.customerAddress.delete({
+            where: { id: addressId },
+        });
+        return { success: true };
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = AuthService_1 = __decorate([

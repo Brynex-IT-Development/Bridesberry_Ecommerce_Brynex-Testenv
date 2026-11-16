@@ -3,6 +3,9 @@ import {
   Controller,
   Post,
   Get,
+  Put,
+  Delete,
+  Param,
   Body,
   Req,
   Res,
@@ -152,6 +155,53 @@ export class AuthController {
       await this.authService.updateSessionActivity(user.id, refreshToken, ip);
     }
     return { user: this.authService.sanitizeUser(user) };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('profile')
+  async updateProfile(
+    @CurrentUser() user: any,
+    @Body() dto: { firstName?: string; lastName?: string },
+  ) {
+    const updated = await this.authService.updateProfile(user.id, dto);
+    return {
+      message: 'Profile updated successfully',
+      user: this.authService.sanitizeUser(updated),
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('addresses')
+  async getAddresses(@CurrentUser() user: any) {
+    return this.authService.getAddresses(user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('addresses')
+  async addAddress(
+    @CurrentUser() user: any,
+    @Body()
+    dto: {
+      type?: string;
+      street1: string;
+      street2?: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country?: string;
+      phone?: string;
+    },
+  ) {
+    return this.authService.addAddress(user.id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('addresses/:id')
+  async deleteAddress(
+    @CurrentUser() user: any,
+    @Param('id') addressId: string,
+  ) {
+    return this.authService.deleteAddress(user.id, addressId);
   }
 
   @Public()

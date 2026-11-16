@@ -42,10 +42,8 @@ export default function ProductCard({ product, centered = true }: ProductCardPro
   };
 
   return (
-    <motion.div
-      whileHover={shouldReduceMotion ? undefined : { y: -5 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative flex flex-col bg-white transition-shadow duration-300 hover:shadow-[0_16px_32px_-8px_rgba(49,12,19,0.08)]"
+    <div
+      className="group relative flex flex-col bg-white transition-all duration-300 sm:hover:-translate-y-1 sm:hover:shadow-[0_16px_32px_-8px_rgba(49,12,19,0.08)]"
     >
       {/* Product Image Frame */}
       <Link
@@ -63,19 +61,21 @@ export default function ProductCard({ product, centered = true }: ProductCardPro
           }`}
         />
 
-        {/* Secondary Hover Image (smooth cross-fade) */}
+        {/* Secondary Hover Image (smooth cross-fade on desktop only) */}
         {hoverImg && (
-          <Image
-            src={hoverImg}
-            alt={`${product.title} – alternate view`}
-            fill
-            sizes="(max-width: 640px) 50vw, 33vw"
-            className="object-cover absolute inset-0 transition-all duration-700 ease-out opacity-0 group-hover:opacity-100 group-hover:scale-105"
-          />
+          <div className="hidden sm:block absolute inset-0">
+            <Image
+              src={hoverImg}
+              alt={`${product.title} – alternate view`}
+              fill
+              sizes="(max-width: 640px) 50vw, 33vw"
+              className="object-cover transition-all duration-700 ease-out opacity-0 group-hover:opacity-100 group-hover:scale-105"
+            />
+          </div>
         )}
 
-        {/* Floating Solid Burgundy "ADD TO BAG" Button (inset inside edges) on hover */}
-        <div className="absolute inset-x-3 sm:inset-x-3.5 bottom-3 sm:bottom-3.5 z-20 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto">
+        {/* Floating Solid Burgundy "ADD TO BAG" Button (desktop only) */}
+        <div className="hidden sm:block absolute inset-x-3 sm:inset-x-3.5 bottom-3 sm:bottom-3.5 z-20 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto">
           <button
             type="button"
             onClick={handleQuickAdd}
@@ -164,6 +164,6 @@ export default function ProductCard({ product, centered = true }: ProductCardPro
           From <span className="font-semibold text-[#111111]">RS. {product.price.toLocaleString('en-IN')}</span>
         </p>
       </div>
-    </motion.div>
+    </div>
   );
 }

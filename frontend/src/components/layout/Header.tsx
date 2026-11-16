@@ -9,6 +9,7 @@ import { useCart } from '../../context/CartContext';
 import MegaMenu from './MegaMenu';
 import { MenuItem } from '../../types/menu';
 import { useAuth } from '../../context/AuthContext';
+import { useProfile } from '../../context/ProfileContext';
 import { getCategories } from '../../services/categories.service';
 import { getProductCollections } from '../../services/products.service';
 
@@ -16,7 +17,11 @@ export default function Header() {
   const pathname = usePathname();
   const { cartCount } = useCart();
   const { user, isAuthenticated, logout, isAdmin } = useAuth();
+  const { isDrawerOpen, openDrawer } = useProfile();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
+  // Check if profile view or drawer is active for the underline indicator
+  const isProfileActive = isDrawerOpen || pathname === '/account' || pathname === '/profile';
 
   // Is this the home page?
   const isHomePage = pathname === '/';
@@ -189,7 +194,7 @@ export default function Header() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     // Run once on mount to handle initial scroll position
     handleScroll();
 
@@ -351,60 +356,16 @@ export default function Header() {
                 </div>
               </Link>
 
-              {/* Profile User Icon & Dropdown */}
-              <div className="relative flex items-center">
-                {isAuthenticated ? (
-                  <>
-                    <button
-                      onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                      className={`hidden md:flex w-16 h-9 items-center justify-center border-l ${borderClass} text-[#310C13] hover:opacity-75 transition-opacity focus:outline-none cursor-pointer`}
-                      aria-label="Account menu"
-                    >
-                      <span className="font-questrial text-xs font-semibold tracking-wider text-[#310C13] uppercase">
-                        {user?.firstName ? user.firstName.substring(0, 2) : 'US'}
-                      </span>
-                    </button>
-                    {profileDropdownOpen && (
-                      <div className="absolute right-0 top-[140%] w-48 bg-white border border-neutral-100 shadow-xl py-2 z-50 text-neutral-800">
-                        <div className="px-4 py-2 border-b border-neutral-100">
-                          <p className="font-questrial text-[10px] text-neutral-400 uppercase tracking-widest">Signed in as</p>
-                          <p className="font-raleway text-xs font-semibold text-neutral-800 truncate mt-0.5">{user?.firstName} {user?.lastName}</p>
-                        </div>
-                        {isAdmin && (
-                          <Link
-                            href="/admin/dashboard"
-                            onClick={() => setProfileDropdownOpen(false)}
-                            className="block px-4 py-2 text-xs font-questrial hover:bg-neutral-50 text-neutral-700 hover:text-[#c59b27] uppercase tracking-wider"
-                          >
-                            Admin Panel
-                          </Link>
-                        )}
-                        <Link
-                          href="/orders"
-                          onClick={() => setProfileDropdownOpen(false)}
-                          className="block px-4 py-2 text-xs font-questrial hover:bg-neutral-50 text-neutral-700 hover:text-[#c59b27] uppercase tracking-wider"
-                        >
-                          My Orders
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setProfileDropdownOpen(false);
-                            logout();
-                          }}
-                          className="w-full text-left px-4 py-2 text-xs font-questrial hover:bg-neutral-50 text-neutral-700 hover:text-red-600 uppercase tracking-wider border-t border-neutral-50 cursor-pointer"
-                        >
-                          Log out
-                        </button>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Link
-                    href="/login"
-                    className={`hidden md:flex w-16 h-9 items-center justify-center border-l ${borderClass} text-[#310C13] hover:opacity-75 transition-opacity`}
-                    aria-label="Profile"
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Profile User Icon */}
+              <div className="relative flex items-center h-full">
+                <button
+                  type="button"
+                  onClick={() => openDrawer()}
+                  className={`flex w-11 sm:w-14 md:w-16 h-9 items-center justify-center border-l ${borderClass} text-[#310C13] hover:opacity-75 transition-opacity focus:outline-none cursor-pointer relative`}
+                  aria-label="Profile"
+                >
+                  <div className="relative flex items-center justify-center">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="12" cy="8" r="4" stroke="#310C13" strokeWidth="1.5" />
                       <path
                         d="M5 18.5C5 15.7386 7.46243 14 10.5 14H13.5C16.5376 14 19 15.7386 19 18.5C19 19.6046 18.1046 20.5 17 20.5H7C5.89543 20.5 5 19.6046 5 18.5Z"
@@ -414,8 +375,12 @@ export default function Header() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                  </Link>
-                )}
+                    {/* Underline indicator matching screenshots */}
+                    {isProfileActive && (
+                      <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-[2px] bg-[#310C13] pointer-events-none transition-all" />
+                    )}
+                  </div>
+                </button>
               </div>
 
               {/* Mobile Hamburger menu */}
@@ -552,7 +517,18 @@ export default function Header() {
 
             {/* Mobile Drawer Auth Section */}
             <div className="px-4 py-6 border-t border-neutral-100 space-y-4">
-                {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  openDrawer();
+                }}
+                className="w-full flex items-center justify-between text-xs font-questrial uppercase tracking-widest text-[#310C13] hover:text-[#C59B27] py-2 border-b border-neutral-100 text-left cursor-pointer"
+              >
+                <span>My Profile / Account</span>
+                <span className="text-[#C59B27] font-bold">&gt;</span>
+              </button>
+              {isAuthenticated ? (
                   <>
                     <div className="text-xs font-questrial text-neutral-500 mb-2">
                       Logged in as: <strong className="text-neutral-800 font-medium">{user?.firstName} {user?.lastName}</strong>

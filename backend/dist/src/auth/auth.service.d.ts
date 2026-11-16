@@ -48,4 +48,46 @@ export declare class AuthService {
         status: UserStatus;
         createdAt: Date;
     };
+    updateProfile(userId: string, data: {
+        firstName?: string;
+        lastName?: string;
+    }): Promise<User>;
+    getAddresses(userId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        type: string;
+        street1: string;
+        street2: string | null;
+        city: string;
+        state: string;
+        zipCode: string;
+        country: string;
+        phone: string | null;
+    }[]>;
+    addAddress(userId: string, data: {
+        type?: string;
+        street1: string;
+        street2?: string;
+        city: string;
+        state: string;
+        zipCode: string;
+        country?: string;
+        phone?: string;
+    }): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        type: string;
+        street1: string;
+        street2: string | null;
+        city: string;
+        state: string;
+        zipCode: string;
+        country: string;
+        phone: string | null;
+    }>;
+    deleteAddress(userId: string, addressId: string): Promise<{
+        success: boolean;
+    }>;
 }

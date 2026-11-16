@@ -59,7 +59,8 @@ let ProductsService = ProductsService_1 = class ProductsService {
                 where.category = {
                     slug: { in: slugs },
                 };
-            } else {
+            }
+            else {
                 where.category = {
                     slug: query.category,
                 };

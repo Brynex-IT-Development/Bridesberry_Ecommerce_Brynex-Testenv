@@ -4,9 +4,11 @@ import React, { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { CartProvider } from "../../context/CartContext";
 import { AuthProvider, useAuth } from "../../context/AuthContext";
+import { ProfileProvider } from "../../context/ProfileContext";
 import Header from "./Header";
 import Footer from "./Footer";
 import PageLoadingIndicator from "./PageLoadingIndicator";
+import ProfileDrawer from "./ProfileDrawer";
 
 interface ClientLayoutWrapperProps {
   children: React.ReactNode;
@@ -57,12 +59,15 @@ function LayoutContent({ children }: ClientLayoutWrapperProps) {
 
   return (
     <CartProvider>
-      <PageLoadingIndicator />
-      <Header />
-      <main className="flex-grow">
-        {children}
-      </main>
-      <Footer />
+      <ProfileProvider>
+        <PageLoadingIndicator />
+        <Header />
+        <ProfileDrawer />
+        <main className="flex-grow">
+          {children}
+        </main>
+        <Footer />
+      </ProfileProvider>
     </CartProvider>
   );
 }

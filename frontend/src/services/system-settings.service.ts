@@ -5,6 +5,7 @@ export async function getSystemSettings(): Promise<Record<string, string>> {
     return await apiFetch<Record<string, string>>("/api/system-settings", {
       method: "GET",
       timeout: 5000,
+      next: { revalidate: 60 },
     });
   } catch {
     return {};

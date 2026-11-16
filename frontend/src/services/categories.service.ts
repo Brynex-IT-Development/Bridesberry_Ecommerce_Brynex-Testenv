@@ -41,7 +41,7 @@ function mapAdminCategoryPayload(
 export async function getCategories(): Promise<Category[]> {
   try {
     const data = await apiFetch<BackendAdminCategory[]>("/api/categories", {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     return (data ?? [])
       .map((category) => ({

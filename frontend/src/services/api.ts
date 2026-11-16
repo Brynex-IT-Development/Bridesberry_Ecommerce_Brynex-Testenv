@@ -45,6 +45,10 @@ export function getAccessToken(): string {
 export interface RequestOptions extends RequestInit {
   skipAuthRefresh?: boolean;
   timeout?: number;
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
 }
 
 export async function apiFetch<T = unknown>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -53,9 +57,6 @@ export async function apiFetch<T = unknown>(path: string, options: RequestOption
   // Workaround for Node.js 18+ IPv6 localhost resolution hanging in Next.js SSR
   if (typeof window === 'undefined' && url.includes('localhost')) {
     url = url.replace('localhost', '127.0.0.1');
-    console.log('Server-side fetch URL replaced localhost with 127.0.0.1 ->', url);
-  } else {
-    console.log('apiFetch URL ->', url);
   }
 
   const headers = new Headers(options.headers || {});
@@ -84,11 +85,18 @@ export async function apiFetch<T = unknown>(path: string, options: RequestOption
     }
   }
 
+  const isPublicGet = (!options.method || options.method === 'GET') && !token;
+  const defaultNext =
+    typeof window === 'undefined' && isPublicGet && !options.cache
+      ? { revalidate: 60 }
+      : undefined;
+
   const mergedOptions: RequestInit = {
     ...options,
     headers,
     signal,
     credentials: 'include', // Send cookies
+    ...((options.next || defaultNext) ? { next: options.next || defaultNext } : {}),
   };
 
   let response: Response;

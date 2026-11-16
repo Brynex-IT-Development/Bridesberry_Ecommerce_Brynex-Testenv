@@ -98,6 +98,7 @@ export default function InstagramSection() {
 
   // Continuous seamless auto-scroll
   useEffect(() => {
+    if (!isInView) return;
     const container = scrollRef.current;
     if (!container || baseCount === 0) return;
 
@@ -128,7 +129,7 @@ export default function InstagramSection() {
 
     animationFrameId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isPaused, isDragging, baseCount]);
+  }, [isPaused, isDragging, baseCount, isInView]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollRef.current) return;

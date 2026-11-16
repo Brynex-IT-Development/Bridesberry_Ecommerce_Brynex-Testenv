@@ -36,19 +36,19 @@ export function CategorySectionSkeleton() {
   return (
     <section className="relative bg-[#FCF6F4]">
       <div className="bg-[#310C13] pt-12 pb-36">
-        <div className="w-full pl-[6.5%] mx-auto max-w-[1440px]">
-          <div className="flex flex-col items-center text-center mb-12 pr-[6.5%]">
+        <div className="w-full px-[6.5%] mx-auto max-w-[1440px]">
+          <div className="flex flex-col items-center text-center mb-12">
             <div className="h-12 w-64 bg-white/10 rounded mb-3 animate-pulse" />
             <div className="h-3 w-36 bg-white/10 rounded animate-pulse" />
           </div>
         </div>
       </div>
-      <div className="w-full pl-[6.5%] mx-auto max-w-[1440px] -mt-28 pb-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pr-[6.5%]">
-          {Array.from({ length: 4 }).map((_, i) => (
+      <div className="w-full px-[6.5%] mx-auto max-w-[1440px] -mt-28 pb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 justify-center">
+          {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="aspect-[1/1.05] w-full bg-neutral-200 animate-pulse"
+              className="w-full max-w-[270px] sm:max-w-none mx-auto aspect-[3/3.8] sm:aspect-[3/4] bg-neutral-200 animate-pulse rounded-xs"
             />
           ))}
         </div>
@@ -57,13 +57,21 @@ export function CategorySectionSkeleton() {
   );
 }
 
+interface CategorySectionProps {
+  categories?: any[];
+  settings?: Record<string, string>;
+}
+
 // ---------------------------------------------------------------------------
 // Main async server component
 // ---------------------------------------------------------------------------
-export default async function CategorySection() {
+export default async function CategorySection({
+  categories: propCategories,
+  settings: propSettings,
+}: CategorySectionProps = {}) {
   const [raw, settings] = await Promise.all([
-    getCategories(),
-    getSystemSettings(),
+    propCategories ? Promise.resolve(propCategories) : getCategories(),
+    propSettings ? Promise.resolve(propSettings) : getSystemSettings(),
   ]);
 
   const backendCategories = (raw as unknown as BackendCategory[]) || [];

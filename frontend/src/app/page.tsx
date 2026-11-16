@@ -8,15 +8,16 @@ import PromoPopup from "../components/home/PromoPopup";
 
 import { getProducts } from "@/services/products.service";
 import { getSystemSettings } from "@/services/system-settings.service";
+import { getCategories } from "@/services/categories.service";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 export default async function Home() {
-  const [newArrivalsResponse, bestSellersResponse, settings] = await Promise.all([
+  const [newArrivalsResponse, bestSellersResponse, settings, categories] = await Promise.all([
     getProducts({ newArrival: true }),
     getProducts({ bestSeller: true }),
     getSystemSettings(),
+    getCategories(),
   ]);
 
   const bestSellers =
@@ -40,13 +41,13 @@ export default async function Home() {
       <PromoPopup initialSettings={initialPromoSettings} />
 
       {/* Immersive Hero Section */}
-      <HeroSection />
+      <HeroSection settings={settings} />
 
       {/* Content wrapper */}
       <div className="relative z-20 bg-white">
         {/* Categories Grid + Modern Jewelry Editorial Section */}
         <Suspense fallback={<CategorySectionSkeleton />}>
-          <CategorySection />
+          <CategorySection categories={categories} settings={settings} />
         </Suspense>
 
         {/* Explore Products / Best Selling Showcase (4x2 Grid) */}

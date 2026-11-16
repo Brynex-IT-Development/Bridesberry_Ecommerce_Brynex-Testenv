@@ -178,6 +178,117 @@ function ImageFrameAlignmentControls({
   );
 }
 
+interface BannerEditorCardProps {
+  title: string;
+  description: string;
+  settingKey: string;
+  currentImage?: string;
+  defaultImage: string;
+  defaultPosition?: string;
+  fit: string;
+  position: string;
+  isUploading: boolean;
+  isSavingAlignment: boolean;
+  buttonLabel: string;
+  onReset: () => void;
+  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onUpdateSettingLocal: (key: string, val: string) => void;
+  onSaveAlignment: () => Promise<void>;
+}
+
+function BannerEditorCard({
+  title,
+  description,
+  settingKey,
+  currentImage,
+  defaultImage,
+  defaultPosition = "50% 50%",
+  fit,
+  position,
+  isUploading,
+  isSavingAlignment,
+  buttonLabel,
+  onReset,
+  onUpload,
+  onUpdateSettingLocal,
+  onSaveAlignment,
+}: BannerEditorCardProps) {
+  return (
+    <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-4">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
+            {title}
+          </h2>
+          <p className="text-[10px] text-neutral-400 mt-0.5">
+            {description}
+          </p>
+        </div>
+        {currentImage && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer flex-shrink-0"
+          >
+            Reset Default
+          </button>
+        )}
+      </div>
+
+      {/* Preview image */}
+      <div className="relative aspect-video w-full bg-[#FAF9F6] border border-neutral-200 rounded-xl overflow-hidden flex items-center justify-center">
+        <img
+          src={currentImage || defaultImage}
+          alt={title}
+          style={{
+            objectFit: (fit as any) || "cover",
+            objectPosition: position || defaultPosition,
+            transition: "object-position 0.15s ease",
+          }}
+          className="w-full h-full"
+        />
+        {!currentImage && (
+          <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
+            Default: {defaultImage}
+          </div>
+        )}
+
+        {isUploading && (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-xs flex items-center justify-center">
+            <Loader2 className="w-6 h-6 text-[#C99213] animate-spin" />
+          </div>
+        )}
+      </div>
+
+      {/* Interactive Alignment & Crop Toolbar */}
+      <ImageFrameAlignmentControls
+        fit={fit || "cover"}
+        position={position || defaultPosition}
+        onChange={(newFit, newPos) => {
+          onUpdateSettingLocal(`${settingKey}_fit`, newFit);
+          onUpdateSettingLocal(`${settingKey}_position`, newPos);
+        }}
+        onSave={onSaveAlignment}
+        isSaving={isSavingAlignment}
+      />
+
+      {/* Upload Button */}
+      <div className="flex items-center justify-end">
+        <label className="flex items-center space-x-2 px-5 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer shadow-sm">
+          <Upload className="w-4 h-4" />
+          <span>{buttonLabel}</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={onUpload}
+            className="hidden"
+          />
+        </label>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminHomepageConfigPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [reels, setReels] = useState<(string | ReelItem)[]>([]);
@@ -608,299 +719,78 @@ export default function AdminHomepageConfigPage() {
 
         {/* 2-Column Banner Editors Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
           {/* Main Hero Image card */}
-          <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-4">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
-                  Front Hero Image
-                </h2>
-                <p className="text-[10px] text-neutral-400 mt-0.5">
-                  Main background image displayed in the welcome hero banner (grayscale with color spotlight cutout).
-                </p>
-              </div>
-              {settings.hero_image && (
-                <button
-                  type="button"
-                  onClick={() => handleResetSetting("hero_image", "Front Hero Image")}
-                  className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer flex-shrink-0"
-                >
-                  Reset Default
-                </button>
-              )}
-            </div>
-
-            {/* Preview image */}
-            <div className="relative aspect-video w-full bg-[#FAF9F6] border border-neutral-200 rounded-xl overflow-hidden flex items-center justify-center">
-              <img
-                src={settings.hero_image || "/hero-bg-v2.jpg"}
-                alt="Current Hero Background"
-                style={{
-                  objectFit: (settings.hero_image_fit as any) || "cover",
-                  objectPosition: settings.hero_image_position || "50% 46%",
-                  transition: "object-position 0.15s ease",
-                }}
-                className="w-full h-full"
-              />
-              {!settings.hero_image && (
-                <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
-                  Default: /hero-bg-v2.jpg
-                </div>
-              )}
-
-              {uploadingHero && (
-                <div className="absolute inset-0 bg-white/70 backdrop-blur-xs flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 text-[#C99213] animate-spin" />
-                </div>
-              )}
-            </div>
-
-            {/* Interactive Alignment & Crop Toolbar */}
-            <ImageFrameAlignmentControls
-              fit={settings.hero_image_fit || "cover"}
-              position={settings.hero_image_position || "50% 46%"}
-              onChange={(newFit, newPos) => {
-                handleUpdateSettingLocal("hero_image_fit", newFit);
-                handleUpdateSettingLocal("hero_image_position", newPos);
-              }}
-              onSave={() => handleSaveAlignment("hero_image")}
-              isSaving={savingAlignmentKey === "hero_image"}
-            />
-
-            {/* Upload Button */}
-            <div className="flex items-center justify-end">
-              <label className="flex items-center space-x-2 px-5 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer shadow-sm">
-                <Upload className="w-4 h-4" />
-                <span>Upload New Hero</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleHeroImageUpload}
-                  className="hidden"
-                />
-              </label>
-            </div>
-          </div>
+          <BannerEditorCard
+            title="Front Hero Image"
+            description="Main background image displayed in the welcome hero banner (grayscale with color spotlight cutout)."
+            settingKey="hero_image"
+            currentImage={settings.hero_image}
+            defaultImage="/hero-bg-v2.jpg"
+            defaultPosition="50% 46%"
+            fit={settings.hero_image_fit || "cover"}
+            position={settings.hero_image_position || "50% 46%"}
+            isUploading={uploadingHero}
+            isSavingAlignment={savingAlignmentKey === "hero_image"}
+            buttonLabel="Upload New Hero"
+            onReset={() => handleResetSetting("hero_image", "Front Hero Image")}
+            onUpload={handleHeroImageUpload}
+            onUpdateSettingLocal={handleUpdateSettingLocal}
+            onSaveAlignment={() => handleSaveAlignment("hero_image")}
+          />
 
           {/* Categories Editorial Image card */}
-          <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-4">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
-                  Categories Editorial Banner
-                </h2>
-                <p className="text-[10px] text-neutral-400 mt-0.5">
-                  Editorial showcase image displayed right below the Our Categories carousel (&quot;Discover Our Modern Jewelry Collection&quot;).
-                </p>
-              </div>
-              {settings.category_image && (
-                <button
-                  type="button"
-                  onClick={() => handleResetSetting("category_image", "Categories Editorial Banner")}
-                  className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer flex-shrink-0"
-                >
-                  Reset Default
-                </button>
-              )}
-            </div>
-
-            {/* Preview image */}
-            <div className="relative aspect-video w-full bg-[#FAF9F6] border border-neutral-200 rounded-xl overflow-hidden flex items-center justify-center">
-              <img
-                src={settings.category_image || "/discover-shell-necklace.jpg"}
-                alt="Current Category Banner"
-                style={{
-                  objectFit: (settings.category_image_fit as any) || "cover",
-                  objectPosition: settings.category_image_position || "50% 50%",
-                  transition: "object-position 0.15s ease",
-                }}
-                className="w-full h-full"
-              />
-              {!settings.category_image && (
-                <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
-                  Default: /discover-shell-necklace.jpg
-                </div>
-              )}
-
-              {uploadingCategory && (
-                <div className="absolute inset-0 bg-white/70 backdrop-blur-xs flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 text-[#C99213] animate-spin" />
-                </div>
-              )}
-            </div>
-
-            {/* Interactive Alignment & Crop Toolbar */}
-            <ImageFrameAlignmentControls
-              fit={settings.category_image_fit || "cover"}
-              position={settings.category_image_position || "50% 50%"}
-              onChange={(newFit, newPos) => {
-                handleUpdateSettingLocal("category_image_fit", newFit);
-                handleUpdateSettingLocal("category_image_position", newPos);
-              }}
-              onSave={() => handleSaveAlignment("category_image")}
-              isSaving={savingAlignmentKey === "category_image"}
-            />
-
-            {/* Upload Button */}
-            <div className="flex items-center justify-end">
-              <label className="flex items-center space-x-2 px-5 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer shadow-sm">
-                <Upload className="w-4 h-4" />
-                <span>Upload New Banner</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCategoryImageUpload}
-                  className="hidden"
-                />
-              </label>
-            </div>
-          </div>
+          <BannerEditorCard
+            title="Categories Editorial Banner"
+            description='Editorial showcase image displayed right below the Our Categories carousel ("Discover Our Modern Jewelry Collection").'
+            settingKey="category_image"
+            currentImage={settings.category_image}
+            defaultImage="/discover-shell-necklace.jpg"
+            fit={settings.category_image_fit || "cover"}
+            position={settings.category_image_position || "50% 50%"}
+            isUploading={uploadingCategory}
+            isSavingAlignment={savingAlignmentKey === "category_image"}
+            buttonLabel="Upload New Banner"
+            onReset={() => handleResetSetting("category_image", "Categories Editorial Banner")}
+            onUpload={handleCategoryImageUpload}
+            onUpdateSettingLocal={handleUpdateSettingLocal}
+            onSaveAlignment={() => handleSaveAlignment("category_image")}
+          />
 
           {/* Mid-Page Split Editorial Banner 1 (Handbag Model) */}
-          <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-4">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
-                  Mid-Page Burgundy Split Banner
-                </h2>
-                <p className="text-[10px] text-neutral-400 mt-0.5">
-                  Full-bleed left image displayed next to the #310C13 burgundy panel after Explore Products.
-                </p>
-              </div>
-              {settings.editorial_showcase_1 && (
-                <button
-                  type="button"
-                  onClick={() => handleResetSetting("editorial_showcase_1", "Mid-Page Burgundy Split Banner")}
-                  className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer flex-shrink-0"
-                >
-                  Reset Default
-                </button>
-              )}
-            </div>
-
-            <div className="relative aspect-video w-full bg-[#FAF9F6] border border-neutral-200 rounded-xl overflow-hidden flex items-center justify-center">
-              <img
-                src={settings.editorial_showcase_1 || "/discover-bag-model.jpg"}
-                alt="Mid-Page Editorial Banner"
-                style={{
-                  objectFit: (settings.editorial_showcase_1_fit as any) || "cover",
-                  objectPosition: settings.editorial_showcase_1_position || "50% 50%",
-                  transition: "object-position 0.15s ease",
-                }}
-                className="w-full h-full"
-              />
-              {!settings.editorial_showcase_1 && (
-                <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
-                  Default: /discover-bag-model.jpg
-                </div>
-              )}
-
-              {uploadingEditorial1 && (
-                <div className="absolute inset-0 bg-white/70 backdrop-blur-xs flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 text-[#C99213] animate-spin" />
-                </div>
-              )}
-            </div>
-
-            {/* Interactive Alignment & Crop Toolbar */}
-            <ImageFrameAlignmentControls
-              fit={settings.editorial_showcase_1_fit || "cover"}
-              position={settings.editorial_showcase_1_position || "50% 50%"}
-              onChange={(newFit, newPos) => {
-                handleUpdateSettingLocal("editorial_showcase_1_fit", newFit);
-                handleUpdateSettingLocal("editorial_showcase_1_position", newPos);
-              }}
-              onSave={() => handleSaveAlignment("editorial_showcase_1")}
-              isSaving={savingAlignmentKey === "editorial_showcase_1"}
-            />
-
-            <div className="flex items-center justify-end">
-              <label className="flex items-center space-x-2 px-5 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer shadow-sm">
-                <Upload className="w-4 h-4" />
-                <span>Upload Split Banner</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleEditorial1Upload}
-                  className="hidden"
-                />
-              </label>
-            </div>
-          </div>
+          <BannerEditorCard
+            title="Mid-Page Burgundy Split Banner"
+            description="Full-bleed left image displayed next to the #310C13 burgundy panel after Explore Products."
+            settingKey="editorial_showcase_1"
+            currentImage={settings.editorial_showcase_1}
+            defaultImage="/discover-bag-model.jpg"
+            fit={settings.editorial_showcase_1_fit || "cover"}
+            position={settings.editorial_showcase_1_position || "50% 50%"}
+            isUploading={uploadingEditorial1}
+            isSavingAlignment={savingAlignmentKey === "editorial_showcase_1"}
+            buttonLabel="Upload Split Banner"
+            onReset={() => handleResetSetting("editorial_showcase_1", "Mid-Page Burgundy Split Banner")}
+            onUpload={handleEditorial1Upload}
+            onUpdateSettingLocal={handleUpdateSettingLocal}
+            onSaveAlignment={() => handleSaveAlignment("editorial_showcase_1")}
+          />
 
           {/* Bottom Editorial Banner 2 (Bridal Heels & Bouquet) */}
-          <div className="bg-white border border-[#E5E5E5] rounded-[16px] shadow-sm p-6 space-y-4">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-800">
-                  Bottom Cream Editorial Banner
-                </h2>
-                <p className="text-[10px] text-neutral-400 mt-0.5">
-                  Right-column editorial image displayed in the second cream section above Follow Us On Instagram.
-                </p>
-              </div>
-              {settings.editorial_showcase_2 && (
-                <button
-                  type="button"
-                  onClick={() => handleResetSetting("editorial_showcase_2", "Bottom Cream Editorial Banner")}
-                  className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer flex-shrink-0"
-                >
-                  Reset Default
-                </button>
-              )}
-            </div>
-
-            <div className="relative aspect-video w-full bg-[#FAF9F6] border border-neutral-200 rounded-xl overflow-hidden flex items-center justify-center">
-              <img
-                src={settings.editorial_showcase_2 || "/discover-bridal-heels.jpg"}
-                alt="Bottom Editorial Banner"
-                style={{
-                  objectFit: (settings.editorial_showcase_2_fit as any) || "cover",
-                  objectPosition: settings.editorial_showcase_2_position || "50% 50%",
-                  transition: "object-position 0.15s ease",
-                }}
-                className="w-full h-full"
-              />
-              {!settings.editorial_showcase_2 && (
-                <div className="absolute bottom-2 left-2 bg-black/65 text-white text-[10px] px-2.5 py-1 rounded-md backdrop-blur-xs">
-                  Default: /discover-bridal-heels.jpg
-                </div>
-              )}
-
-              {uploadingEditorial2 && (
-                <div className="absolute inset-0 bg-white/70 backdrop-blur-xs flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 text-[#C99213] animate-spin" />
-                </div>
-              )}
-            </div>
-
-            {/* Interactive Alignment & Crop Toolbar */}
-            <ImageFrameAlignmentControls
-              fit={settings.editorial_showcase_2_fit || "cover"}
-              position={settings.editorial_showcase_2_position || "50% 50%"}
-              onChange={(newFit, newPos) => {
-                handleUpdateSettingLocal("editorial_showcase_2_fit", newFit);
-                handleUpdateSettingLocal("editorial_showcase_2_position", newPos);
-              }}
-              onSave={() => handleSaveAlignment("editorial_showcase_2")}
-              isSaving={savingAlignmentKey === "editorial_showcase_2"}
-            />
-
-            <div className="flex items-center justify-end">
-              <label className="flex items-center space-x-2 px-5 py-2.5 bg-[#C99213] hover:bg-[#a9831e] text-white rounded-full text-xs font-bold tracking-wide transition-colors cursor-pointer shadow-sm">
-                <Upload className="w-4 h-4" />
-                <span>Upload Editorial Banner</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleEditorial2Upload}
-                  className="hidden"
-                />
-              </label>
-            </div>
-          </div>
-
+          <BannerEditorCard
+            title="Bottom Cream Editorial Banner"
+            description="Right-column editorial image displayed in the second cream section above Follow Us On Instagram."
+            settingKey="editorial_showcase_2"
+            currentImage={settings.editorial_showcase_2}
+            defaultImage="/discover-bridal-heels.jpg"
+            fit={settings.editorial_showcase_2_fit || "cover"}
+            position={settings.editorial_showcase_2_position || "50% 50%"}
+            isUploading={uploadingEditorial2}
+            isSavingAlignment={savingAlignmentKey === "editorial_showcase_2"}
+            buttonLabel="Upload Editorial Banner"
+            onReset={() => handleResetSetting("editorial_showcase_2", "Bottom Cream Editorial Banner")}
+            onUpload={handleEditorial2Upload}
+            onUpdateSettingLocal={handleUpdateSettingLocal}
+            onSaveAlignment={() => handleSaveAlignment("editorial_showcase_2")}
+          />
         </div>
 
         {/* Promo Announcement Popup Configurator Card */}
