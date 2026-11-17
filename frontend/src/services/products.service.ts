@@ -453,23 +453,7 @@ export async function lookupExternalProduct(sku: string): Promise<ExternalLookup
       return res;
     }
   } catch (err) {
-    console.warn("Backend lookup failed, attempting fallback:", err);
-  }
-
-  // Client-side fallback seed if backend/external network is unreachable during staging
-  if (cleanSku.toLowerCase() === "brl8/1410") {
-    return {
-      found: true,
-      source: "external",
-      sku: "BRL8/1410",
-      name: "Men's Derby Shoe - Black Size 8",
-      sellingPrice: 2499,
-      mrp: 2999,
-      hsnCode: "6403",
-      status: "active",
-      stock: 10,
-      unit: "pcs",
-    };
+    console.warn("Backend lookup failed:", err);
   }
 
   return {

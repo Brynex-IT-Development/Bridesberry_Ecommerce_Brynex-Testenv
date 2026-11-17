@@ -427,14 +427,30 @@ export declare class ProductsController {
         syncedCount: number;
         updatedInDb: number;
         timestamp: string;
+        message: string;
+        products: never[];
+    } | {
+        success: boolean;
+        syncedCount: number;
+        updatedInDb: number;
+        timestamp: string;
         products: import("./products.service").ExternalProductItem[];
+        message?: undefined;
     }>;
     syncExternalProducts(admin: any): Promise<{
         success: boolean;
         syncedCount: number;
         updatedInDb: number;
         timestamp: string;
+        message: string;
+        products: never[];
+    } | {
+        success: boolean;
+        syncedCount: number;
+        updatedInDb: number;
+        timestamp: string;
         products: import("./products.service").ExternalProductItem[];
+        message?: undefined;
     }>;
     getProductDetails(idOrSlug: string): Promise<{
         category: {

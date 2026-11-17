@@ -833,23 +833,23 @@ export class ProductsService {
       this.logger.error('Failed to parse cached external products', e);
     }
 
-    // Default seed catalog for testing & offline resilience
-    return [
-      {
-        sku: 'BRL8/1410',
-        name: "Men's Derby Shoe - Black Size 8",
-        sellingPrice: 2499,
-        mrp: 2999,
-        hsnCode: '6403',
-        status: 'active',
-        stock: 10,
-        unit: 'pcs',
-      },
-    ];
+    // No fallback / fake product: return empty array if external API returned no products
+    return [];
   }
 
   async syncExternalProducts(adminEmail = 'system') {
     const products = await this.fetchExternalProducts();
+
+    if (products.length === 0) {
+      return {
+        success: false,
+        syncedCount: 0,
+        updatedInDb: 0,
+        timestamp: new Date().toISOString(),
+        message: 'External products API (https://jewels.brynexapparels.in/api/public/products) currently returned 0 products (404 Not Found on Rootfin server).',
+        products: [],
+      };
+    }
 
     // 1. Store/update full catalog in SystemSetting table
     await this.prisma.systemSetting.upsert({
