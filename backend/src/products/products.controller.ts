@@ -73,6 +73,14 @@ export class ProductsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Get('external/sync')
+  async syncExternalProductsGet(@CurrentUser() admin: any) {
+    const email = (admin as { email: string })?.email || 'admin';
+    return this.productsService.syncExternalProducts(email);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @Post('external/sync')
   async syncExternalProducts(@CurrentUser() admin: any) {
     const email = (admin as { email: string })?.email || 'admin';

@@ -52,6 +52,10 @@ let ProductsController = class ProductsController {
     async lookupExternalProduct(sku) {
         return this.productsService.lookupExternalProduct(sku);
     }
+    async syncExternalProductsGet(admin) {
+        const email = admin?.email || 'admin';
+        return this.productsService.syncExternalProducts(email);
+    }
     async syncExternalProducts(admin) {
         const email = admin?.email || 'admin';
         return this.productsService.syncExternalProducts(email);
@@ -117,6 +121,15 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "lookupExternalProduct", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_js_1.UserRole.ADMIN, client_js_1.UserRole.SUPER_ADMIN),
+    (0, common_1.Get)('external/sync'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "syncExternalProductsGet", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_js_1.UserRole.ADMIN, client_js_1.UserRole.SUPER_ADMIN),
