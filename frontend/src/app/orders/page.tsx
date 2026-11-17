@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '../../context/AuthContext';
 import { getMyOrders } from '../../services/orders.service';
 import { retryPhonepePayment } from '../../services/phonepe.service';
@@ -17,6 +18,10 @@ interface OrderItem {
   variantName?: string;
   quantity: number;
   price: number;
+  image?: string;
+  product?: {
+    images?: Array<{ url: string; isPrimary?: boolean; imageRole?: string }>;
+  };
 }
 
 interface Order {
@@ -45,8 +50,26 @@ export default function MyOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [trackingModalOrder, setTrackingModalOrder] = useState<Order | null>(null);
+  const [selectedOrderModal, setSelectedOrderModal] = useState<Order | null>(null);
   const [activeShipment, setActiveShipment] = useState<ShipmentDetails | null>(null);
   const [loadingTracking, setLoadingTracking] = useState(false);
+
+  // Auto-open order if ?id= is in query
+  useEffect(() => {
+    if (typeof window !== 'undefined' && orders.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const highlightId = params.get('id');
+      if (highlightId) {
+        const clean = highlightId.replace(/^#/, '').trim();
+        const match = orders.find(
+          (o) => o.id === clean || o.orderNumber === clean || o.orderNumber === `#${clean}`
+        );
+        if (match) {
+          setSelectedOrderModal(match);
+        }
+      }
+    }
+  }, [orders]);
 
   const handleRetryPayment = async (orderId: string) => {
     try {
@@ -171,11 +194,25 @@ export default function MyOrdersPage() {
                       </div>
                       <div>
                         <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block">Order Ref</span>
-                        <span className="font-bold text-neutral-600 font-mono mt-0.5 block">#{order.orderNumber}</span>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOrderModal(order)}
+                          className="font-bold text-neutral-800 hover:text-[#C59B27] font-mono mt-0.5 block hover:underline cursor-pointer text-left"
+                          title="Click to view full order product details"
+                        >
+                          #{order.orderNumber}
+                        </button>
                       </div>
                     </div>
 
                     <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedOrderModal(order)}
+                        className="px-3 py-1 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        Product Details
+                      </button>
                       <button
                         onClick={() => handleOpenTracking(order)}
                         className="px-3 py-1 bg-neutral-900 hover:bg-neutral-800 text-white rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
@@ -198,23 +235,34 @@ export default function MyOrdersPage() {
 
                   {/* Order Card Items List */}
                   <div className="p-6 divide-y divide-neutral-55 space-y-4 font-sans">
-                    {order.items.map((item, idx) => (
-                      <div key={item.id || idx} className={`flex items-center space-x-4 pt-3 ${idx === 0 ? 'pt-0' : ''}`}>
-                        <div className="w-14 h-14 bg-neutral-50 rounded-2xl border border-neutral-100 flex-shrink-0 flex items-center justify-center relative overflow-hidden">
-                          <svg className="w-5 h-5 text-neutral-350" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                            <circle cx="12" cy="14" r="5" />
-                            <path d="M12 9V3m-3 2h6" />
-                          </svg>
+                    {order.items.map((item, idx) => {
+                      const itemImg =
+                        item.image ||
+                        item.product?.images?.find((img) => img.isPrimary || img.imageRole === 'PRIMARY')?.url ||
+                        item.product?.images?.[0]?.url;
+
+                      return (
+                        <div key={item.id || idx} className={`flex items-center space-x-4 pt-3 ${idx === 0 ? 'pt-0' : ''}`}>
+                          <div className="w-14 h-14 bg-neutral-50 rounded-2xl border border-neutral-100 flex-shrink-0 flex items-center justify-center relative overflow-hidden">
+                            {itemImg ? (
+                              <Image src={itemImg} alt={item.name} fill sizes="56px" className="object-cover" />
+                            ) : (
+                              <svg className="w-5 h-5 text-neutral-350" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                <circle cx="12" cy="14" r="5" />
+                                <path d="M12 9V3m-3 2h6" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-0.5 text-xs">
+                            <p className="font-bold text-neutral-900">{item.name}</p>
+                            <p className="text-[10px] text-neutral-450 font-medium">Quantity: {item.quantity} &bull; SKU: {item.sku}</p>
+                          </div>
+                          <span className="font-bold text-neutral-900 text-xs">
+                            ₹ {(item.price * item.quantity).toLocaleString('en-IN')}.00
+                          </span>
                         </div>
-                        <div className="flex-1 space-y-0.5 text-xs">
-                          <p className="font-bold text-neutral-900">{item.name}</p>
-                          <p className="text-[10px] text-neutral-450 font-medium">Quantity: {item.quantity} &bull; SKU: {item.sku}</p>
-                        </div>
-                        <span className="font-bold text-neutral-900 text-xs">
-                          ₹ {(item.price * item.quantity).toLocaleString('en-IN')}.00
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Payment & Courier Bar */}
@@ -272,6 +320,129 @@ export default function MyOrdersPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Order Product Details Modal */}
+        {selectedOrderModal && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative text-left max-h-[90vh] overflow-y-auto">
+              <button
+                onClick={() => setSelectedOrderModal(null)}
+                className="absolute top-6 right-6 text-neutral-400 hover:text-neutral-900 font-bold text-lg cursor-pointer"
+              >
+                ✕
+              </button>
+
+              {/* Header */}
+              <div className="border-b border-neutral-100 pb-4">
+                <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest block font-questrial">
+                  Order Product Details
+                </span>
+                <div className="flex items-center gap-3 mt-1">
+                  <h3 className="text-xl font-bold text-neutral-900 font-raleway">
+                    Order #{selectedOrderModal.orderNumber}
+                  </h3>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                      selectedOrderModal.status === 'DELIVERED'
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                        : selectedOrderModal.status === 'SHIPPED'
+                        ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                        : selectedOrderModal.status === 'CANCELLED'
+                        ? 'bg-red-50 text-red-600 border border-red-100'
+                        : 'bg-amber-50 text-amber-600 border border-amber-100'
+                    }`}
+                  >
+                    {selectedOrderModal.status.replace('_', ' ')}
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-400 mt-1 font-questrial">
+                  Placed on {new Date(selectedOrderModal.createdAt || selectedOrderModal.date).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-800 font-sans">
+                  Ordered Products ({selectedOrderModal.items.length})
+                </h4>
+
+                <div className="divide-y divide-neutral-100 border border-neutral-150 rounded-2xl overflow-hidden">
+                  {selectedOrderModal.items.map((item, idx) => {
+                    const itemImg =
+                      item.image ||
+                      item.product?.images?.find((img) => img.isPrimary || img.imageRole === 'PRIMARY')?.url ||
+                      item.product?.images?.[0]?.url;
+
+                    return (
+                      <div key={item.id || idx} className="p-3.5 flex items-center gap-4 bg-white">
+                        <div className="w-14 h-14 bg-neutral-50 rounded-xl border border-neutral-100 flex-shrink-0 relative overflow-hidden flex items-center justify-center">
+                          {itemImg ? (
+                            <Image src={itemImg} alt={item.name} fill sizes="56px" className="object-cover" />
+                          ) : (
+                            <svg className="w-5 h-5 text-neutral-350" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <circle cx="12" cy="14" r="5" />
+                              <path d="M12 9V3m-3 2h6" />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-neutral-900 text-xs">{item.name}</p>
+                          {item.variantName && (
+                            <span className="text-[10px] text-neutral-500 font-medium">
+                              Variant: {item.variantName}
+                            </span>
+                          )}
+                          <p className="text-[10px] text-neutral-400 font-mono">
+                            SKU: {item.sku} &bull; Qty: {item.quantity}
+                          </p>
+                          <p className="text-xs font-bold text-neutral-900 mt-0.5">
+                            ₹ {(item.price * item.quantity).toLocaleString('en-IN')}.00
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Total & Footer */}
+              <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block font-questrial">
+                    Total Amount
+                  </span>
+                  <span className="text-lg font-bold text-neutral-900">
+                    ₹ {selectedOrderModal.total.toLocaleString('en-IN')}.00
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOrderModal(null)}
+                    className="px-4 py-2 border border-neutral-300 rounded-lg text-xs font-semibold text-neutral-700 hover:bg-neutral-50 cursor-pointer"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ord = selectedOrderModal;
+                      setSelectedOrderModal(null);
+                      handleOpenTracking(ord);
+                    }}
+                    className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                  >
+                    🚚 Track
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

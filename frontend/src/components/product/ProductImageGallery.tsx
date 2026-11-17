@@ -5,12 +5,23 @@ import Image from 'next/image';
 
 interface ProductImageGalleryProps {
   images: string[];
+  selectedImageUrl?: string | null;
 }
 
-export default function ProductImageGallery({ images }: ProductImageGalleryProps) {
+export default function ProductImageGallery({ images, selectedImageUrl }: ProductImageGalleryProps) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Switch to selected image when external color variant changes
+  React.useEffect(() => {
+    if (selectedImageUrl && images && images.length > 0) {
+      const idx = images.findIndex((img) => img === selectedImageUrl);
+      if (idx !== -1) {
+        setActiveIdx(idx);
+      }
+    }
+  }, [selectedImageUrl, images]);
 
   if (!images || images.length === 0) return null;
 

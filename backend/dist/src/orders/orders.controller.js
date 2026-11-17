@@ -20,6 +20,7 @@ const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const client_js_1 = require("../generated/prisma/client.js");
 const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
 const orders_service_1 = require("./orders.service");
+const rootfin_sync_service_1 = require("./rootfin-sync.service");
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 class CreateOrderItemBodyDto {
@@ -134,8 +135,16 @@ __decorate([
 ], UpdateOrderStatusBodyDto.prototype, "status", void 0);
 let OrdersController = class OrdersController {
     ordersService;
-    constructor(ordersService) {
+    rootfinSyncService;
+    constructor(ordersService, rootfinSyncService) {
         this.ordersService = ordersService;
+        this.rootfinSyncService = rootfinSyncService;
+    }
+    async testRootfinSync(body) {
+        return this.rootfinSyncService.testConnection(body?.payload, body?.apiKey);
+    }
+    async syncOrderToRootfin(id) {
+        return this.rootfinSyncService.syncOrderToRootfin(id);
     }
     async createOrder(dto, user) {
         let userId = user.id;
@@ -160,6 +169,24 @@ let OrdersController = class OrdersController {
     }
 };
 exports.OrdersController = OrdersController;
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_js_1.UserRole.ADMIN, client_js_1.UserRole.SUPER_ADMIN),
+    (0, common_1.Post)('test-rootfin'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "testRootfinSync", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_js_1.UserRole.ADMIN, client_js_1.UserRole.SUPER_ADMIN),
+    (0, common_1.Post)(':id/sync-rootfin'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "syncOrderToRootfin", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)(),
@@ -207,6 +234,7 @@ __decorate([
 ], OrdersController.prototype, "updateOrderStatus", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
-    __metadata("design:paramtypes", [orders_service_1.OrdersService])
+    __metadata("design:paramtypes", [orders_service_1.OrdersService,
+        rootfin_sync_service_1.RootfinSyncService])
 ], OrdersController);
 //# sourceMappingURL=orders.controller.js.map

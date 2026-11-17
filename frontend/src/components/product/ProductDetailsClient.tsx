@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Product } from '../../types/product';
 import { useCart } from '../../context/CartContext';
 import ProductImageGallery from './ProductImageGallery';
@@ -33,12 +34,79 @@ export default function ProductDetailsClient({
     }
   }, [existingCartItem]);
 
+  // Parse variants from backend product
+  const parsedVariants = React.useMemo(() => {
+    const rawVariants = (product.variants || []) as Array<{
+      id: string;
+      name: string;
+      sku: string;
+      sellingPrice?: string | number | null;
+      isActive?: boolean;
+      inventory?: { currentStock: number } | null;
+    }>;
+
+    const colors: { name: string; imageUrl?: string }[] = [];
+    const sizes: string[] = [];
+
+    rawVariants.forEach((v) => {
+      const match = v.name?.match(/^([^:]+):\s*(.+)$/);
+      if (match) {
+        const opt = match[1].trim();
+        const val = match[2].trim();
+        if (opt.toLowerCase() === "color" || opt.toLowerCase() === "colour") {
+          if (!colors.some((c) => c.name.toLowerCase() === val.toLowerCase())) {
+            const matchedImg = product.productImages?.find((img) => {
+              if (!img.altText) return false;
+              const at = img.altText.toLowerCase().trim();
+              const v = val.toLowerCase().trim();
+              return (
+                at === `color: ${v} | primary` ||
+                at === `color: ${v}` ||
+                at.startsWith(`color: ${v} |`) ||
+                at.startsWith(`color: ${v}`) ||
+                at === v
+              );
+            });
+            colors.push({ name: val, imageUrl: matchedImg?.url });
+          }
+        } else if (opt.toLowerCase().includes("size") || opt.toLowerCase().includes("length")) {
+          if (!sizes.includes(val)) sizes.push(val);
+        }
+      }
+    });
+
+    return { colors, sizes };
+  }, [product.variants, product.productImages]);
+
+  const [selectedColor, setSelectedColor] = useState<string>(
+    parsedVariants.colors[0]?.name || ''
+  );
+  const [selectedSize, setSelectedSize] = useState<string>(
+    parsedVariants.sizes[0] || ''
+  );
+
+  const activeColorImage = React.useMemo(() => {
+    if (!selectedColor) return null;
+    const found = parsedVariants.colors.find(
+      (c) => c.name.toLowerCase() === selectedColor.toLowerCase()
+    );
+    return found?.imageUrl || null;
+  }, [selectedColor, parsedVariants.colors]);
+
   const getAttributes = () => {
     const attributes = [];
-    if (product.category === 'Rings') {
-      attributes.push({ name: 'Ring Size', value: '7' });
-    } else if (product.category === 'Necklaces') {
-      attributes.push({ name: 'Length', value: '18 inches' });
+    if (selectedColor) {
+      attributes.push({ name: 'Color', value: selectedColor });
+    }
+    if (selectedSize) {
+      attributes.push({ name: 'Size', value: selectedSize });
+    }
+    if (attributes.length === 0) {
+      if (product.category === 'Rings') {
+        attributes.push({ name: 'Ring Size', value: '7' });
+      } else if (product.category === 'Necklaces') {
+        attributes.push({ name: 'Length', value: '18 inches' });
+      }
     }
     return attributes;
   };
@@ -67,7 +135,7 @@ export default function ProductDetailsClient({
           
           {/* Left Column: Image Box (Col 6) */}
           <div className="lg:col-span-6">
-            <ProductImageGallery images={product.images} />
+            <ProductImageGallery images={product.images} selectedImageUrl={activeColorImage} />
           </div>
 
           {/* Right Column: Details (Col 6) */}
@@ -138,6 +206,74 @@ export default function ProductDetailsClient({
                   </span>
                 )}
               </div>
+
+              {/* Variant Selectors (Colors & Sizes) */}
+              {(parsedVariants.colors.length > 0 || parsedVariants.sizes.length > 0) && (
+                <div className="space-y-4 pt-2 border-t border-neutral-100">
+                  {/* Color Selector */}
+                  {parsedVariants.colors.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-semibold uppercase tracking-wider text-neutral-800 font-sans">
+                          Color: <span className="font-normal text-neutral-600 normal-case">{selectedColor}</span>
+                        </label>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {parsedVariants.colors.map((c) => {
+                          const isSelected = selectedColor.toLowerCase() === c.name.toLowerCase();
+                          return (
+                            <button
+                              key={c.name}
+                              type="button"
+                              onClick={() => setSelectedColor(c.name)}
+                              className={`flex items-center gap-2 px-3 py-1.5 border text-xs font-questrial rounded-sm transition-all cursor-pointer ${
+                                isSelected
+                                  ? "border-[#310C13] bg-[#310C13]/5 text-[#310C13] font-medium ring-1 ring-[#310C13]"
+                                  : "border-neutral-250 bg-white text-neutral-700 hover:border-neutral-400"
+                              }`}
+                            >
+                              {c.imageUrl && (
+                                <div className="relative w-4 h-4 rounded-full overflow-hidden shrink-0 border border-neutral-200">
+                                  <Image src={c.imageUrl} alt={c.name} fill className="object-cover" />
+                                </div>
+                              )}
+                              <span>{c.name}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Size Selector */}
+                  {parsedVariants.sizes.length > 0 && (
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-semibold uppercase tracking-wider text-neutral-800 font-sans">
+                        Size: <span className="font-normal text-neutral-600 normal-case">{selectedSize}</span>
+                      </label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {parsedVariants.sizes.map((s) => {
+                          const isSelected = selectedSize === s;
+                          return (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => setSelectedSize(s)}
+                              className={`min-w-10 px-3 py-1.5 border text-xs font-questrial rounded-sm text-center transition-all cursor-pointer ${
+                                isSelected
+                                  ? "border-[#310C13] bg-[#310C13] text-white font-medium"
+                                  : "border-neutral-250 bg-white text-neutral-700 hover:border-neutral-400"
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Controls row: [ - 1 + ] [ BUY IT NOW ] [ ADD TO CART ] */}
               <div className="space-y-3 pt-2">

@@ -5,7 +5,7 @@ import { MAIN_CATEGORIES } from "@/data/categories";
 
 interface CategoryFormProps {
   initialData?: AdminCategory | null;
-  onSubmit: (data: Partial<AdminCategory>) => void;
+  onSubmit: (data: Partial<AdminCategory>) => Promise<void> | void;
   onCancel: () => void;
 }
 
@@ -22,6 +22,7 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
   const [displayOrder, setDisplayOrder] = useState(initialData?.displayOrder ?? 1);
   const [imageUrl, setImageUrl] = useState(initialData?.image || "");
   const [uploading, setUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -112,8 +113,9 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     if (!name.trim()) {
       setError("Category name is required");
       return;
@@ -123,16 +125,23 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
       return;
     }
 
-    onSubmit({
-      id: initialData?.id,
-      name,
-      slug,
-      parentCategory,
-      description,
-      status,
-      displayOrder: Number(displayOrder),
-      image: imageUrl,
-    });
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        id: initialData?.id || undefined,
+        name: name.trim(),
+        slug: slug.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^\w\-]+/g, ""),
+        parentCategory,
+        description: description.trim(),
+        status,
+        displayOrder: Number(displayOrder) || 1,
+        image: imageUrl || undefined,
+      });
+    } catch (err: any) {
+      setError(err?.message || "Failed to save category. Please check your inputs.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -309,15 +318,24 @@ export default function CategoryForm({ initialData, onSubmit, onCancel }: Catego
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-1.5 border border-neutral-300 rounded-full text-xs font-semibold text-neutral-700 hover:bg-neutral-50 cursor-pointer"
+          disabled={isSubmitting}
+          className="px-4 py-1.5 border border-neutral-300 rounded-full text-xs font-semibold text-neutral-700 hover:bg-neutral-50 cursor-pointer disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-5 py-1.5 bg-neutral-900 text-white rounded-full text-xs font-semibold hover:bg-neutral-800 cursor-pointer"
+          disabled={isSubmitting || uploading}
+          className="px-5 py-2 bg-neutral-900 text-white rounded-full text-xs font-semibold hover:bg-neutral-800 cursor-pointer disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
         >
-          Save
+          {isSubmitting ? (
+            <>
+              <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Saving...</span>
+            </>
+          ) : (
+            <span>{initialData?.id ? "Update Category" : "Save Category"}</span>
+          )}
         </button>
       </div>
     </form>

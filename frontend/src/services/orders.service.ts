@@ -26,13 +26,33 @@ export function mapBackendOrderToAdminOrder(order: any): AdminOrder {
   else if (stat === "CANCELLED") status = "Cancelled";
   else if (stat === "RETURNED") status = "Returned";
 
+  const items = (order.items || []).map((item: any) => {
+    const primaryImgObj = item.product?.images?.find((img: any) => img.imageRole === "PRIMARY" || img.isPrimary);
+    const image = primaryImgObj ? primaryImgObj.url : (item.product?.images?.[0]?.url || undefined);
+    return {
+      productId: item.productId,
+      productName: item.name,
+      sku: item.sku,
+      variant: item.variantName || undefined,
+      quantity: item.quantity,
+      unitPrice: `₹${Number(item.price || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+      totalPrice: `₹${(Number(item.price || 0) * item.quantity).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+      image,
+    };
+  });
+
   return {
     id: order.orderNumber || order.id,
+    rawId: order.id,
+    orderNumber: order.orderNumber,
     customerName,
+    customerEmail: order.customer?.email,
+    customerPhone: order.customer?.phone,
     productName,
     value: `₹${Number(order.total || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
     status,
     date,
+    items,
   };
 }
 

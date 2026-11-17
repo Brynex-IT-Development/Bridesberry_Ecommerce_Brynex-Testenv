@@ -206,6 +206,7 @@ function AccountContent() {
   const [orderFilter, setOrderFilter] = useState<OrderStatusFilter>('ALL ORDERS');
   const [searchQuery, setSearchQuery] = useState('');
   const [orders, setOrders] = useState<RealUserOrder[]>([]);
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState<RealUserOrder | null>(null);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [addresses, setAddresses] = useState<CustomerAddressItem[]>([]);
   const [loadingAddresses, setLoadingAddresses] = useState(false);
@@ -827,9 +828,15 @@ function AccountContent() {
                         {/* Order Header */}
                         <div className="flex items-start justify-between border-b border-neutral-100 pb-3">
                           <div>
-                            <h4 className="text-sm font-bold text-neutral-900 tracking-wide uppercase">
-                              ORDER #{order.orderNumber}
-                            </h4>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrderDetails(order)}
+                              className="text-sm font-bold text-neutral-900 tracking-wide uppercase hover:text-[#C59B27] cursor-pointer text-left transition-colors flex items-center gap-2"
+                              title="Click to view order product details"
+                            >
+                              <span>ORDER #{order.orderNumber}</span>
+                              <span className="text-[10px] text-[#C59B27] lowercase font-normal">(view details)</span>
+                            </button>
                             <p className="text-xs text-neutral-400 font-light mt-0.5">
                               Placed on {order.placedDate}
                             </p>
@@ -892,12 +899,13 @@ function AccountContent() {
                           </div>
 
                           <div className="flex flex-wrap items-center gap-3">
-                            <Link
-                              href={`/orders?id=${order.id}`}
-                              className="border border-neutral-800 text-neutral-900 text-xs font-semibold px-5 py-2.5 uppercase tracking-wider hover:bg-neutral-50 transition-colors inline-block"
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrderDetails(order)}
+                              className="border border-neutral-800 text-neutral-900 text-xs font-semibold px-5 py-2.5 uppercase tracking-wider hover:bg-neutral-50 transition-colors inline-block cursor-pointer"
                             >
                               VIEW DETAILS
-                            </Link>
+                            </button>
                             <Link
                               href="/shop"
                               className="bg-[#310C13] hover:bg-[#4a101a] text-white text-xs font-semibold px-6 py-2.5 uppercase tracking-wider transition-colors inline-block"
@@ -908,6 +916,111 @@ function AccountContent() {
                         </div>
                       </div>
                     ))}
+
+                    {/* CUSTOMER ORDER PRODUCT DETAILS MODAL */}
+                    {selectedOrderDetails && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+                        <div className="bg-white border border-neutral-200 max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative text-left">
+                          {/* Modal Header */}
+                          <div className="flex items-start justify-between border-b border-neutral-100 pb-4 mb-5">
+                            <div>
+                              <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest block font-questrial">
+                                Order Product Details
+                              </span>
+                              <h3 className="text-lg font-bold text-neutral-900 tracking-wide uppercase font-sans mt-0.5">
+                                ORDER #{selectedOrderDetails.orderNumber}
+                              </h3>
+                              <p className="text-xs text-neutral-400 font-light mt-0.5">
+                                Placed on {selectedOrderDetails.placedDate}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span
+                                className={`text-xs font-medium px-3 py-1 rounded-full ${
+                                  selectedOrderDetails.status === 'Delivered'
+                                    ? 'bg-[#E7F8EC] text-[#22C55E]'
+                                    : selectedOrderDetails.status === 'Shipped'
+                                    ? 'bg-sky-50 text-sky-600'
+                                    : selectedOrderDetails.status === 'Cancelled'
+                                    ? 'bg-rose-50 text-rose-600'
+                                    : 'bg-amber-50 text-amber-600'
+                                }`}
+                              >
+                                {selectedOrderDetails.status}
+                              </span>
+                              <button
+                                onClick={() => setSelectedOrderDetails(null)}
+                                className="text-neutral-400 hover:text-neutral-900 text-base font-bold p-1 cursor-pointer"
+                                title="Close"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Products in this order */}
+                          <div className="space-y-3">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-800 font-sans">
+                              Items Ordered ({selectedOrderDetails.items.length})
+                            </h4>
+
+                            <div className="divide-y divide-neutral-100 border border-neutral-150 rounded-none">
+                              {selectedOrderDetails.items.map((item, idx) => (
+                                <div key={idx} className="p-3.5 flex items-center gap-4 bg-white">
+                                  <div className="w-16 h-16 bg-neutral-100 rounded-none overflow-hidden relative flex-shrink-0 border border-neutral-150">
+                                    <Image
+                                      src={item.image}
+                                      alt={item.title}
+                                      fill
+                                      sizes="64px"
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h5 className="text-xs font-semibold text-neutral-900 leading-snug">
+                                      {item.title}
+                                    </h5>
+                                    <p className="text-xs text-neutral-400 font-light mt-0.5 font-questrial">
+                                      Quantity: {item.quantity}
+                                    </p>
+                                    <p className="text-xs font-bold text-neutral-900 mt-1">
+                                      ₹{item.price.toLocaleString('en-IN')}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Total & Action Buttons */}
+                          <div className="pt-6 mt-6 border-t border-neutral-100 flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest block font-questrial">
+                                Total Amount
+                              </span>
+                              <span className="text-lg font-bold text-neutral-900">
+                                ₹{selectedOrderDetails.total.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedOrderDetails(null)}
+                                className="border border-neutral-300 text-neutral-700 text-xs font-semibold px-4 py-2 uppercase tracking-wider hover:bg-neutral-50 transition-colors cursor-pointer"
+                              >
+                                Close
+                              </button>
+                              <Link
+                                href="/shop"
+                                className="bg-[#310C13] hover:bg-[#4a101a] text-white text-xs font-semibold px-5 py-2 uppercase tracking-wider transition-colors inline-block"
+                              >
+                                Shop More
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   /* Empty state matching Image 4 */

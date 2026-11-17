@@ -17,6 +17,7 @@ import {
   CreateOrderDto,
   CreateOrderItemDto,
 } from './orders.service';
+import { RootfinSyncService } from './rootfin-sync.service';
 import {
   IsString,
   IsNotEmpty,
@@ -101,7 +102,24 @@ export class UpdateOrderStatusBodyDto {
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly rootfinSyncService: RootfinSyncService,
+  ) {}
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Post('test-rootfin')
+  async testRootfinSync(@Body() body: any) {
+    return this.rootfinSyncService.testConnection(body?.payload, body?.apiKey);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Post(':id/sync-rootfin')
+  async syncOrderToRootfin(@Param('id') id: string) {
+    return this.rootfinSyncService.syncOrderToRootfin(id);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post()

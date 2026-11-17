@@ -49,6 +49,13 @@ let ProductsController = class ProductsController {
     async getProductCollections(all) {
         return this.productsService.findCollections(all !== 'true');
     }
+    async lookupExternalProduct(sku) {
+        return this.productsService.lookupExternalProduct(sku);
+    }
+    async syncExternalProducts(admin) {
+        const email = admin?.email || 'admin';
+        return this.productsService.syncExternalProducts(email);
+    }
     async getProductDetails(idOrSlug) {
         return this.productsService.findOne(idOrSlug);
     }
@@ -101,6 +108,24 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "getProductCollections", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_js_1.UserRole.ADMIN, client_js_1.UserRole.SUPER_ADMIN),
+    (0, common_1.Get)('external/lookup'),
+    __param(0, (0, common_1.Query)('sku')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "lookupExternalProduct", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_js_1.UserRole.ADMIN, client_js_1.UserRole.SUPER_ADMIN),
+    (0, common_1.Post)('external/sync'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "syncExternalProducts", null);
 __decorate([
     (0, public_decorator_1.Public)(),
     (0, common_1.Get)(':idOrSlug'),

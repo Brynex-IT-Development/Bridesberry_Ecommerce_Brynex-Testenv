@@ -55,15 +55,15 @@ export declare class AuthService {
     getAddresses(userId: string): Promise<{
         id: string;
         createdAt: Date;
-        userId: string;
         type: string;
+        userId: string;
         street1: string;
         street2: string | null;
         city: string;
         state: string;
         zipCode: string;
-        country: string;
         phone: string | null;
+        country: string;
     }[]>;
     addAddress(userId: string, data: {
         type?: string;
@@ -77,15 +77,15 @@ export declare class AuthService {
     }): Promise<{
         id: string;
         createdAt: Date;
-        userId: string;
         type: string;
+        userId: string;
         street1: string;
         street2: string | null;
         city: string;
         state: string;
         zipCode: string;
-        country: string;
         phone: string | null;
+        country: string;
     }>;
     deleteAddress(userId: string, addressId: string): Promise<{
         success: boolean;

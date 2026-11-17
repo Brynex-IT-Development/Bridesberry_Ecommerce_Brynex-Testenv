@@ -4,9 +4,24 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Upload, X, Loader2, Sparkles, Check, ChevronDown, Plus, Trash2 } from "lucide-react";
+import {
+  Upload,
+  X,
+  Loader2,
+  Sparkles,
+  Check,
+  ChevronDown,
+  Plus,
+  Trash2,
+  Image as ImageIcon,
+  ScanBarcode,
+  Search,
+  Barcode,
+  Zap,
+  RefreshCw,
+} from "lucide-react";
 import { AdminCategory, AdminProductFormData, AdminProductMedia, AdminProductVariant } from "@/types/admin";
-import { createProduct, updateProduct } from "@/services/products.service";
+import { createProduct, updateProduct, lookupExternalProduct } from "@/services/products.service";
 import { getAdminCategories, createCategory } from "@/services/categories.service";
 import { uploadFile } from "@/services/media.service";
 
@@ -14,6 +29,22 @@ interface VariantRow {
   optionName: string;
   values: string; // Comma separated
 }
+
+export interface VariantImageSlot {
+  role: "PRIMARY" | "HOVER" | "GALLERY_1" | "GALLERY_2";
+  label: string;
+  sublabel: string;
+  url?: string;
+  file?: File;
+  previewUrl?: string;
+}
+
+export const createDefaultVariantSlots = (): VariantImageSlot[] => [
+  { role: "PRIMARY", label: "Upload Primary Image", sublabel: "JPG, PNG (Max 10 MB)" },
+  { role: "HOVER", label: "Hover", sublabel: "(Optional)" },
+  { role: "GALLERY_1", label: "Gallery", sublabel: "(Optional)" },
+  { role: "GALLERY_2", label: "Gallery", sublabel: "(Optional)" },
+];
 
 interface ImageSlot {
   role: "PRIMARY" | "HOVER" | "GALLERY_1" | "GALLERY_2";
@@ -34,6 +65,7 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
 
   // Basic Form State
   const [productName, setProductName] = useState(initialData?.name || "");
+  const [sku, setSku] = useState(initialData?.sku || "");
   const [mainCategory, setMainCategory] = useState(initialData?.mainCategory || "Jewellery");
   const [categoryId, setCategoryId] = useState(initialData?.category || "");
   const [sellingPrice, setSellingPrice] = useState(initialData?.sellingPrice || "");
@@ -44,6 +76,17 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
   const [shortDescription, setShortDescription] = useState(
     initialData?.shortDescription || initialData?.description || ""
   );
+
+  // Barcode Scanner & SKU Lookup State
+  const [scannedSku, setScannedSku] = useState("");
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [scanSuccessBanner, setScanSuccessBanner] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
+  const [scanErrorBanner, setScanErrorBanner] = useState<string | null>(null);
+  const scanInputRef = useRef<HTMLInputElement | null>(null);
+  const imagesSectionRef = useRef<HTMLDivElement | null>(null);
 
   // Initialize image slots from initialData if available
   const getInitialSlots = (): ImageSlot[] => {
@@ -75,14 +118,77 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
   // Variant Rows
   const getInitialVariants = (): VariantRow[] => {
     if (initialData?.variants && initialData.variants.length > 0) {
-      // Group variants if any
-      const vals = initialData.variants.map((v: AdminProductVariant) => v.name.replace(/^[A-Za-z]+:\s*/, "")).join(", ");
-      return [{ optionName: "Size", values: vals }];
+      const grouped: Record<string, string[]> = {};
+      initialData.variants.forEach((v: AdminProductVariant) => {
+        const match = v.name?.match(/^([^:]+):\s*(.+)$/);
+        if (match) {
+          const opt = match[1].trim();
+          const val = match[2].trim();
+          if (!grouped[opt]) grouped[opt] = [];
+          if (!grouped[opt].includes(val)) grouped[opt].push(val);
+        } else {
+          if (!grouped["Color"]) grouped["Color"] = [];
+          if (!grouped["Color"].includes(v.name.trim())) grouped["Color"].push(v.name.trim());
+        }
+      });
+      const rows = Object.entries(grouped).map(([optionName, vals]) => ({
+        optionName,
+        values: vals.join(", "),
+      }));
+      return rows.length > 0 ? rows : [{ optionName: "Color", values: "" }];
     }
-    return [{ optionName: "Size", values: "" }];
+    return [{ optionName: "Color", values: "" }];
   };
 
   const [variantRows, setVariantRows] = useState<VariantRow[]>(getInitialVariants);
+
+  // Initial Variant Images: from initialData media matching "Color: {name}"
+  const getInitialVariantImages = (): Record<string, VariantImageSlot[]> => {
+    const map: Record<string, VariantImageSlot[]> = {};
+    if (initialData?.media && initialData.media.length > 0) {
+      initialData.media.forEach((m: AdminProductMedia) => {
+        if (m.altText && m.altText.toLowerCase().startsWith("color:")) {
+          const raw = m.altText.replace(/^color:\s*/i, "").trim();
+          const parts = raw.split("|").map((p) => p.trim());
+          const colorName = parts[0];
+          const roleStr = (parts[1] || "").toUpperCase();
+          const colorKey = colorName.toLowerCase();
+
+          if (!map[colorKey]) {
+            map[colorKey] = createDefaultVariantSlots();
+          }
+
+          if (roleStr === "HOVER") {
+            map[colorKey][1].url = m.url;
+          } else if (roleStr === "GALLERY_1") {
+            map[colorKey][2].url = m.url;
+          } else if (roleStr === "GALLERY_2") {
+            map[colorKey][3].url = m.url;
+          } else if (roleStr === "PRIMARY" || !roleStr) {
+            if (!map[colorKey][0].url) {
+              map[colorKey][0].url = m.url;
+            } else if (!map[colorKey][2].url) {
+              map[colorKey][2].url = m.url;
+            } else if (!map[colorKey][3].url) {
+              map[colorKey][3].url = m.url;
+            }
+          }
+        }
+      });
+    }
+    return map;
+  };
+
+  const [variantImages, setVariantImages] = useState<Record<string, VariantImageSlot[]>>(getInitialVariantImages);
+  const variantFileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [activePreviewColor, setActivePreviewColor] = useState<string | null>(null);
+  const [selectedColorTab, setSelectedColorTab] = useState<string>("ALL");
+
+  // Quick Category Creation
+  const [showQuickCategoryModal, setShowQuickCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [isCreatingCat, setIsCreatingCat] = useState(false);
+  const [catModalError, setCatModalError] = useState<string | null>(null);
 
   // Publishing Toggles
   const [showOnHomepage, setShowOnHomepage] = useState(initialData?.showOnHomepage ?? false);
@@ -120,8 +226,8 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
               (matched.name.toLowerCase().includes("clutch") || matched.slug.includes("clutch")
                 ? "Bridal Clutches"
                 : matched.name.toLowerCase().includes("footwear") || matched.slug.includes("footwear") || matched.slug.includes("heel")
-                ? "Bridal Footwear"
-                : "Jewellery");
+                  ? "Bridal Footwear"
+                  : "Jewellery");
             setMainCategory(parent);
           }
         }
@@ -160,6 +266,185 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
 
   // Selected Category Object
   const selectedCatObj = categories.find((c) => c.id === categoryId);
+
+  // Quick Create Category from within product form
+  const handleQuickCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) {
+      setCatModalError("Please enter a category name.");
+      return;
+    }
+    setIsCreatingCat(true);
+    setCatModalError(null);
+    try {
+      const cleanSlug = newCategoryName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
+      const created = await createCategory({
+        name: newCategoryName.trim(),
+        slug: cleanSlug,
+        parentCategory: mainCategory,
+        description: `[Parent: ${mainCategory}]`,
+        status: "Active",
+        displayOrder: 1,
+      });
+
+      // Reload categories list
+      const freshCats = await getAdminCategories();
+      const activeCats = freshCats.filter((c) => c.status === "Active");
+      setCategories(activeCats);
+      setCategoryId(created.id);
+      setShowQuickCategoryModal(false);
+      setNewCategoryName("");
+      setToastMessage(`Category "${created.name}" created and selected!`);
+    } catch (err) {
+      setCatModalError(err instanceof Error ? err.message : "Failed to create category");
+    } finally {
+      setIsCreatingCat(false);
+    }
+  };
+
+  // Barcode / SKU Lookup handler
+  const handleLookupSku = async (rawSku: string) => {
+    const trimmed = rawSku.trim();
+    if (!trimmed) {
+      setScanErrorBanner("Please scan a barcode or enter an SKU.");
+      return;
+    }
+
+    setIsLookingUp(true);
+    setScanErrorBanner(null);
+    setScanSuccessBanner(null);
+
+    try {
+      const res = await lookupExternalProduct(trimmed);
+      if (res.found) {
+        // Auto-fill form fields
+        if (res.name) setProductName(res.name);
+        setSku(res.sku || trimmed);
+        if (res.sellingPrice !== undefined) setSellingPrice(String(res.sellingPrice));
+        if (res.mrp !== undefined) setMrp(String(res.mrp));
+        if (res.stock !== undefined) setStockQuantity(String(res.stock));
+
+        const desc = `${res.name || ""}${res.hsnCode ? ` | HSN: ${res.hsnCode}` : ""}${res.unit ? ` | Unit: ${res.unit}` : ""}`;
+        if (!shortDescription) {
+          setShortDescription(desc);
+        }
+
+        // Smart Category Detection based on product name
+        const lowerName = (res.name || "").toLowerCase();
+        let targetMain = mainCategory;
+        if (
+          lowerName.includes("shoe") ||
+          lowerName.includes("heel") ||
+          lowerName.includes("sandal") ||
+          lowerName.includes("derby") ||
+          lowerName.includes("sneaker") ||
+          lowerName.includes("boot") ||
+          lowerName.includes("jutti") ||
+          lowerName.includes("kolhapuri")
+        ) {
+          targetMain = "Bridal Footwear";
+        } else if (
+          lowerName.includes("clutch") ||
+          lowerName.includes("potli") ||
+          lowerName.includes("bag") ||
+          lowerName.includes("pouch")
+        ) {
+          targetMain = "Bridal Clutches";
+        } else if (
+          lowerName.includes("necklace") ||
+          lowerName.includes("earring") ||
+          lowerName.includes("bangle") ||
+          lowerName.includes("ring") ||
+          lowerName.includes("jewel") ||
+          lowerName.includes("pendant") ||
+          lowerName.includes("choker")
+        ) {
+          targetMain = "Jewellery";
+        }
+
+        setMainCategory(targetMain);
+        const matchingCats = categories.filter((c) => getCategoryParent(c) === targetMain);
+        if (matchingCats.length > 0 && !categoryId) {
+          setCategoryId(matchingCats[0].id);
+        }
+
+        // If product already has images in DB, load them
+        if (res.images && res.images.length > 0) {
+          const primary = res.images.find((m: any) => m.isPrimary || m.imageRole === "PRIMARY");
+          const hover = res.images.find((m: any) => m.imageRole === "HOVER");
+          const galleries = res.images.filter(
+            (m: any) => m !== primary && m !== hover && (m.imageRole === "GALLERY" || !m.imageRole)
+          );
+          setImageSlots([
+            { role: "PRIMARY", label: "Upload Primary Image", sublabel: "JPG, PNG (Max 10 MB)", url: primary?.url },
+            { role: "HOVER", label: "Hover", sublabel: "(Optional)", url: hover?.url },
+            { role: "GALLERY_1", label: "Gallery", sublabel: "(Optional)", url: galleries[0]?.url },
+            { role: "GALLERY_2", label: "Gallery", sublabel: "(Optional)", url: galleries[1]?.url },
+          ]);
+        }
+
+        setScanSuccessBanner({
+          title: `Scanned: ${res.name}`,
+          message: `SKU: ${res.sku} • Price: ₹${res.sellingPrice?.toLocaleString("en-IN")} • Stock: ${res.stock ?? 0} ${res.unit || "pcs"}. Details auto-filled! Please upload product images below to publish.`,
+        });
+
+        // Smooth scroll to product images section
+        setTimeout(() => {
+          imagesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 300);
+      } else {
+        setScanErrorBanner(res.message || `No product found for SKU "${trimmed}".`);
+      }
+    } catch (err: any) {
+      setScanErrorBanner(err.message || "Failed to lookup SKU.");
+    } finally {
+      setIsLookingUp(false);
+    }
+  };
+
+  // Hardware barcode scanner global keypress listener
+  useEffect(() => {
+    let buffer = "";
+    let lastKeyTime = 0;
+
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isOtherInput =
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT") &&
+        target !== scanInputRef.current;
+
+      if (isOtherInput) return;
+
+      const currentTime = Date.now();
+      const diff = currentTime - lastKeyTime;
+      lastKeyTime = currentTime;
+
+      if (e.key === "Enter") {
+        if (buffer.length >= 3 && diff < 120) {
+          e.preventDefault();
+          const scanned = buffer.trim();
+          buffer = "";
+          setScannedSku(scanned);
+          handleLookupSku(scanned);
+        } else {
+          buffer = "";
+        }
+        return;
+      }
+
+      if (e.key.length === 1) {
+        if (diff > 120) {
+          buffer = e.key;
+        } else {
+          buffer += e.key;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [categories, mainCategory, categoryId, shortDescription]);
 
   // Handle File Selection
   const handleFileChange = (index: number, file: File | null) => {
@@ -212,6 +497,55 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
       copy[index] = { ...copy[index], [field]: val };
       return copy;
     });
+  };
+
+  // Variant Image Slot Selection & Removal
+  const handleVariantSlotChange = (color: string, slotIndex: number, file: File | null) => {
+    if (!file) return;
+    const key = color.toLowerCase().trim();
+    const previewUrl = URL.createObjectURL(file);
+    setVariantImages((prev) => {
+      const currentSlots = prev[key] ? [...prev[key]] : createDefaultVariantSlots();
+      currentSlots[slotIndex] = {
+        ...currentSlots[slotIndex],
+        file,
+        previewUrl,
+        url: undefined,
+      };
+      return {
+        ...prev,
+        [key]: currentSlots,
+      };
+    });
+  };
+
+  const handleRemoveVariantSlot = (color: string, slotIndex: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const key = color.toLowerCase().trim();
+    setVariantImages((prev) => {
+      if (!prev[key]) return prev;
+      const currentSlots = [...prev[key]];
+      if (currentSlots[slotIndex]?.previewUrl && currentSlots[slotIndex].previewUrl?.startsWith("blob:")) {
+        try {
+          URL.revokeObjectURL(currentSlots[slotIndex].previewUrl!);
+        } catch { }
+      }
+      const defaultSlots = createDefaultVariantSlots();
+      currentSlots[slotIndex] = {
+        ...defaultSlots[slotIndex],
+        url: undefined,
+        file: undefined,
+        previewUrl: undefined,
+      };
+      return {
+        ...prev,
+        [key]: currentSlots,
+      };
+    });
+    const inputKey = `${key}-${slotIndex}`;
+    if (variantFileInputRefs.current[inputKey]) {
+      variantFileInputRefs.current[inputKey]!.value = "";
+    }
   };
 
   // Generate clean slug from name
@@ -268,12 +602,13 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
     setIsSubmitting(true);
 
     try {
-      // 1. Upload files
+      // 1. Upload base media files (Primary, Hover, Gallery 1 & 2)
       const uploadedImages: {
         url: string;
         isPrimary: boolean;
         imageRole: "PRIMARY" | "HOVER" | "GALLERY";
         sortOrder: number;
+        altText?: string;
       }[] = [];
 
       for (let i = 0; i < imageSlots.length; i++) {
@@ -289,20 +624,58 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
             slot.role === "PRIMARY"
               ? "PRIMARY"
               : slot.role === "HOVER"
-              ? "HOVER"
-              : "GALLERY";
+                ? "HOVER"
+                : "GALLERY";
 
           uploadedImages.push({
             url: finalUrl,
             isPrimary: slot.role === "PRIMARY",
             imageRole: role,
             sortOrder: i + 1,
+            altText: slot.role === "PRIMARY" ? productName : undefined,
           });
+        }
+      }
+
+      // 1.5 Upload Color Variant Images (4 slots per variant)
+      let colorSortOrder = 10;
+      for (const row of variantRows) {
+        if (row.optionName.toLowerCase() === "color" || row.optionName.toLowerCase() === "colour") {
+          const colors = row.values
+            .split(",")
+            .map((c) => c.trim())
+            .filter(Boolean);
+
+          for (const color of colors) {
+            const key = color.toLowerCase();
+            const slots = variantImages[key];
+            if (slots && slots.length > 0) {
+              for (let sIdx = 0; sIdx < slots.length; sIdx++) {
+                const slot = slots[sIdx];
+                let finalUrl = slot.url;
+
+                if (slot.file) {
+                  finalUrl = await uploadFile(slot.file, "products/images");
+                }
+
+                if (finalUrl) {
+                  uploadedImages.push({
+                    url: finalUrl,
+                    isPrimary: false,
+                    imageRole: "GALLERY",
+                    sortOrder: colorSortOrder++,
+                    altText: `Color: ${color} | ${slot.role}`,
+                  });
+                }
+              }
+            }
+          }
         }
       }
 
       // 2. Prepare Variants payload
       const variantsPayload: {
+        id?: string;
         name: string;
         sku: string;
         sellingPrice?: number;
@@ -312,19 +685,25 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
 
       const baseSku = generateSku(productName);
 
-      variantRows.forEach((row, rIdx) => {
+      variantRows.forEach((row) => {
         const splitVals = row.values
           .split(",")
           .map((v) => v.trim())
           .filter(Boolean);
 
         splitVals.forEach((val, vIdx) => {
+          const variantName = `${row.optionName}: ${val}`;
+          const existingVariant = initialData?.variants?.find(
+            (v: AdminProductVariant) => v.name.toLowerCase() === variantName.toLowerCase()
+          );
+
           variantsPayload.push({
-            name: `${row.optionName}: ${val}`,
-            sku: `${baseSku}-${row.optionName.substring(0, 2).toUpperCase()}-${vIdx + 1}`,
+            id: existingVariant?.id,
+            name: variantName,
+            sku: existingVariant?.sku || `${baseSku}-${row.optionName.substring(0, 2).toUpperCase()}-${vIdx + 1}`,
             sellingPrice: sellNum,
             isActive: true,
-            initialStock: Math.max(1, Math.floor((parseInt(stockQuantity, 10) || 10) / splitVals.length)),
+            initialStock: Math.max(1, Math.floor((parseInt(stockQuantity, 10) || 10) / (splitVals.length || 1))),
           });
         });
       });
@@ -336,7 +715,7 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
 
       const payload = {
         name: productName.trim(),
-        sku: initialData?.sku || baseSku,
+        sku: sku.trim() || initialData?.sku || baseSku,
         slug,
         shortDescription: shortDescription.trim() || undefined,
         description: shortDescription.trim() || undefined,
@@ -377,11 +756,32 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
     }
   };
 
-  // Preview active image
-  const primaryDisplayImage = imageSlots[0].previewUrl || imageSlots[0].url || "/placeholder.png";
+  // Preview active image (switches to activePreviewColor if chosen)
+  const activeVariantSlots = activePreviewColor ? variantImages[activePreviewColor.toLowerCase()] : null;
+  const previewSlots =
+    activeVariantSlots && activeVariantSlots.some((s) => s.previewUrl || s.url)
+      ? activeVariantSlots
+      : imageSlots;
+
+  const primaryDisplayImage =
+    previewSlots[0]?.previewUrl ||
+    previewSlots[0]?.url ||
+    imageSlots[0]?.previewUrl ||
+    imageSlots[0]?.url ||
+    "/placeholder.png";
+
   const allFilledThumbnails = imageSlots
     .map((s) => s.previewUrl || s.url)
     .filter(Boolean) as string[];
+
+  // Collect all unique color variant names across all Color rows
+  const allColorVariants = Array.from(
+    new Set(
+      variantRows
+        .filter((r) => r.optionName.toLowerCase() === "color" || r.optionName.toLowerCase() === "colour")
+        .flatMap((r) => r.values.split(",").map((c) => c.trim()).filter(Boolean))
+    )
+  );
 
   return (
     <div className="w-full pb-20">
@@ -456,6 +856,106 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
         {/* LEFT COLUMN: FORM CARDS                                       */}
         {/* ============================================================== */}
         <div className="lg:col-span-7 space-y-6">
+          {/* BARCODE SCANNER & SKU AUTO-FILL CARD */}
+          <div className="bg-[#1C1B19] text-white rounded-2xl p-5 sm:p-6 shadow-md border border-[#C99213]/40 space-y-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#C99213]/20 border border-[#C99213]/40 flex items-center justify-center text-[#E3B341]">
+                  <ScanBarcode className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-white font-sans">
+                      Barcode Scanner / SKU Auto-Fill
+                    </h3>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Scanner Ready
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-neutral-400 font-questrial">
+                    Scan with handheld barcode scanner or enter SKU to auto-fill details from Brynex ERP
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Scan Input Row */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  ref={scanInputRef}
+                  type="text"
+                  value={scannedSku}
+                  onChange={(e) => setScannedSku(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleLookupSku(scannedSku);
+                    }
+                  }}
+                  placeholder="Scan barcode with handheld scanner or enter SKU (e.g. BRL8/1410)..."
+                  className="w-full pl-9 pr-4 py-2.5 bg-neutral-900 border border-neutral-700 focus:border-[#C99213] rounded-xl text-xs text-white placeholder-neutral-500 outline-none font-mono transition-all"
+                />
+                <ScanBarcode className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleLookupSku(scannedSku)}
+                disabled={isLookingUp}
+                className="px-5 py-2.5 bg-[#C99213] hover:bg-[#b07e0c] text-white rounded-xl text-xs font-semibold tracking-wide transition-colors cursor-pointer shrink-0 disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+              >
+                {isLookingUp ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Searching...</span>
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-3.5 h-3.5" />
+                    <span>Lookup SKU</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Success Banner */}
+            {scanSuccessBanner && (
+              <div className="bg-emerald-950/70 border border-emerald-500/40 rounded-xl p-3 text-[11px] text-emerald-200 flex items-start gap-2.5 animate-in fade-in">
+                <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-0.5">
+                  <p className="font-semibold text-emerald-300">
+                    {scanSuccessBanner.title}
+                  </p>
+                  <p className="text-[10px] text-emerald-200/90 font-questrial leading-relaxed">
+                    {scanSuccessBanner.message}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setScanSuccessBanner(null)}
+                  className="text-emerald-400 hover:text-white text-xs cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Error Banner */}
+            {scanErrorBanner && (
+              <div className="bg-rose-950/70 border border-rose-500/40 rounded-xl p-3 text-[11px] text-rose-200 flex items-center justify-between gap-2.5 animate-in fade-in">
+                <span className="font-questrial">{scanErrorBanner}</span>
+                <button
+                  type="button"
+                  onClick={() => setScanErrorBanner(null)}
+                  className="text-rose-400 hover:text-white text-xs cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* 1. BASIC DETAILS CARD */}
           <div className="bg-white border border-neutral-200 rounded-2xl p-6 sm:p-7 shadow-2xs space-y-5">
             <div className="flex items-baseline justify-between border-b border-neutral-100 pb-3">
@@ -463,23 +963,41 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
                 Basic Details
               </h2>
               <span className="text-[10px] text-neutral-400 font-questrial">
-                SKU, Slug and SEO are Auto Generated
+                Auto-filled from barcode scanner or ERP
               </span>
             </div>
 
-            {/* Row 1: Product Name, Main Category & Sub Category */}
+            {/* Row 1: Product Name & SKU */}
             <div className="space-y-4">
-              <div>
-                <label className="text-[11px] font-medium text-neutral-700 block mb-1.5 font-questrial">
-                  Product Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Rose Gold Pearl Necklace"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-neutral-250 rounded-lg text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-[#C99213] focus:ring-1 focus:ring-[#C99213] transition-all bg-white"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                <div className="sm:col-span-8">
+                  <label className="text-[11px] font-medium text-neutral-700 block mb-1.5 font-questrial">
+                    Product Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Men's Derby Shoe - Black Size 8"
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-neutral-250 rounded-lg text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-[#C99213] focus:ring-1 focus:ring-[#C99213] transition-all bg-white"
+                  />
+                </div>
+
+                <div className="sm:col-span-4">
+                  <label className="text-[11px] font-medium text-neutral-700 block mb-1.5 font-questrial">
+                    SKU (Code / Barcode) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="e.g. BRL8/1410"
+                      value={sku}
+                      onChange={(e) => setSku(e.target.value)}
+                      className="w-full pl-3.5 pr-8 py-2.5 border border-neutral-250 rounded-lg text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-[#C99213] focus:ring-1 focus:ring-[#C99213] transition-all bg-white font-mono uppercase font-semibold"
+                    />
+                    <Barcode className="w-4 h-4 text-neutral-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -508,9 +1026,23 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-medium text-neutral-700 block mb-1.5 font-questrial">
-                    Sub Category <span className="text-red-500">*</span>
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[11px] font-medium text-neutral-700 font-questrial">
+                      Sub Category <span className="text-red-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCatModalError(null);
+                        setNewCategoryName("");
+                        setShowQuickCategoryModal(true);
+                      }}
+                      className="text-[10px] text-[#C99213] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>Create Category</span>
+                    </button>
+                  </div>
                   <div className="relative">
                     <select
                       value={categoryId}
@@ -600,7 +1132,7 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
             </div>
 
             {/* Product Images 4-Slot Grid */}
-            <div className="pt-2">
+            <div ref={imagesSectionRef} className="pt-2 scroll-mt-6">
               <label className="text-[11px] font-medium text-neutral-700 block mb-2 font-questrial">
                 Product Images <span className="text-red-500">*</span>
               </label>
@@ -613,13 +1145,12 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
                     <div
                       key={slot.role}
                       onClick={() => fileInputRefs.current[index]?.click()}
-                      className={`relative aspect-[1/1.05] rounded-xl border flex flex-col items-center justify-center p-3 text-center cursor-pointer transition-all overflow-hidden ${
-                        displayImg
-                          ? "border-neutral-300 bg-neutral-50"
-                          : index === 0
+                      className={`relative aspect-[1/1.05] rounded-xl border flex flex-col items-center justify-center p-3 text-center cursor-pointer transition-all overflow-hidden ${displayImg
+                        ? "border-neutral-300 bg-neutral-50"
+                        : index === 0
                           ? "border-dashed border-[#E3B341] bg-[#FFFBF0] hover:bg-[#FFF6DC]"
                           : "border-dashed border-neutral-250 bg-neutral-50/60 hover:bg-neutral-100/60"
-                      }`}
+                        }`}
                     >
                       <input
                         type="file"
@@ -654,18 +1185,16 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
                       ) : (
                         <div className="space-y-1.5 pointer-events-none">
                           <div
-                            className={`w-9 h-9 rounded-lg mx-auto flex items-center justify-center ${
-                              index === 0
-                                ? "bg-[#F7E7BD] text-[#8C6A16]"
-                                : "bg-neutral-200/70 text-neutral-500"
-                            }`}
+                            className={`w-9 h-9 rounded-lg mx-auto flex items-center justify-center ${index === 0
+                              ? "bg-[#F7E7BD] text-[#8C6A16]"
+                              : "bg-neutral-200/70 text-neutral-500"
+                              }`}
                           >
                             <Upload className="w-4 h-4" />
                           </div>
                           <p
-                            className={`text-[11px] font-semibold leading-tight ${
-                              index === 0 ? "text-[#8C6A16]" : "text-neutral-700"
-                            }`}
+                            className={`text-[11px] font-semibold leading-tight ${index === 0 ? "text-[#8C6A16]" : "text-neutral-700"
+                              }`}
                           >
                             {slot.label}
                           </p>
@@ -692,56 +1221,254 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
               </p>
             </div>
 
-            <div className="space-y-3">
-              {variantRows.map((row, index) => (
-                <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                  <div className="sm:col-span-4">
-                    <label className="text-[10px] font-medium text-neutral-600 block mb-1 font-questrial">
-                      Option Name
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={row.optionName}
-                        onChange={(e) => handleVariantChange(index, "optionName", e.target.value)}
-                        className="w-full px-3 py-2 border border-neutral-250 rounded-lg text-xs text-neutral-800 bg-white focus:outline-none focus:border-[#C99213] transition-all appearance-none cursor-pointer pr-8"
-                      >
-                        <option value="Size">Size</option>
-                        <option value="Color">Color</option>
-                        <option value="Bangle Size">Bangle Size</option>
-                        <option value="Length">Length</option>
-                        <option value="Material">Material</option>
-                      </select>
-                      <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <div className="space-y-4">
+              {variantRows.map((row, index) => {
+                const isColor =
+                  row.optionName.toLowerCase() === "color" ||
+                  row.optionName.toLowerCase() === "colour";
+                const colors = row.values
+                  .split(",")
+                  .map((v) => v.trim())
+                  .filter(Boolean);
+
+                return (
+                  <div
+                    key={index}
+                    className="p-4 bg-neutral-50/50 rounded-xl border border-neutral-200/90 space-y-3"
+                  >
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                      <div className="sm:col-span-4">
+                        <label className="text-[10px] font-medium text-neutral-600 block mb-1 font-questrial">
+                          Option Name
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={row.optionName}
+                            onChange={(e) => handleVariantChange(index, "optionName", e.target.value)}
+                            className="w-full px-3 py-2 border border-neutral-250 rounded-lg text-xs text-neutral-800 bg-white focus:outline-none focus:border-[#C99213] transition-all appearance-none cursor-pointer pr-8"
+                          >
+                            <option value="Color">Color</option>
+                            <option value="Size">Size</option>
+                            <option value="Bangle Size">Bangle Size</option>
+                            <option value="Length">Length</option>
+                            <option value="Material">Material</option>
+                          </select>
+                          <ChevronDown className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
+                      </div>
+
+                      <div className="sm:col-span-7">
+                        <label className="text-[10px] font-medium text-neutral-600 block mb-1 font-questrial">
+                          Values (Comma Separated)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder={isColor ? "e.g. Gold, Rose Gold, Silver" : "e.g. 36, 38, 40"}
+                          value={row.values}
+                          onChange={(e) => handleVariantChange(index, "values", e.target.value)}
+                          className="w-full px-3 py-2 border border-neutral-250 rounded-lg text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-[#C99213] transition-all bg-white"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-1 flex justify-center pb-1">
+                        {variantRows.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveVariantRow(index)}
+                            className="text-neutral-400 hover:text-rose-600 p-1.5 transition-colors cursor-pointer"
+                            title="Remove option"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="sm:col-span-7">
-                    <label className="text-[10px] font-medium text-neutral-600 block mb-1 font-questrial">
-                      Values (Comma Separated)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 36, 38, 40"
-                      value={row.values}
-                      onChange={(e) => handleVariantChange(index, "values", e.target.value)}
-                      className="w-full px-3 py-2 border border-neutral-250 rounded-lg text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-[#C99213] transition-all bg-white"
-                    />
-                  </div>
+                    {/* Color Variant Images section when Option Name is Color */}
+                    {isColor && (
+                      <div className="pt-3 border-t border-neutral-200/80 space-y-3.5">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-md bg-[#FFFBF0] border border-[#E3B341]/40 flex items-center justify-center text-[#8C6A16]">
+                              <ImageIcon className="w-3.5 h-3.5" />
+                            </div>
+                            <div>
+                              <span className="text-[11px] font-bold text-neutral-800 uppercase tracking-wider font-sans">
+                                Variant Images {colors.length > 0 && `(${colors.length} Variants)`}
+                              </span>
+                              <p className="text-[10px] text-neutral-400 font-questrial">
+                                Upload dedicated Primary, Hover, and Gallery photos for each color variant
+                              </p>
+                            </div>
+                          </div>
 
-                  <div className="sm:col-span-1 flex justify-center pb-1">
-                    {variantRows.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveVariantRow(index)}
-                        className="text-neutral-400 hover:text-rose-600 p-1.5 transition-colors cursor-pointer"
-                        title="Remove option"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                          {colors.length > 1 && (
+                            <div className="flex items-center gap-1 bg-neutral-100/90 p-1 rounded-lg border border-neutral-200 flex-wrap">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedColorTab("ALL")}
+                                className={`px-2.5 py-1 text-[10px] font-medium rounded-md transition-all cursor-pointer ${selectedColorTab === "ALL"
+                                  ? "bg-white text-neutral-900 shadow-2xs font-semibold"
+                                  : "text-neutral-500 hover:text-neutral-800"
+                                  }`}
+                              >
+                                All Variants
+                              </button>
+                              {colors.map((c) => {
+                                const cKey = c.toLowerCase();
+                                const uploadedCount = (variantImages[cKey] || []).filter(
+                                  (s) => s.previewUrl || s.url
+                                ).length;
+                                return (
+                                  <button
+                                    key={c}
+                                    type="button"
+                                    onClick={() => setSelectedColorTab(c)}
+                                    className={`px-2.5 py-1 text-[10px] font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${selectedColorTab === c
+                                      ? "bg-white text-[#8C6A16] font-semibold shadow-2xs border border-[#E3B341]/30"
+                                      : "text-neutral-600 hover:text-neutral-900"
+                                      }`}
+                                  >
+                                    <span>{c}</span>
+                                    <span
+                                      className={`text-[9px] px-1 py-0.2 rounded-full ${uploadedCount > 0
+                                        ? "bg-[#FFFBF0] text-[#8C6A16] border border-[#E3B341]/40 font-semibold"
+                                        : "bg-neutral-200 text-neutral-500"
+                                        }`}
+                                    >
+                                      {uploadedCount}/4
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+
+                        {colors.length === 0 ? (
+                          <div className="p-4 text-center rounded-xl border border-dashed border-neutral-300 bg-white text-xs text-neutral-500 font-questrial">
+                            Type color names above separated by commas (e.g.{" "}
+                            <span className="font-semibold text-neutral-800">Gold, Rose Gold, Silver</span>) to configure images for each variant.
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {colors
+                              .filter((color) => selectedColorTab === "ALL" || selectedColorTab === color)
+                              .map((color) => {
+                                const key = color.toLowerCase();
+                                const slots = variantImages[key] || createDefaultVariantSlots();
+                                const uploadedCount = slots.filter((s) => s.previewUrl || s.url).length;
+
+                                return (
+                                  <div
+                                    key={color}
+                                    className="bg-white border border-neutral-200/90 rounded-xl p-4 sm:p-5 shadow-2xs space-y-3.5 transition-all hover:border-neutral-300"
+                                  >
+                                    {/* Variant Header */}
+                                    <div className="flex items-center justify-between pb-2.5 border-b border-neutral-100">
+                                      <div className="flex items-center gap-2">
+                                        <span className="w-2.5 h-2.5 rounded-full bg-[#C99213]" />
+                                        <span className="text-xs font-bold text-neutral-900 font-sans tracking-wide uppercase">
+                                          {color} Variant Images
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span
+                                          className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${uploadedCount > 0
+                                            ? "bg-amber-50 text-amber-800 border-amber-200"
+                                            : "bg-neutral-100 text-neutral-500 border-neutral-200"
+                                            }`}
+                                        >
+                                          {uploadedCount}/4 uploaded
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* 4-Slot Grid (Identical to Product Images * grid) */}
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                      {slots.map((slot, slotIndex) => {
+                                        const displayImg = slot.previewUrl || slot.url;
+                                        const inputKey = `${key}-${slotIndex}`;
+
+                                        return (
+                                          <div
+                                            key={slot.role}
+                                            onClick={() => variantFileInputRefs.current[inputKey]?.click()}
+                                            className={`relative aspect-[1/1.05] rounded-xl border flex flex-col items-center justify-center p-3 text-center cursor-pointer transition-all overflow-hidden ${displayImg
+                                              ? "border-neutral-300 bg-neutral-50"
+                                              : slotIndex === 0
+                                                ? "border-dashed border-[#E3B341] bg-[#FFFBF0] hover:bg-[#FFF6DC]"
+                                                : "border-dashed border-neutral-250 bg-neutral-50/60 hover:bg-neutral-100/60"
+                                              }`}
+                                          >
+                                            <input
+                                              type="file"
+                                              ref={(el) => {
+                                                variantFileInputRefs.current[inputKey] = el;
+                                              }}
+                                              onChange={(e) =>
+                                                handleVariantSlotChange(color, slotIndex, e.target.files?.[0] || null)
+                                              }
+                                              accept="image/png, image/jpeg, image/webp"
+                                              className="hidden"
+                                            />
+
+                                            {displayImg ? (
+                                              <>
+                                                <Image
+                                                  src={displayImg}
+                                                  alt={`${color} - ${slot.label}`}
+                                                  fill
+                                                  sizes="140px"
+                                                  className="object-cover"
+                                                />
+                                                <button
+                                                  type="button"
+                                                  onClick={(e) => handleRemoveVariantSlot(color, slotIndex, e)}
+                                                  className="absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full bg-neutral-900/80 hover:bg-neutral-900 text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer"
+                                                  title={`Remove ${slot.label} for ${color}`}
+                                                >
+                                                  <X className="w-3.5 h-3.5" />
+                                                </button>
+                                                <div className="absolute bottom-1.5 left-1.5 right-1.5 bg-black/60 backdrop-blur-2xs py-0.5 px-1.5 rounded text-[9px] text-white font-questrial text-center truncate pointer-events-none">
+                                                  {slot.label}
+                                                </div>
+                                              </>
+                                            ) : (
+                                              <div className="space-y-1.5 pointer-events-none">
+                                                <div
+                                                  className={`w-9 h-9 rounded-lg mx-auto flex items-center justify-center ${slotIndex === 0
+                                                    ? "bg-[#F7E7BD] text-[#8C6A16]"
+                                                    : "bg-neutral-200/70 text-neutral-500"
+                                                    }`}
+                                                >
+                                                  <Upload className="w-4 h-4" />
+                                                </div>
+                                                <p
+                                                  className={`text-[11px] font-semibold leading-tight ${slotIndex === 0 ? "text-[#8C6A16]" : "text-neutral-700"
+                                                    }`}
+                                                >
+                                                  {slot.label}
+                                                </p>
+                                                <p className="text-[9px] text-neutral-400 font-questrial">
+                                                  {slot.sublabel}
+                                                </p>
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <button
@@ -766,14 +1493,12 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
                 <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <div
                     onClick={() => setShowOnHomepage(!showOnHomepage)}
-                    className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-250 ${
-                      showOnHomepage ? "bg-[#C99213]" : "bg-neutral-300"
-                    }`}
+                    className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-250 ${showOnHomepage ? "bg-[#C99213]" : "bg-neutral-300"
+                      }`}
                   >
                     <div
-                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-250 ${
-                        showOnHomepage ? "translate-x-4" : "translate-x-0"
-                      }`}
+                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-250 ${showOnHomepage ? "translate-x-4" : "translate-x-0"
+                        }`}
                     />
                   </div>
                   <span className="text-xs font-questrial text-neutral-700">Show on Homepage</span>
@@ -783,14 +1508,12 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
                 <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <div
                     onClick={() => setFeaturedProduct(!featuredProduct)}
-                    className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-250 ${
-                      featuredProduct ? "bg-[#C99213]" : "bg-neutral-300"
-                    }`}
+                    className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-250 ${featuredProduct ? "bg-[#C99213]" : "bg-neutral-300"
+                      }`}
                   >
                     <div
-                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-250 ${
-                        featuredProduct ? "translate-x-4" : "translate-x-0"
-                      }`}
+                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-250 ${featuredProduct ? "translate-x-4" : "translate-x-0"
+                        }`}
                     />
                   </div>
                   <span className="text-xs font-questrial text-neutral-700">Featured Product</span>
@@ -800,14 +1523,12 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
                 <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <div
                     onClick={() => setNewArrival(!newArrival)}
-                    className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-250 ${
-                      newArrival ? "bg-[#C99213]" : "bg-neutral-300"
-                    }`}
+                    className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-250 ${newArrival ? "bg-[#C99213]" : "bg-neutral-300"
+                      }`}
                   >
                     <div
-                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-250 ${
-                        newArrival ? "translate-x-4" : "translate-x-0"
-                      }`}
+                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-250 ${newArrival ? "translate-x-4" : "translate-x-0"
+                        }`}
                     />
                   </div>
                   <span className="text-xs font-questrial text-neutral-700">New Arrival</span>
@@ -849,17 +1570,18 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
               {/* Thumbnails row */}
               <div className="grid grid-cols-4 gap-2">
                 {[0, 1, 2, 3].map((i) => {
-                  const thumb = imageSlots[i].previewUrl || imageSlots[i].url;
+                  const slot = previewSlots[i];
+                  const thumb = slot?.previewUrl || slot?.url;
                   return (
                     <div
                       key={i}
                       className="relative aspect-square rounded-lg bg-neutral-100 overflow-hidden border border-neutral-200/80"
                     >
                       {thumb ? (
-                        <Image src={thumb} alt={`Thumb ${i + 1}`} fill sizes="80px" className="object-cover" />
+                        <Image src={thumb} alt={slot?.label || `Thumb ${i + 1}`} fill sizes="80px" className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-[10px] text-neutral-300 font-questrial">
-                          {i === 0 ? "Main" : `Slot ${i + 1}`}
+                          {i === 0 ? "Main" : slot?.label || `Slot ${i + 1}`}
                         </div>
                       )}
                     </div>
@@ -899,6 +1621,55 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
                 )}
               </div>
 
+              {/* Color Swatches Live Preview (interactive) */}
+              {allColorVariants.length > 0 && (
+                <div className="space-y-1.5 pt-1 border-t border-neutral-100">
+                  <div className="flex items-center justify-between text-[11px] font-questrial">
+                    <span className="text-neutral-500">
+                      Color: <strong className="text-neutral-900 font-medium">{activePreviewColor || allColorVariants[0]}</strong>
+                    </span>
+                    {activePreviewColor && (
+                      <button
+                        type="button"
+                        onClick={() => setActivePreviewColor(null)}
+                        className="text-[10px] text-[#C99213] hover:underline cursor-pointer"
+                      >
+                        Reset to Primary
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {allColorVariants.map((col) => {
+                      const key = col.toLowerCase();
+                      const slots = variantImages[key];
+                      const primarySlot = slots?.[0];
+                      const vImg = primarySlot?.previewUrl || primarySlot?.url;
+                      const isSelected = (activePreviewColor || allColorVariants[0]) === col;
+                      return (
+                        <button
+                          key={col}
+                          type="button"
+                          onClick={() => setActivePreviewColor(col)}
+                          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs transition-all cursor-pointer ${isSelected
+                            ? "border-[#C99213] bg-[#FFFBF0] text-[#8C6A16] font-medium shadow-2xs"
+                            : "border-neutral-250 bg-white text-neutral-700 hover:border-neutral-400"
+                            }`}
+                        >
+                          {vImg ? (
+                            <div className="relative w-4 h-4 rounded-sm overflow-hidden shrink-0">
+                              <Image src={vImg} alt={col} fill className="object-cover" />
+                            </div>
+                          ) : (
+                            <span className="w-2 h-2 rounded-full bg-neutral-300 shrink-0" />
+                          )}
+                          <span className="font-questrial text-[11px]">{col}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Action Buttons Mockup */}
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <button
@@ -933,6 +1704,88 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
           </div>
         </div>
       </div>
+
+      {/* Quick Create Category Modal */}
+      {showQuickCategoryModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs font-questrial"
+          onClick={() => setShowQuickCategoryModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative border border-neutral-200 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 font-sans">
+                Create New Category
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowQuickCategoryModal(false)}
+                className="w-6 h-6 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-500 text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {catModalError && (
+              <p className="text-[11px] text-red-500 font-medium bg-red-50 p-2 rounded-lg border border-red-100">
+                {catModalError}
+              </p>
+            )}
+
+            <form onSubmit={handleQuickCreateCategory} className="space-y-3.5">
+              <div>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
+                  Main Category
+                </label>
+                <div className="px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-semibold text-neutral-800">
+                  {mainCategory}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
+                  Category Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Chokers, Bangles, Anklets..."
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  autoFocus
+                  className="w-full px-3 py-2 border border-neutral-250 rounded-lg text-xs text-neutral-800 focus:outline-none focus:border-[#C99213] focus:ring-1 focus:ring-[#C99213] transition-all bg-white"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-100">
+                <button
+                  type="button"
+                  onClick={() => setShowQuickCategoryModal(false)}
+                  disabled={isCreatingCat}
+                  className="px-4 py-2 border border-neutral-300 rounded-lg text-xs text-neutral-700 hover:bg-neutral-50 cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingCat}
+                  className="px-4 py-2 bg-neutral-900 text-white rounded-lg text-xs font-semibold hover:bg-neutral-800 cursor-pointer disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                >
+                  {isCreatingCat ? (
+                    <>
+                      <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Creating...</span>
+                    </>
+                  ) : (
+                    <span>Create & Select</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

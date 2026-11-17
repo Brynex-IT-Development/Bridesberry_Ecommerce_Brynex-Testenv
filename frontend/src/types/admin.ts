@@ -29,11 +29,30 @@ export interface AdminStat {
 
 export interface AdminOrder {
   id: string;
+  rawId?: string;
+  orderNumber?: string;
   customerName: string;
+  customerEmail?: string;
+  customerPhone?: string;
   productName: string;
   value: string;
   status: StatusType;
   date: string;
+  items?: AdminOrderItem[];
+  shippingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  billingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
 }
 
 export interface AdminProduct {

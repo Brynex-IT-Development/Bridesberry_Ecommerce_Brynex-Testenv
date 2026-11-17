@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createPortal } from "react-dom";
 import { Plus, X, Trash2, ArrowRight } from "lucide-react";
 import AdminTopbar from "@/components/admin/layout/AdminTopbar";
 import AdminTabs from "@/components/admin/shared/AdminTabs";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
-import { getOrders, getCustomers, placeOrder } from "@/services/orders.service";
+import { getOrders, getCustomers, placeOrder, getOrderById } from "@/services/orders.service";
 import { getAdminProducts, getAdminProductById } from "@/services/products.service";
 import { AdminOrder, AdminCustomer, AdminProduct } from "@/types/admin";
 
@@ -26,6 +27,24 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [activeTab, setActiveTab] = useState("All Orders");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Quick View Order Product Details Modal State
+  const [quickViewOrder, setQuickViewOrder] = useState<AdminOrder | null>(null);
+  const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
+  const [fullOrderDetails, setFullOrderDetails] = useState<any>(null);
+
+  const handleOpenQuickView = async (order: AdminOrder) => {
+    setQuickViewOrder(order);
+    if (!order.items || order.items.length === 0) {
+      setLoadingOrderDetails(true);
+      const urlId = (order.rawId || order.id).replace("#", "").trim();
+      const res = await getOrderById(urlId);
+      setFullOrderDetails(res || null);
+      setLoadingOrderDetails(false);
+    } else {
+      setFullOrderDetails(null);
+    }
+  };
 
   // Create Order Modal States
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -389,10 +408,24 @@ export default function AdminOrdersPage() {
                     return (
                       <tr key={idx} className="hover:bg-neutral-50/50 transition-colors">
                         {/* Order ID */}
-                        <td className="py-4 px-6 text-xs font-bold text-[#C99213] cursor-pointer hover:underline">
-                          <Link href={`/admin/orders/${urlId}`}>
-                            {order.id}
-                          </Link>
+                        <td className="py-4 px-6 text-xs font-bold text-[#C99213]">
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenQuickView(order)}
+                              className="font-bold text-[#C99213] hover:underline cursor-pointer text-left"
+                              title="Click to view product details"
+                            >
+                              {order.id}
+                            </button>
+                            <Link
+                              href={`/admin/orders/${urlId}`}
+                              className="text-neutral-350 hover:text-neutral-700 text-xs p-0.5"
+                              title="Open full order management page"
+                            >
+                              ↗
+                            </Link>
+                          </div>
                         </td>
 
                         {/* Customer Name */}
@@ -434,6 +467,163 @@ export default function AdminOrdersPage() {
           </div>
         </div>
       </div>
+
+      {/* QUICK VIEW ORDER PRODUCT DETAILS MODAL (PORTAL) */}
+      {quickViewOrder &&
+        typeof window !== "undefined" &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+            <div className="bg-white border border-[#E5E5E5] rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl relative flex flex-col font-sans">
+              {/* Modal Header */}
+              <div className="flex justify-between items-start border-b border-neutral-100 pb-4 mb-5">
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <h2 className="text-base font-bold tracking-wider text-neutral-900 uppercase font-sans">
+                      Order {quickViewOrder.id}
+                    </h2>
+                    <StatusBadge status={quickViewOrder.status} />
+                  </div>
+                  <p className="text-xs text-neutral-400 mt-1 font-questrial">
+                    Placed on {quickViewOrder.date} &bull; Customer:{" "}
+                    <span className="font-semibold text-neutral-700">
+                      {quickViewOrder.customerName}
+                    </span>
+                    {quickViewOrder.customerEmail && (
+                      <span className="text-neutral-400"> ({quickViewOrder.customerEmail})</span>
+                    )}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setQuickViewOrder(null);
+                    setFullOrderDetails(null);
+                  }}
+                  className="p-1.5 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer text-neutral-450 hover:text-neutral-700"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 font-sans">
+                    Ordered Products
+                  </h3>
+                  <span className="text-[11px] text-neutral-400 font-questrial">
+                    Item details & specifications
+                  </span>
+                </div>
+
+                {loadingOrderDetails ? (
+                  <div className="py-12 text-center text-xs text-neutral-400 font-questrial">
+                    Loading order products...
+                  </div>
+                ) : (
+                  (() => {
+                    const displayItems =
+                      quickViewOrder.items && quickViewOrder.items.length > 0
+                        ? quickViewOrder.items
+                        : fullOrderDetails?.items || [];
+
+                    if (displayItems.length === 0) {
+                      return (
+                        <div className="py-8 text-center text-xs text-neutral-400 border border-neutral-150 rounded-xl bg-neutral-50/50">
+                          No product items found for this order.
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="border border-neutral-200 rounded-2xl overflow-hidden divide-y divide-neutral-100">
+                        {displayItems.map((item: any, i: number) => (
+                          <div
+                            key={i}
+                            className="p-4 flex items-center gap-4 bg-white hover:bg-neutral-50/40 transition-colors"
+                          >
+                            <div className="w-14 h-14 rounded-xl bg-neutral-100 border border-neutral-200 flex-shrink-0 relative overflow-hidden flex items-center justify-center">
+                              {item.image ? (
+                                <Image
+                                  src={item.image}
+                                  alt={item.productName}
+                                  fill
+                                  sizes="56px"
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <span className="text-[9px] text-neutral-400 font-questrial">
+                                  No Image
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Link
+                                  href={`/admin/products/${item.productId}`}
+                                  className="text-xs font-bold text-neutral-900 hover:text-[#C99213] truncate"
+                                >
+                                  {item.productName}
+                                </Link>
+                                {item.variant && (
+                                  <span className="text-[10px] font-semibold bg-neutral-100 text-neutral-700 px-2 py-0.5 rounded-full shrink-0">
+                                    {item.variant}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-neutral-400 font-mono mt-0.5">
+                                SKU: {item.sku}
+                              </p>
+                              <div className="flex items-center justify-between mt-1">
+                                <span className="text-xs text-neutral-500 font-questrial">
+                                  Qty: <strong className="text-neutral-800">{item.quantity}</strong> &times; {item.unitPrice}
+                                </span>
+                                <span className="text-xs font-bold text-neutral-900">
+                                  {item.totalPrice}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()
+                )}
+              </div>
+
+              {/* Total & Action Buttons */}
+              <div className="pt-6 mt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block font-questrial">
+                    Total Order Value
+                  </span>
+                  <span className="text-lg font-bold text-neutral-900">
+                    {quickViewOrder.value}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuickViewOrder(null);
+                      setFullOrderDetails(null);
+                    }}
+                    className="px-5 py-2.5 border border-neutral-300 rounded-full text-xs font-semibold text-neutral-700 hover:bg-neutral-50 cursor-pointer"
+                  >
+                    Close
+                  </button>
+                  <Link
+                    href={`/admin/orders/${(quickViewOrder.rawId || quickViewOrder.id).replace("#", "").trim()}`}
+                    className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-850 text-white rounded-full text-xs font-semibold tracking-wide transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <span>Full Order Page</span>
+                    <span>&rarr;</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* CREATE CUSTOM ORDER MODAL (PORTAL) */}
       {isCreateModalOpen &&

@@ -29,12 +29,19 @@ function mapAdminCategory(category: BackendAdminCategory): AdminCategory {
 function mapAdminCategoryPayload(
   payload: Partial<AdminCategory>,
 ): Record<string, unknown> {
-  const { displayOrder, status, ...category } = payload;
-  return {
+  const { displayOrder, status, id, ...category } = payload;
+  const body: Record<string, unknown> = {
     ...category,
-    ...(displayOrder !== undefined ? { sortOrder: displayOrder } : {}),
+    ...(displayOrder !== undefined ? { sortOrder: Number(displayOrder) } : {}),
     ...(status !== undefined ? { isActive: status === "Active" } : {}),
   };
+  if (id && id.trim()) {
+    body.id = id.trim();
+  }
+  if (typeof body.slug === "string") {
+    body.slug = body.slug.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
+  }
+  return body;
 }
 
 // ----- Public storefront -----

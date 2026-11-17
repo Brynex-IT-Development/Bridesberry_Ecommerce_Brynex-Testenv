@@ -8,18 +8,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var OrdersService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrdersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_js_1 = require("../generated/prisma/client.js");
 const email_service_1 = require("../email/email.service");
-let OrdersService = class OrdersService {
+const rootfin_sync_service_1 = require("./rootfin-sync.service");
+let OrdersService = OrdersService_1 = class OrdersService {
     prisma;
     emailService;
-    constructor(prisma, emailService) {
+    rootfinSyncService;
+    logger = new common_1.Logger(OrdersService_1.name);
+    constructor(prisma, emailService, rootfinSyncService) {
         this.prisma = prisma;
         this.emailService = emailService;
+        this.rootfinSyncService = rootfinSyncService;
     }
     async create(customerId, dto) {
         if (!dto.items || dto.items.length === 0) {
@@ -81,7 +86,7 @@ let OrdersService = class OrdersService {
                     include: {
                         product: {
                             include: {
-                                images: { where: { isPrimary: true } },
+                                images: true,
                             },
                         },
                     },
@@ -93,11 +98,12 @@ let OrdersService = class OrdersService {
         });
     }
     async findOne(idOrNumber, user) {
+        const cleanId = idOrNumber ? idOrNumber.replace(/^#/, '').trim() : '';
         const order = await this.prisma.order.findFirst({
             where: {
                 OR: [
                     { id: idOrNumber },
-                    { orderNumber: idOrNumber },
+                    ...(cleanId ? [{ id: cleanId }, { orderNumber: idOrNumber }, { orderNumber: cleanId }, { orderNumber: `#${cleanId}` }] : []),
                 ],
             },
             include: {
@@ -105,7 +111,7 @@ let OrdersService = class OrdersService {
                     include: {
                         product: {
                             include: {
-                                images: { where: { isPrimary: true } },
+                                images: true,
                             },
                         },
                     },
@@ -125,7 +131,15 @@ let OrdersService = class OrdersService {
         return this.prisma.order.findMany({
             include: {
                 customer: true,
-                items: true,
+                items: {
+                    include: {
+                        product: {
+                            include: {
+                                images: true,
+                            },
+                        },
+                    },
+                },
             },
             orderBy: {
                 createdAt: 'desc',
@@ -146,17 +160,17 @@ let OrdersService = class OrdersService {
             return order;
         }
         const lowStockItems = [];
+        const isConfirming = (previousStatus === 'PENDING_PAYMENT' ||
+            previousStatus === 'CANCELLED') &&
+            (targetStatus === 'CONFIRMED' ||
+                targetStatus === 'PROCESSING' ||
+                targetStatus === 'DELIVERED');
+        const isCancelling = (previousStatus === 'CONFIRMED' ||
+            previousStatus === 'PROCESSING' ||
+            previousStatus === 'DELIVERED') &&
+            targetStatus === 'CANCELLED';
         const updatedOrder = await this.prisma.$transaction(async (tx) => {
             const ENABLE_STOCK_DEDUCTION_ON_ORDER_CONFIRMATION = true;
-            const isConfirming = (previousStatus === 'PENDING_PAYMENT' ||
-                previousStatus === 'CANCELLED') &&
-                (targetStatus === 'CONFIRMED' ||
-                    targetStatus === 'PROCESSING' ||
-                    targetStatus === 'DELIVERED');
-            const isCancelling = (previousStatus === 'CONFIRMED' ||
-                previousStatus === 'PROCESSING' ||
-                previousStatus === 'DELIVERED') &&
-                targetStatus === 'CANCELLED';
             if (ENABLE_STOCK_DEDUCTION_ON_ORDER_CONFIRMATION && isConfirming) {
                 for (const item of order.items) {
                     const whereClause = {};
@@ -265,6 +279,13 @@ let OrdersService = class OrdersService {
                     console.error(`Failed to send low stock alert for SKU ${item.sku}:`, err);
                 }
             }
+        }
+        if (isConfirming && updatedOrder.items && updatedOrder.items.length > 0) {
+            this.rootfinSyncService
+                .syncOrderToRootfin(updatedOrder.id)
+                .catch((err) => {
+                this.logger.error(`Rootfin order sync error for ${updatedOrder.orderNumber}: ${err.message}`);
+            });
         }
         return updatedOrder;
     }
@@ -378,6 +399,13 @@ let OrdersService = class OrdersService {
                 }
             }
         }
+        if (updatedOrder.items && updatedOrder.items.length > 0) {
+            this.rootfinSyncService
+                .syncOrderToRootfin(updatedOrder.id)
+                .catch((err) => {
+                this.logger.error(`Rootfin order sync error for ${updatedOrder.orderNumber}: ${err.message}`);
+            });
+        }
         return updatedOrder;
     }
     async markOrderAsFailed(orderId, paymentResponse) {
@@ -391,9 +419,10 @@ let OrdersService = class OrdersService {
     }
 };
 exports.OrdersService = OrdersService;
-exports.OrdersService = OrdersService = __decorate([
+exports.OrdersService = OrdersService = OrdersService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        email_service_1.EmailService])
+        email_service_1.EmailService,
+        rootfin_sync_service_1.RootfinSyncService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

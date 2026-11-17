@@ -2,10 +2,12 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StockTransactionType, Prisma } from '../generated/prisma/client.js';
 import { EmailService } from '../email/email.service';
+import { RootfinSyncService } from './rootfin-sync.service';
 
 export interface CreateOrderItemDto {
   productId: string;
@@ -31,9 +33,12 @@ export interface CreateOrderDto {
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
+    private readonly rootfinSyncService: RootfinSyncService,
   ) {}
 
   async create(customerId: string, dto: CreateOrderDto) {
@@ -106,7 +111,7 @@ export class OrdersService {
           include: {
             product: {
               include: {
-                images: { where: { isPrimary: true } },
+                images: true,
               },
             },
           },
@@ -119,11 +124,12 @@ export class OrdersService {
   }
 
   async findOne(idOrNumber: string, user: { id: string; role: string }) {
+    const cleanId = idOrNumber ? idOrNumber.replace(/^#/, '').trim() : '';
     const order = await this.prisma.order.findFirst({
       where: {
         OR: [
           { id: idOrNumber },
-          { orderNumber: idOrNumber },
+          ...(cleanId ? [{ id: cleanId }, { orderNumber: idOrNumber }, { orderNumber: cleanId }, { orderNumber: `#${cleanId}` }] : []),
         ],
       },
       include: {
@@ -131,7 +137,7 @@ export class OrdersService {
           include: {
             product: {
               include: {
-                images: { where: { isPrimary: true } },
+                images: true,
               },
             },
           },
@@ -156,7 +162,15 @@ export class OrdersService {
     return this.prisma.order.findMany({
       include: {
         customer: true,
-        items: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                images: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -184,22 +198,22 @@ export class OrdersService {
 
     const lowStockItems: { sku: string; name: string; variantName: string | null; stock: number }[] = [];
 
+    const isConfirming =
+      (previousStatus === 'PENDING_PAYMENT' ||
+        previousStatus === 'CANCELLED') &&
+      (targetStatus === 'CONFIRMED' ||
+        targetStatus === 'PROCESSING' ||
+        targetStatus === 'DELIVERED');
+
+    const isCancelling =
+      (previousStatus === 'CONFIRMED' ||
+        previousStatus === 'PROCESSING' ||
+        previousStatus === 'DELIVERED') &&
+      targetStatus === 'CANCELLED';
+
     const updatedOrder = await this.prisma.$transaction(async (tx) => {
       // Feature flag to control whether stock is deducted on confirmation. Set to true so inventory is updated when order confirms.
       const ENABLE_STOCK_DEDUCTION_ON_ORDER_CONFIRMATION = true;
-
-      const isConfirming =
-        (previousStatus === 'PENDING_PAYMENT' ||
-          previousStatus === 'CANCELLED') &&
-        (targetStatus === 'CONFIRMED' ||
-          targetStatus === 'PROCESSING' ||
-          targetStatus === 'DELIVERED');
-
-      const isCancelling =
-        (previousStatus === 'CONFIRMED' ||
-          previousStatus === 'PROCESSING' ||
-          previousStatus === 'DELIVERED') &&
-        targetStatus === 'CANCELLED';
 
       if (ENABLE_STOCK_DEDUCTION_ON_ORDER_CONFIRMATION && isConfirming) {
         for (const item of order.items) {
@@ -336,6 +350,15 @@ export class OrdersService {
           console.error(`Failed to send low stock alert for SKU ${item.sku}:`, err);
         }
       }
+    }
+
+    // Sync order with Rootfin ERP in background (creates sales invoice, deducts stock, posts financial entry)
+    if (isConfirming && updatedOrder.items && updatedOrder.items.length > 0) {
+      this.rootfinSyncService
+        .syncOrderToRootfin(updatedOrder.id)
+        .catch((err) => {
+          this.logger.error(`Rootfin order sync error for ${updatedOrder.orderNumber}: ${err.message}`);
+        });
     }
 
     return updatedOrder;
@@ -493,6 +516,15 @@ export class OrdersService {
           console.error(`Failed to send low stock alert for SKU ${item.sku}:`, err);
         }
       }
+    }
+
+    // Sync order with Rootfin ERP in background (creates sales invoice, deducts stock, posts financial entry)
+    if (updatedOrder.items && updatedOrder.items.length > 0) {
+      this.rootfinSyncService
+        .syncOrderToRootfin(updatedOrder.id)
+        .catch((err) => {
+          this.logger.error(`Rootfin order sync error for ${updatedOrder.orderNumber}: ${err.message}`);
+        });
     }
 
     return updatedOrder;

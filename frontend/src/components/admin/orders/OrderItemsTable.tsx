@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { AdminOrderItem } from "@/types/admin";
 import Link from "next/link";
 
@@ -33,11 +34,21 @@ export default function OrderItemsTable({ items }: OrderItemsProps) {
                 {/* Product with thumbnail */}
                 <td className="py-4 px-6">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded bg-gradient-to-tr from-[#f4efdb] via-[#e8dbb4] to-[#c59b27]/30 border border-[#e8dbb4] flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-                      <svg className="w-4 h-4 text-[#8c6a16]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                        <circle cx="12" cy="14" r="5" />
-                        <path d="M12 9V3m-3 2h6" />
-                      </svg>
+                    <div className="w-10 h-10 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                      {item.image ? (
+                        <Image
+                          src={item.image}
+                          alt={item.productName}
+                          fill
+                          sizes="40px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <svg className="w-4 h-4 text-[#8c6a16]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                          <circle cx="12" cy="14" r="5" />
+                          <path d="M12 9V3m-3 2h6" />
+                        </svg>
+                      )}
                     </div>
                     <Link
                       href={`/admin/products/${item.productId}`}

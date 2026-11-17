@@ -64,6 +64,21 @@ export class ProductsController {
     return this.productsService.findCollections(all !== 'true');
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Get('external/lookup')
+  async lookupExternalProduct(@Query('sku') sku: string) {
+    return this.productsService.lookupExternalProduct(sku);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Post('external/sync')
+  async syncExternalProducts(@CurrentUser() admin: any) {
+    const email = (admin as { email: string })?.email || 'admin';
+    return this.productsService.syncExternalProducts(email);
+  }
+
   @Public()
   @Get(':idOrSlug')
   async getProductDetails(@Param('idOrSlug') idOrSlug: string) {

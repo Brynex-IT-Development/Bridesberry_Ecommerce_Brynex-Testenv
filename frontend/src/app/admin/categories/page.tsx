@@ -146,11 +146,13 @@ export default function AdminCategoriesPage() {
         showToast(`Category "${data.name}" created successfully!`);
       }
       refreshCategories();
+      setIsFormOpen(false);
+      setEditingCategory(null);
     } catch (err) {
-      showToast(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      showToast(`Error: ${msg}`);
+      throw err;
     }
-    setIsFormOpen(false);
-    setEditingCategory(null);
   };
 
   const handleEditClick = (cat: AdminCategory) => {
@@ -416,6 +418,58 @@ export default function AdminCategoriesPage() {
                 </table>
               </div>
             </div>
+
+            {/* Category Form Modal for Top-Level Add/Edit Category */}
+            {isFormOpen && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs font-questrial"
+                onClick={() => {
+                  setIsFormOpen(false);
+                  setEditingCategory(null);
+                }}
+              >
+                <div
+                  className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative border border-neutral-200"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-neutral-100 mb-4">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-900 font-sans">
+                      {editingCategory ? "Edit Category" : "Add New Category"}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsFormOpen(false);
+                        setEditingCategory(null);
+                      }}
+                      className="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-600 transition-colors cursor-pointer text-xs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <CategoryForm
+                    initialData={
+                      editingCategory || {
+                        id: "",
+                        parentCategory: "Jewellery",
+                        name: "",
+                        slug: "",
+                        description: "",
+                        status: "Active",
+                        displayOrder: 1,
+                        productCount: 0,
+                      }
+                    }
+                    onSubmit={handleFormSubmit}
+                    onCancel={() => {
+                      setIsFormOpen(false);
+                      setEditingCategory(null);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           /* When a category is clicked, show its internal subcategories list and management */
