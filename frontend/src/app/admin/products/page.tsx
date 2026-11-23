@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { RefreshCw, Check } from "lucide-react";
 import AdminTopbar from "@/components/admin/layout/AdminTopbar";
 import AdminTabs from "@/components/admin/shared/AdminTabs";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
@@ -11,7 +10,6 @@ import {
   archiveProduct,
   updateProduct,
   permanentDeleteProduct,
-  syncExternalProducts,
 } from "@/services/products.service";
 import { AdminProduct } from "@/types/admin";
 
@@ -20,8 +18,6 @@ export default function AdminProductsPage() {
   const [activeTab, setActiveTab] = useState("All Products");
   const [searchQuery, setSearchQuery] = useState("");
   const [confirmProduct, setConfirmProduct] = useState<{ id: string; name: string; action: 'archive' | 'restore' | 'permanentDelete' } | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncToast, setSyncToast] = useState<string | null>(null);
 
   const breadcrumbs = [{ label: "Dashboard", href: "/admin/dashboard" }, { label: "Products" }];
 
@@ -59,33 +55,8 @@ export default function AdminProductsPage() {
     loadProducts(activeTab, value);
   };
 
-  const handleSyncExternal = async () => {
-    setIsSyncing(true);
-    try {
-      const res = await syncExternalProducts();
-      setSyncToast(
-        `Synced ${res.syncedCount} products from Brynex ERP (${res.updatedInDb} stock counts updated in DB)!`
-      );
-      loadProducts(activeTab, searchQuery);
-      setTimeout(() => setSyncToast(null), 5000);
-    } catch (err: any) {
-      setSyncToast(`Sync note: ${err?.message || "Synced local cache with Brynex ERP."}`);
-      setTimeout(() => setSyncToast(null), 5000);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-[#F8F8F8] w-full min-w-0 max-w-full overflow-x-hidden">
-      {/* Toast Notification */}
-      {syncToast && (
-        <div className="fixed top-24 right-6 z-50 bg-[#1C1B19] text-white border border-[#C99213] rounded-xl shadow-2xl px-5 py-3 text-xs font-semibold flex items-center space-x-2 animate-bounce">
-          <Check className="w-4 h-4 text-[#C99213]" />
-          <span>{syncToast}</span>
-        </div>
-      )}
-
       {/* Topbar */}
       <AdminTopbar
         breadcrumbItems={breadcrumbs}
@@ -121,18 +92,6 @@ export default function AdminProductsPage() {
                 className="w-full sm:w-56 pl-9 pr-4 py-2 border border-neutral-200 rounded-full bg-white text-xs outline-none focus:border-[#C99213] transition-all text-neutral-800 placeholder-neutral-400"
               />
             </div>
-
-            {/* Sync External ERP Button */}
-            <button
-              type="button"
-              disabled={isSyncing}
-              onClick={handleSyncExternal}
-              className="flex items-center justify-center space-x-2 px-4 py-2.5 bg-white hover:bg-neutral-50 text-neutral-800 border border-neutral-300 rounded-full text-xs font-semibold tracking-wide transition-colors cursor-pointer shrink-0 disabled:opacity-50 shadow-2xs"
-              title="Sync products and stock count from external Brynex API"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 text-[#C99213] ${isSyncing ? "animate-spin" : ""}`} />
-              <span>{isSyncing ? "Syncing ERP..." : "Sync External ERP"}</span>
-            </button>
 
             {/* Add Product Button */}
             <Link href="/admin/products/new" className="flex items-center justify-center space-x-2 px-5 py-2.5 bg-neutral-950 hover:bg-neutral-850 text-white rounded-full text-xs font-semibold tracking-wide transition-colors cursor-pointer shrink-0">

@@ -15,16 +15,13 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_js_1 = require("../generated/prisma/client.js");
 const email_service_1 = require("../email/email.service");
-const rootfin_sync_service_1 = require("./rootfin-sync.service");
 let OrdersService = OrdersService_1 = class OrdersService {
     prisma;
     emailService;
-    rootfinSyncService;
     logger = new common_1.Logger(OrdersService_1.name);
-    constructor(prisma, emailService, rootfinSyncService) {
+    constructor(prisma, emailService) {
         this.prisma = prisma;
         this.emailService = emailService;
-        this.rootfinSyncService = rootfinSyncService;
     }
     async create(customerId, dto) {
         if (!dto.items || dto.items.length === 0) {
@@ -280,13 +277,6 @@ let OrdersService = OrdersService_1 = class OrdersService {
                 }
             }
         }
-        if (isConfirming && updatedOrder.items && updatedOrder.items.length > 0) {
-            this.rootfinSyncService
-                .syncOrderToRootfin(updatedOrder.id)
-                .catch((err) => {
-                this.logger.error(`Rootfin order sync error for ${updatedOrder.orderNumber}: ${err.message}`);
-            });
-        }
         return updatedOrder;
     }
     async markOrderAsPaid(orderId, paymentDetails) {
@@ -399,13 +389,6 @@ let OrdersService = OrdersService_1 = class OrdersService {
                 }
             }
         }
-        if (updatedOrder.items && updatedOrder.items.length > 0) {
-            this.rootfinSyncService
-                .syncOrderToRootfin(updatedOrder.id)
-                .catch((err) => {
-                this.logger.error(`Rootfin order sync error for ${updatedOrder.orderNumber}: ${err.message}`);
-            });
-        }
         return updatedOrder;
     }
     async markOrderAsFailed(orderId, paymentResponse) {
@@ -422,7 +405,6 @@ exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = OrdersService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        email_service_1.EmailService,
-        rootfin_sync_service_1.RootfinSyncService])
+        email_service_1.EmailService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map

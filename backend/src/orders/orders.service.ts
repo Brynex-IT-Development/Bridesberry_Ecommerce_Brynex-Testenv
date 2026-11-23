@@ -7,7 +7,6 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { StockTransactionType, Prisma } from '../generated/prisma/client.js';
 import { EmailService } from '../email/email.service';
-import { RootfinSyncService } from './rootfin-sync.service';
 
 export interface CreateOrderItemDto {
   productId: string;
@@ -38,7 +37,6 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
-    private readonly rootfinSyncService: RootfinSyncService,
   ) {}
 
   async create(customerId: string, dto: CreateOrderDto) {
@@ -352,15 +350,6 @@ export class OrdersService {
       }
     }
 
-    // Sync order with Rootfin ERP in background (creates sales invoice, deducts stock, posts financial entry)
-    if (isConfirming && updatedOrder.items && updatedOrder.items.length > 0) {
-      this.rootfinSyncService
-        .syncOrderToRootfin(updatedOrder.id)
-        .catch((err) => {
-          this.logger.error(`Rootfin order sync error for ${updatedOrder.orderNumber}: ${err.message}`);
-        });
-    }
-
     return updatedOrder;
   }
 
@@ -516,15 +505,6 @@ export class OrdersService {
           console.error(`Failed to send low stock alert for SKU ${item.sku}:`, err);
         }
       }
-    }
-
-    // Sync order with Rootfin ERP in background (creates sales invoice, deducts stock, posts financial entry)
-    if (updatedOrder.items && updatedOrder.items.length > 0) {
-      this.rootfinSyncService
-        .syncOrderToRootfin(updatedOrder.id)
-        .catch((err) => {
-          this.logger.error(`Rootfin order sync error for ${updatedOrder.orderNumber}: ${err.message}`);
-        });
     }
 
     return updatedOrder;

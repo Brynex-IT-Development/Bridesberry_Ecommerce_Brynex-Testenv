@@ -14,14 +14,9 @@ import {
   Plus,
   Trash2,
   Image as ImageIcon,
-  ScanBarcode,
-  Search,
-  Barcode,
-  Zap,
-  RefreshCw,
 } from "lucide-react";
 import { AdminCategory, AdminProductFormData, AdminProductMedia, AdminProductVariant } from "@/types/admin";
-import { createProduct, updateProduct, lookupExternalProduct } from "@/services/products.service";
+import { createProduct, updateProduct } from "@/services/products.service";
 import { getAdminCategories, createCategory } from "@/services/categories.service";
 import { uploadFile } from "@/services/media.service";
 
@@ -76,16 +71,6 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
   const [shortDescription, setShortDescription] = useState(
     initialData?.shortDescription || initialData?.description || ""
   );
-
-  // Barcode Scanner & SKU Lookup State
-  const [scannedSku, setScannedSku] = useState("");
-  const [isLookingUp, setIsLookingUp] = useState(false);
-  const [scanSuccessBanner, setScanSuccessBanner] = useState<{
-    title: string;
-    message: string;
-  } | null>(null);
-  const [scanErrorBanner, setScanErrorBanner] = useState<string | null>(null);
-  const scanInputRef = useRef<HTMLInputElement | null>(null);
   const imagesSectionRef = useRef<HTMLDivElement | null>(null);
 
   // Initialize image slots from initialData if available
@@ -301,150 +286,6 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
       setIsCreatingCat(false);
     }
   };
-
-  // Barcode / SKU Lookup handler
-  const handleLookupSku = async (rawSku: string) => {
-    const trimmed = rawSku.trim();
-    if (!trimmed) {
-      setScanErrorBanner("Please scan a barcode or enter an SKU.");
-      return;
-    }
-
-    setIsLookingUp(true);
-    setScanErrorBanner(null);
-    setScanSuccessBanner(null);
-
-    try {
-      const res = await lookupExternalProduct(trimmed);
-      if (res.found) {
-        // Auto-fill form fields
-        if (res.name) setProductName(res.name);
-        setSku(res.sku || trimmed);
-        if (res.sellingPrice !== undefined) setSellingPrice(String(res.sellingPrice));
-        if (res.mrp !== undefined) setMrp(String(res.mrp));
-        if (res.stock !== undefined) setStockQuantity(String(res.stock));
-
-        const desc = `${res.name || ""}${res.hsnCode ? ` | HSN: ${res.hsnCode}` : ""}${res.unit ? ` | Unit: ${res.unit}` : ""}`;
-        if (!shortDescription) {
-          setShortDescription(desc);
-        }
-
-        // Smart Category Detection based on product name
-        const lowerName = (res.name || "").toLowerCase();
-        let targetMain = mainCategory;
-        if (
-          lowerName.includes("shoe") ||
-          lowerName.includes("heel") ||
-          lowerName.includes("sandal") ||
-          lowerName.includes("derby") ||
-          lowerName.includes("sneaker") ||
-          lowerName.includes("boot") ||
-          lowerName.includes("jutti") ||
-          lowerName.includes("kolhapuri")
-        ) {
-          targetMain = "Bridal Footwear";
-        } else if (
-          lowerName.includes("clutch") ||
-          lowerName.includes("potli") ||
-          lowerName.includes("bag") ||
-          lowerName.includes("pouch")
-        ) {
-          targetMain = "Bridal Clutches";
-        } else if (
-          lowerName.includes("necklace") ||
-          lowerName.includes("earring") ||
-          lowerName.includes("bangle") ||
-          lowerName.includes("ring") ||
-          lowerName.includes("jewel") ||
-          lowerName.includes("pendant") ||
-          lowerName.includes("choker")
-        ) {
-          targetMain = "Jewellery";
-        }
-
-        setMainCategory(targetMain);
-        const matchingCats = categories.filter((c) => getCategoryParent(c) === targetMain);
-        if (matchingCats.length > 0 && !categoryId) {
-          setCategoryId(matchingCats[0].id);
-        }
-
-        // If product already has images in DB, load them
-        if (res.images && res.images.length > 0) {
-          const primary = res.images.find((m: any) => m.isPrimary || m.imageRole === "PRIMARY");
-          const hover = res.images.find((m: any) => m.imageRole === "HOVER");
-          const galleries = res.images.filter(
-            (m: any) => m !== primary && m !== hover && (m.imageRole === "GALLERY" || !m.imageRole)
-          );
-          setImageSlots([
-            { role: "PRIMARY", label: "Upload Primary Image", sublabel: "JPG, PNG (Max 10 MB)", url: primary?.url },
-            { role: "HOVER", label: "Hover", sublabel: "(Optional)", url: hover?.url },
-            { role: "GALLERY_1", label: "Gallery", sublabel: "(Optional)", url: galleries[0]?.url },
-            { role: "GALLERY_2", label: "Gallery", sublabel: "(Optional)", url: galleries[1]?.url },
-          ]);
-        }
-
-        setScanSuccessBanner({
-          title: `Scanned: ${res.name}`,
-          message: `SKU: ${res.sku} • Price: ₹${res.sellingPrice?.toLocaleString("en-IN")} • Stock: ${res.stock ?? 0} ${res.unit || "pcs"}. Details auto-filled! Please upload product images below to publish.`,
-        });
-
-        // Smooth scroll to product images section
-        setTimeout(() => {
-          imagesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }, 300);
-      } else {
-        setScanErrorBanner(res.message || `No product found for SKU "${trimmed}".`);
-      }
-    } catch (err: any) {
-      setScanErrorBanner(err.message || "Failed to lookup SKU.");
-    } finally {
-      setIsLookingUp(false);
-    }
-  };
-
-  // Hardware barcode scanner global keypress listener
-  useEffect(() => {
-    let buffer = "";
-    let lastKeyTime = 0;
-
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const isOtherInput =
-        target &&
-        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT") &&
-        target !== scanInputRef.current;
-
-      if (isOtherInput) return;
-
-      const currentTime = Date.now();
-      const diff = currentTime - lastKeyTime;
-      lastKeyTime = currentTime;
-
-      if (e.key === "Enter") {
-        if (buffer.length >= 3 && diff < 120) {
-          e.preventDefault();
-          const scanned = buffer.trim();
-          buffer = "";
-          setScannedSku(scanned);
-          handleLookupSku(scanned);
-        } else {
-          buffer = "";
-        }
-        return;
-      }
-
-      if (e.key.length === 1) {
-        if (diff > 120) {
-          buffer = e.key;
-        } else {
-          buffer += e.key;
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleGlobalKeyDown);
-    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [categories, mainCategory, categoryId, shortDescription]);
 
   // Handle File Selection
   const handleFileChange = (index: number, file: File | null) => {
@@ -856,106 +697,6 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
         {/* LEFT COLUMN: FORM CARDS                                       */}
         {/* ============================================================== */}
         <div className="lg:col-span-7 space-y-6">
-          {/* BARCODE SCANNER & SKU AUTO-FILL CARD */}
-          <div className="bg-[#1C1B19] text-white rounded-2xl p-5 sm:p-6 shadow-md border border-[#C99213]/40 space-y-3.5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#C99213]/20 border border-[#C99213]/40 flex items-center justify-center text-[#E3B341]">
-                  <ScanBarcode className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-white font-sans">
-                      Barcode Scanner / SKU Auto-Fill
-                    </h3>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      Scanner Ready
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-neutral-400 font-questrial">
-                    Scan with handheld barcode scanner or enter SKU to auto-fill details from Brynex ERP
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Scan Input Row */}
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <input
-                  ref={scanInputRef}
-                  type="text"
-                  value={scannedSku}
-                  onChange={(e) => setScannedSku(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleLookupSku(scannedSku);
-                    }
-                  }}
-                  placeholder="Scan barcode with handheld scanner or enter SKU (e.g. BRL8/1410)..."
-                  className="w-full pl-9 pr-4 py-2.5 bg-neutral-900 border border-neutral-700 focus:border-[#C99213] rounded-xl text-xs text-white placeholder-neutral-500 outline-none font-mono transition-all"
-                />
-                <ScanBarcode className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-              <button
-                type="button"
-                onClick={() => handleLookupSku(scannedSku)}
-                disabled={isLookingUp}
-                className="px-5 py-2.5 bg-[#C99213] hover:bg-[#b07e0c] text-white rounded-xl text-xs font-semibold tracking-wide transition-colors cursor-pointer shrink-0 disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
-              >
-                {isLookingUp ? (
-                  <>
-                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Searching...</span>
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-3.5 h-3.5" />
-                    <span>Lookup SKU</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Success Banner */}
-            {scanSuccessBanner && (
-              <div className="bg-emerald-950/70 border border-emerald-500/40 rounded-xl p-3 text-[11px] text-emerald-200 flex items-start gap-2.5 animate-in fade-in">
-                <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-0.5">
-                  <p className="font-semibold text-emerald-300">
-                    {scanSuccessBanner.title}
-                  </p>
-                  <p className="text-[10px] text-emerald-200/90 font-questrial leading-relaxed">
-                    {scanSuccessBanner.message}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setScanSuccessBanner(null)}
-                  className="text-emerald-400 hover:text-white text-xs cursor-pointer"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-
-            {/* Error Banner */}
-            {scanErrorBanner && (
-              <div className="bg-rose-950/70 border border-rose-500/40 rounded-xl p-3 text-[11px] text-rose-200 flex items-center justify-between gap-2.5 animate-in fade-in">
-                <span className="font-questrial">{scanErrorBanner}</span>
-                <button
-                  type="button"
-                  onClick={() => setScanErrorBanner(null)}
-                  className="text-rose-400 hover:text-white text-xs cursor-pointer"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-          </div>
-
           {/* 1. BASIC DETAILS CARD */}
           <div className="bg-white border border-neutral-200 rounded-2xl p-6 sm:p-7 shadow-2xs space-y-5">
             <div className="flex items-baseline justify-between border-b border-neutral-100 pb-3">
@@ -990,12 +731,11 @@ export default function NewProductForm({ initialData, mode = "create" }: NewProd
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="e.g. BRL8/1410"
+                      placeholder="e.g. BB-NCK-001"
                       value={sku}
                       onChange={(e) => setSku(e.target.value)}
-                      className="w-full pl-3.5 pr-8 py-2.5 border border-neutral-250 rounded-lg text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-[#C99213] focus:ring-1 focus:ring-[#C99213] transition-all bg-white font-mono uppercase font-semibold"
+                      className="w-full px-3.5 py-2.5 border border-neutral-250 rounded-lg text-xs text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-[#C99213] focus:ring-1 focus:ring-[#C99213] transition-all bg-white font-mono uppercase font-semibold"
                     />
-                    <Barcode className="w-4 h-4 text-neutral-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
                 </div>
               </div>
