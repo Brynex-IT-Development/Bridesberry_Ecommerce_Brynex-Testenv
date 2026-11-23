@@ -11,21 +11,21 @@ export declare class ProductsController {
             name: string;
             slug: string;
             description: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            sortOrder: number;
             image: string | null;
             isActive: boolean;
+            sortOrder: number;
             defaultLength: number | null;
             defaultWidth: number | null;
             defaultHeight: number | null;
             defaultWeight: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         } | null;
         images: {
-            id: string;
-            createdAt: Date;
-            sortOrder: number;
             url: string;
+            id: string;
+            sortOrder: number;
+            createdAt: Date;
             altText: string | null;
             isPrimary: boolean;
             imageRole: import("../generated/prisma/enums").ProductImageRole;
@@ -34,11 +34,11 @@ export declare class ProductsController {
         variants: {
             id: string;
             name: string;
-            sku: string;
-            sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            isActive: boolean;
+            sku: string;
+            sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
             productId: string;
         }[];
         inventory: {
@@ -57,9 +57,11 @@ export declare class ProductsController {
         id: string;
         name: string;
         slug: string;
+        description: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         sku: string;
         shortDescription: string | null;
-        description: string | null;
         sellingPrice: import("@prisma/client-runtime-utils").Decimal;
         mrp: import("@prisma/client-runtime-utils").Decimal | null;
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
@@ -77,8 +79,6 @@ export declare class ProductsController {
         packageHeight: number | null;
         packageWeight: number | null;
         categoryId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     })[] | {
         products: ({
             category: {
@@ -86,21 +86,21 @@ export declare class ProductsController {
                 name: string;
                 slug: string;
                 description: string | null;
-                createdAt: Date;
-                updatedAt: Date;
-                sortOrder: number;
                 image: string | null;
                 isActive: boolean;
+                sortOrder: number;
                 defaultLength: number | null;
                 defaultWidth: number | null;
                 defaultHeight: number | null;
                 defaultWeight: number | null;
+                createdAt: Date;
+                updatedAt: Date;
             } | null;
             images: {
-                id: string;
-                createdAt: Date;
-                sortOrder: number;
                 url: string;
+                id: string;
+                sortOrder: number;
+                createdAt: Date;
                 altText: string | null;
                 isPrimary: boolean;
                 imageRole: import("../generated/prisma/enums").ProductImageRole;
@@ -109,11 +109,11 @@ export declare class ProductsController {
             variants: {
                 id: string;
                 name: string;
-                sku: string;
-                sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
-                isActive: boolean;
+                sku: string;
+                sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
                 productId: string;
             }[];
             inventory: {
@@ -132,9 +132,11 @@ export declare class ProductsController {
             id: string;
             name: string;
             slug: string;
+            description: string | null;
+            createdAt: Date;
+            updatedAt: Date;
             sku: string;
             shortDescription: string | null;
-            description: string | null;
             sellingPrice: import("@prisma/client-runtime-utils").Decimal;
             mrp: import("@prisma/client-runtime-utils").Decimal | null;
             costPrice: import("@prisma/client-runtime-utils").Decimal | null;
@@ -152,8 +154,6 @@ export declare class ProductsController {
             packageHeight: number | null;
             packageWeight: number | null;
             categoryId: string | null;
-            createdAt: Date;
-            updatedAt: Date;
         })[];
         total: number;
         page: number;
@@ -166,21 +166,21 @@ export declare class ProductsController {
             name: string;
             slug: string;
             description: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            sortOrder: number;
             image: string | null;
             isActive: boolean;
+            sortOrder: number;
             defaultLength: number | null;
             defaultWidth: number | null;
             defaultHeight: number | null;
             defaultWeight: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         } | null;
         images: {
-            id: string;
-            createdAt: Date;
-            sortOrder: number;
             url: string;
+            id: string;
+            sortOrder: number;
+            createdAt: Date;
             altText: string | null;
             isPrimary: boolean;
             imageRole: import("../generated/prisma/enums").ProductImageRole;
@@ -189,11 +189,11 @@ export declare class ProductsController {
         variants: {
             id: string;
             name: string;
-            sku: string;
-            sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            isActive: boolean;
+            sku: string;
+            sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
             productId: string;
         }[];
         inventory: {
@@ -212,9 +212,11 @@ export declare class ProductsController {
         id: string;
         name: string;
         slug: string;
+        description: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         sku: string;
         shortDescription: string | null;
-        description: string | null;
         sellingPrice: import("@prisma/client-runtime-utils").Decimal;
         mrp: import("@prisma/client-runtime-utils").Decimal | null;
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
@@ -232,8 +234,6 @@ export declare class ProductsController {
         packageHeight: number | null;
         packageWeight: number | null;
         categoryId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     })[] | {
         products: ({
             category: {
@@ -241,21 +241,21 @@ export declare class ProductsController {
                 name: string;
                 slug: string;
                 description: string | null;
-                createdAt: Date;
-                updatedAt: Date;
-                sortOrder: number;
                 image: string | null;
                 isActive: boolean;
+                sortOrder: number;
                 defaultLength: number | null;
                 defaultWidth: number | null;
                 defaultHeight: number | null;
                 defaultWeight: number | null;
+                createdAt: Date;
+                updatedAt: Date;
             } | null;
             images: {
-                id: string;
-                createdAt: Date;
-                sortOrder: number;
                 url: string;
+                id: string;
+                sortOrder: number;
+                createdAt: Date;
                 altText: string | null;
                 isPrimary: boolean;
                 imageRole: import("../generated/prisma/enums").ProductImageRole;
@@ -264,11 +264,11 @@ export declare class ProductsController {
             variants: {
                 id: string;
                 name: string;
-                sku: string;
-                sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
+                isActive: boolean;
                 createdAt: Date;
                 updatedAt: Date;
-                isActive: boolean;
+                sku: string;
+                sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
                 productId: string;
             }[];
             inventory: {
@@ -287,9 +287,11 @@ export declare class ProductsController {
             id: string;
             name: string;
             slug: string;
+            description: string | null;
+            createdAt: Date;
+            updatedAt: Date;
             sku: string;
             shortDescription: string | null;
-            description: string | null;
             sellingPrice: import("@prisma/client-runtime-utils").Decimal;
             mrp: import("@prisma/client-runtime-utils").Decimal | null;
             costPrice: import("@prisma/client-runtime-utils").Decimal | null;
@@ -307,8 +309,6 @@ export declare class ProductsController {
             packageHeight: number | null;
             packageWeight: number | null;
             categoryId: string | null;
-            createdAt: Date;
-            updatedAt: Date;
         })[];
         total: number;
         page: number;
@@ -367,10 +367,10 @@ export declare class ProductsController {
         categoryId: string | null;
         categoryName: string | undefined;
         images: {
-            id: string;
-            createdAt: Date;
-            sortOrder: number;
             url: string;
+            id: string;
+            sortOrder: number;
+            createdAt: Date;
             altText: string | null;
             isPrimary: boolean;
             imageRole: import("../generated/prisma/enums").ProductImageRole;
@@ -379,11 +379,11 @@ export declare class ProductsController {
         variants: {
             id: string;
             name: string;
-            sku: string;
-            sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            isActive: boolean;
+            sku: string;
+            sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
             productId: string;
         }[];
         message?: undefined;
@@ -458,21 +458,21 @@ export declare class ProductsController {
             name: string;
             slug: string;
             description: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            sortOrder: number;
             image: string | null;
             isActive: boolean;
+            sortOrder: number;
             defaultLength: number | null;
             defaultWidth: number | null;
             defaultHeight: number | null;
             defaultWeight: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         } | null;
         images: {
-            id: string;
-            createdAt: Date;
-            sortOrder: number;
             url: string;
+            id: string;
+            sortOrder: number;
+            createdAt: Date;
             altText: string | null;
             isPrimary: boolean;
             imageRole: import("../generated/prisma/enums").ProductImageRole;
@@ -494,11 +494,11 @@ export declare class ProductsController {
         } & {
             id: string;
             name: string;
-            sku: string;
-            sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
+            isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            isActive: boolean;
+            sku: string;
+            sellingPrice: import("@prisma/client-runtime-utils").Decimal | null;
             productId: string;
         })[];
         inventory: {
@@ -517,9 +517,11 @@ export declare class ProductsController {
         id: string;
         name: string;
         slug: string;
+        description: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         sku: string;
         shortDescription: string | null;
-        description: string | null;
         sellingPrice: import("@prisma/client-runtime-utils").Decimal;
         mrp: import("@prisma/client-runtime-utils").Decimal | null;
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
@@ -537,16 +539,16 @@ export declare class ProductsController {
         packageHeight: number | null;
         packageWeight: number | null;
         categoryId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     createProduct(dto: CreateProductDto, admin: any): Promise<{
         id: string;
         name: string;
         slug: string;
+        description: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         sku: string;
         shortDescription: string | null;
-        description: string | null;
         sellingPrice: import("@prisma/client-runtime-utils").Decimal;
         mrp: import("@prisma/client-runtime-utils").Decimal | null;
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
@@ -564,16 +566,16 @@ export declare class ProductsController {
         packageHeight: number | null;
         packageWeight: number | null;
         categoryId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     updateProduct(id: string, dto: UpdateProductDto): Promise<{
         id: string;
         name: string;
         slug: string;
+        description: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         sku: string;
         shortDescription: string | null;
-        description: string | null;
         sellingPrice: import("@prisma/client-runtime-utils").Decimal;
         mrp: import("@prisma/client-runtime-utils").Decimal | null;
         costPrice: import("@prisma/client-runtime-utils").Decimal | null;
@@ -591,8 +593,6 @@ export declare class ProductsController {
         packageHeight: number | null;
         packageWeight: number | null;
         categoryId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     archiveProduct(id: string): Promise<void>;
     permanentDeleteProduct(id: string): Promise<void>;

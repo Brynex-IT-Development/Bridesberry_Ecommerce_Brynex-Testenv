@@ -3,6 +3,9 @@ export declare class UpdateSettingDto {
     key: string;
     value: string;
 }
+export declare class SyncInstagramFeedDto {
+    feedUrl?: string;
+}
 export declare class SystemSettingsController {
     private readonly settingsService;
     constructor(settingsService: SystemSettingsService);
@@ -12,5 +15,15 @@ export declare class SystemSettingsController {
         updatedAt: Date;
         key: string;
         value: string;
+    }>;
+    syncInstagramFeed(dto: SyncInstagramFeedDto): Promise<{
+        success: boolean;
+        count: number;
+        totalPostsInFeed: number;
+        lastSync: string;
+        reels: import("./system-settings.service").SyncedInstagramReel[];
+    }>;
+    disconnectInstagramFeed(): Promise<{
+        success: boolean;
     }>;
 }

@@ -7,6 +7,9 @@ import { getSystemSettings } from '@/services/system-settings.service';
 interface ReelItem {
   url: string;
   linkUrl?: string;
+  thumbnailUrl?: string;
+  caption?: string;
+  mediaType?: 'VIDEO' | 'IMAGE';
 }
 
 function extractInstagramShortcode(url: string): string | null {
@@ -31,19 +34,60 @@ function parseReel(item: any): ReelItem {
     return {
       url: item.url || '',
       linkUrl: item.linkUrl || (isInstagramUrl(item.url) ? item.url : ''),
+      thumbnailUrl: item.thumbnailUrl || undefined,
+      caption: item.caption || undefined,
+      mediaType: item.mediaType || undefined,
     };
   }
   return { url: '', linkUrl: '' };
 }
 
-export default function InstagramSection() {
+function resolveReelsFromSettings(settings?: Record<string, string>): ReelItem[] | null {
+  if (!settings) return null;
+
+  // 1. Auto-synced Behold.so Instagram feed reels
+  if (settings.instagram_feed_url && settings.instagram_feed_reels) {
+    try {
+      const synced = JSON.parse(settings.instagram_feed_reels);
+      if (Array.isArray(synced) && synced.length > 0) {
+        return synced.map(parseReel);
+      }
+    } catch {
+      // Fall through to manual reels
+    }
+  }
+
+  // 2. Manually configured CMS reels
+  if (settings.instagram_videos) {
+    try {
+      const list = JSON.parse(settings.instagram_videos);
+      if (Array.isArray(list) && list.length > 0) {
+        return list.map(parseReel);
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
+  return null;
+}
+
+export default function InstagramSection({
+  initialSettings,
+}: {
+  initialSettings?: Record<string, string>;
+}) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const [isInView, setIsInView] = useState(false);
-  const [instagramProfileUrl, setInstagramProfileUrl] = useState('https://instagram.com');
-  const [reels, setReels] = useState<ReelItem[]>(
-    videoFiles.map((filename) => ({ url: filename, linkUrl: '' }))
+  const [instagramProfileUrl, setInstagramProfileUrl] = useState(
+    initialSettings?.instagram_profile_url || 'https://instagram.com'
   );
+  const [reels, setReels] = useState<ReelItem[]>(() => {
+    const fromInitial = resolveReelsFromSettings(initialSettings);
+    if (fromInitial && fromInitial.length > 0) return fromInitial;
+    return videoFiles.map((filename) => ({ url: filename, linkUrl: '' }));
+  });
   const [isPaused, setIsPaused] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
@@ -69,21 +113,15 @@ export default function InstagramSection() {
     return () => observer.disconnect();
   }, []);
 
-  // Fetch dynamic videos and profile link from database
+  // Fetch latest dynamic videos and profile link from database on client mount
   useEffect(() => {
     getSystemSettings().then((settings) => {
       if (settings.instagram_profile_url) {
         setInstagramProfileUrl(settings.instagram_profile_url);
       }
-      if (settings.instagram_videos) {
-        try {
-          const list = JSON.parse(settings.instagram_videos);
-          if (Array.isArray(list) && list.length > 0) {
-            setReels(list.map(parseReel));
-          }
-        } catch {
-          // Keep default video files
-        }
+      const resolved = resolveReelsFromSettings(settings);
+      if (resolved && resolved.length > 0) {
+        setReels(resolved);
       }
     });
   }, []);
@@ -284,14 +322,23 @@ export default function InstagramSection() {
                           </svg>
                         </div>
                       </div>
+                    ) : reelItem.mediaType === 'IMAGE' ? (
+                      <img
+                        src={videoSrc}
+                        alt={reelItem.caption || `Instagram Post ${idx + 1}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
+                      />
                     ) : (
                       <video
+                        key={videoSrc}
                         src={videoSrc}
+                        poster={reelItem.thumbnailUrl || undefined}
                         autoPlay
                         loop
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="auto"
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
                       />
                     )

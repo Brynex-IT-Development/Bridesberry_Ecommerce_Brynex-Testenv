@@ -12,7 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SystemSettingsController = exports.UpdateSettingDto = void 0;
+exports.SystemSettingsController = exports.SyncInstagramFeedDto = exports.UpdateSettingDto = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
@@ -35,6 +35,15 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateSettingDto.prototype, "value", void 0);
+class SyncInstagramFeedDto {
+    feedUrl;
+}
+exports.SyncInstagramFeedDto = SyncInstagramFeedDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SyncInstagramFeedDto.prototype, "feedUrl", void 0);
 let SystemSettingsController = class SystemSettingsController {
     settingsService;
     constructor(settingsService) {
@@ -45,6 +54,12 @@ let SystemSettingsController = class SystemSettingsController {
     }
     async updateSetting(dto) {
         return this.settingsService.setSetting(dto.key, dto.value);
+    }
+    async syncInstagramFeed(dto) {
+        return this.settingsService.syncInstagramFeed(dto?.feedUrl);
+    }
+    async disconnectInstagramFeed() {
+        return this.settingsService.disconnectInstagramFeed();
     }
 };
 exports.SystemSettingsController = SystemSettingsController;
@@ -65,6 +80,25 @@ __decorate([
     __metadata("design:paramtypes", [UpdateSettingDto]),
     __metadata("design:returntype", Promise)
 ], SystemSettingsController.prototype, "updateSetting", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_js_1.UserRole.ADMIN, client_js_1.UserRole.SUPER_ADMIN),
+    (0, common_1.Post)('instagram/sync'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [SyncInstagramFeedDto]),
+    __metadata("design:returntype", Promise)
+], SystemSettingsController.prototype, "syncInstagramFeed", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_js_1.UserRole.ADMIN, client_js_1.UserRole.SUPER_ADMIN),
+    (0, common_1.Post)('instagram/disconnect'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], SystemSettingsController.prototype, "disconnectInstagramFeed", null);
 exports.SystemSettingsController = SystemSettingsController = __decorate([
     (0, common_1.Controller)('system-settings'),
     __metadata("design:paramtypes", [system_settings_service_1.SystemSettingsService])

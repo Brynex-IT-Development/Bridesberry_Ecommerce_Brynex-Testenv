@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Upload, Trash2, Video, Image as ImageIcon, Loader2, MessageSquare, AlertCircle, Link2, ExternalLink, Plus, Check, X } from "lucide-react";
+import { Upload, Trash2, Video, Image as ImageIcon, Loader2, MessageSquare, AlertCircle, Link2, ExternalLink, Plus, Check, X, RefreshCw, Unlink } from "lucide-react";
 import AdminTopbar from "@/components/admin/layout/AdminTopbar";
-import { getSystemSettings, saveSystemSetting } from "@/services/system-settings.service";
+import { getSystemSettings, saveSystemSetting, syncInstagramFeed, disconnectInstagramFeed, SyncedInstagramReel } from "@/services/system-settings.service";
 import { uploadFile } from "@/services/media.service";
 
 export interface ReelItem {
@@ -298,6 +298,15 @@ export default function AdminHomepageConfigPage() {
   const [instagramProfileUrl, setInstagramProfileUrl] = useState("");
   const [savingInstagramProfile, setSavingInstagramProfile] = useState(false);
 
+  // Automated Instagram Feed (Behold.so) states
+  const [instagramFeedUrl, setInstagramFeedUrl] = useState("");
+  const [syncedFeedReels, setSyncedFeedReels] = useState<SyncedInstagramReel[]>([]);
+  const [instagramFeedLastSync, setInstagramFeedLastSync] = useState("");
+  const [instagramFeedError, setInstagramFeedError] = useState("");
+  const [syncingFeed, setSyncingFeed] = useState(false);
+  const [disconnectingFeed, setDisconnectingFeed] = useState(false);
+  const [feedNotice, setFeedNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   // Add Reel Panel states (Dual Mode: Upload File or Paste Link)
   const [showAddReelPanel, setShowAddReelPanel] = useState(false);
   const [reelAddMode, setReelAddMode] = useState<"upload" | "link">("upload");
@@ -375,8 +384,23 @@ export default function AdminHomepageConfigPage() {
         }
       }
 
-      // Load instagram profile setting
+      // Load instagram profile & automated feed settings
       setInstagramProfileUrl(data.instagram_profile_url || "");
+      setInstagramFeedUrl(data.instagram_feed_url || "");
+      setInstagramFeedLastSync(data.instagram_feed_last_sync || "");
+      setInstagramFeedError(data.instagram_feed_error || "");
+      if (data.instagram_feed_reels) {
+        try {
+          const parsedFeed = JSON.parse(data.instagram_feed_reels);
+          if (Array.isArray(parsedFeed)) {
+            setSyncedFeedReels(parsedFeed);
+          }
+        } catch {
+          setSyncedFeedReels([]);
+        }
+      } else {
+        setSyncedFeedReels([]);
+      }
 
       // Load popup settings
       setPromoPopupEnabled(data.promo_popup_enabled === "true");
@@ -512,6 +536,53 @@ export default function AdminHomepageConfigPage() {
       alert("Failed to save Instagram profile link.");
     } finally {
       setSavingInstagramProfile(false);
+    }
+  };
+
+  // Automated Instagram Feed (Behold.so) Sync & Disconnect Handlers
+  const handleSyncInstagramFeed = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const urlToSync = instagramFeedUrl.trim();
+    if (!urlToSync) {
+      setFeedNotice({ type: "error", text: "Please paste your Behold.so JSON Feed URL first." });
+      return;
+    }
+
+    setSyncingFeed(true);
+    setFeedNotice(null);
+    try {
+      const res = await syncInstagramFeed(urlToSync);
+      setSyncedFeedReels(res.reels || []);
+      setInstagramFeedLastSync(res.lastSync);
+      setInstagramFeedError("");
+      setFeedNotice({
+        type: "success",
+        text: `Synced ${res.count} Instagram ${res.count === 1 ? "reel" : "reels"} live! New reels will auto-refresh every 30 minutes.`,
+      });
+    } catch (err: any) {
+      const msg = err?.message || "Failed to sync feed. Please verify the Behold.so JSON URL.";
+      setInstagramFeedError(msg);
+      setFeedNotice({ type: "error", text: msg });
+    } finally {
+      setSyncingFeed(false);
+    }
+  };
+
+  const handleDisconnectInstagramFeed = async () => {
+    if (!confirm("Disconnect the automated Instagram feed? Your storefront will fall back to manually uploaded reels.")) return;
+    setDisconnectingFeed(true);
+    setFeedNotice(null);
+    try {
+      await disconnectInstagramFeed();
+      setInstagramFeedUrl("");
+      setSyncedFeedReels([]);
+      setInstagramFeedLastSync("");
+      setInstagramFeedError("");
+      setFeedNotice({ type: "success", text: "Automated feed disconnected. Storefront will use manual reels." });
+    } catch (err: any) {
+      setFeedNotice({ type: "error", text: err?.message || "Failed to disconnect feed." });
+    } finally {
+      setDisconnectingFeed(false);
     }
   };
 
@@ -1044,6 +1115,152 @@ export default function AdminHomepageConfigPage() {
                 {savingInstagramProfile ? "Saving..." : "Save Link"}
               </button>
             </form>
+          </div>
+
+          {/* Auto-Sync Instagram Reels via Behold.so JSON Feed */}
+          <div className="bg-gradient-to-br from-[#FAF9F5] to-white border border-[#C99213]/40 rounded-xl p-4 sm:p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-bold text-neutral-900">
+                    Auto-Sync New Instagram Reels (Behold.so Feed)
+                  </span>
+                  {instagramFeedUrl && syncedFeedReels.length > 0 ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Connected &middot; {syncedFeedReels.length} Reels Live
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 text-neutral-500 border border-neutral-200">
+                      Not Connected (Using Manual Reels)
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-neutral-500">
+                  Connect your Behold.so JSON feed URL so whenever you post a new Reel on Instagram, it automatically appears on your homepage (auto-refreshes every 30 minutes on the server).
+                </p>
+              </div>
+              {instagramFeedLastSync && (
+                <span className="text-[10px] text-neutral-400 shrink-0">
+                  Last synced: {new Date(instagramFeedLastSync).toLocaleString("en-IN")}
+                </span>
+              )}
+            </div>
+
+            <form onSubmit={handleSyncInstagramFeed} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <input
+                type="url"
+                placeholder="https://feeds.behold.so/xxxxxxxxxxxx"
+                value={instagramFeedUrl}
+                onChange={(e) => setInstagramFeedUrl(e.target.value)}
+                className="flex-1 px-3.5 py-2 bg-white border border-neutral-300 rounded-lg text-xs outline-none focus:border-[#C99213] text-neutral-800"
+              />
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="submit"
+                  disabled={syncingFeed}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 bg-[#C99213] hover:bg-[#b5810e] text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {syncingFeed ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  )}
+                  <span>{syncingFeed ? "Syncing..." : "Save & Sync Now"}</span>
+                </button>
+                {instagramFeedUrl && (
+                  <button
+                    type="button"
+                    onClick={handleDisconnectInstagramFeed}
+                    disabled={disconnectingFeed}
+                    className="flex items-center justify-center gap-1 px-3 py-2 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                    title="Disconnect feed and revert to manual reels"
+                  >
+                    <Unlink className="w-3.5 h-3.5" />
+                    <span>Disconnect</span>
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {feedNotice && (
+              <div
+                className={`text-xs px-3.5 py-2.5 rounded-lg border flex items-center gap-2 ${
+                  feedNotice.type === "success"
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                    : "bg-red-50 border-red-200 text-red-700"
+                }`}
+              >
+                {feedNotice.type === "success" ? (
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                )}
+                <span>{feedNotice.text}</span>
+              </div>
+            )}
+
+            {!feedNotice && instagramFeedError && (
+              <div className="text-xs px-3.5 py-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 flex items-center gap-2">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>Last sync warning: {instagramFeedError}</span>
+              </div>
+            )}
+
+            {/* Quick 3-step Behold.so setup instructions */}
+            <div className="bg-white/80 border border-neutral-200/80 rounded-lg p-3 text-[11px] text-neutral-600 space-y-1">
+              <p className="font-semibold text-neutral-800">How to get your Behold.so Feed URL (takes 2 minutes):</p>
+              <ol className="list-decimal list-inside space-y-0.5 text-neutral-500">
+                <li>Sign up free at <a href="https://behold.so" target="_blank" rel="noopener noreferrer" className="text-[#C99213] font-semibold hover:underline">behold.so</a> and connect your Brides Berry Instagram account.</li>
+                <li>Create a new <strong>JSON Feed</strong> (select <strong>API / JSON</strong> type, not Widget) and copy the feed URL (e.g. <code className="bg-neutral-100 px-1 py-0.5 rounded text-[10px]">https://feeds.behold.so/...</code>).</li>
+                <li>Paste it above and click <strong>Save &amp; Sync Now</strong>. Your server caches the feed every 30 minutes so you stay well within Behold&apos;s free tier!</li>
+              </ol>
+            </div>
+
+            {/* Live Preview Strip of Auto-Synced Reels */}
+            {syncedFeedReels.length > 0 && (
+              <div className="space-y-2 pt-1">
+                <p className="text-[11px] font-bold text-neutral-700 uppercase tracking-wider">
+                  Auto-Synced Preview ({syncedFeedReels.length} items shown on storefront)
+                </p>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+                  {syncedFeedReels.slice(0, 6).map((item, idx) => (
+                    <a
+                      key={idx}
+                      href={item.linkUrl || instagramProfileUrl || "https://instagram.com"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative aspect-[9/14] rounded-lg overflow-hidden bg-neutral-900 border border-neutral-200 group block"
+                    >
+                      {item.thumbnailUrl ? (
+                        <img
+                          src={item.thumbnailUrl}
+                          alt={item.caption || `Synced Reel ${idx + 1}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : item.mediaType === "IMAGE" ? (
+                        <img
+                          src={item.url}
+                          alt={item.caption || `Synced Post ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <video
+                          src={item.url}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-semibold text-white">
+                        {item.mediaType === "VIDEO" ? "Reel" : "Post"}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Dual-Mode Add Reel Panel (Upload Video File or Paste Reel Link) */}

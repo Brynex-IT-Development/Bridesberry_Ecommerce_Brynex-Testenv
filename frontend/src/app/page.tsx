@@ -64,7 +64,7 @@ export default async function Home() {
         />
 
         {/* Instagram User Gallery */}
-        <InstagramSection />
+        <InstagramSection initialSettings={settings} />
       </div>
     </div>
   );
